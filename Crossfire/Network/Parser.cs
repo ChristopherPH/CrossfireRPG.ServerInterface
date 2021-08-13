@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Crossfire.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,71 +7,23 @@ using System.Threading.Tasks;
 
 namespace Crossfire
 {
-    public static class Protocol
+    public class Parser : ParserBase
     {
-        public static Connection Connection
+        public event EventHandler<EventArgs> OnVersion;
+
+        protected override void HandleVersion(int csval, int scval, string verstring)
         {
-            get => _Connection;
-            set
-            {
-                if (_Connection == value)
-                    return;
-
-                if (_Connection != null)
-                {
-                    _Connection.OnPacket -= ParsePacket;
-                    _Connection.OnStatusChanged -= ConnectionStatusChanged;
-                }
-
-                _Connection = value;
-
-                if (_Connection != null)
-                {
-                    _Connection.OnPacket += ParsePacket;
-                    _Connection.OnStatusChanged += ConnectionStatusChanged;
-
-                    //if (_Connection.ConnectionStatus == ConnectionStatuses.Connected)
-                    //    AddClient();
-                }
-            }
+            OnVersion?.Invoke(this, EventArgs.Empty);
         }
-        private static Connection _Connection;
+    }
 
-
-
-        private static void ConnectionStatusChanged(object sender, ConnectionStatusEventArgs e)
-        {
-            System.Diagnostics.Debug.Assert(e != null);
-
-            switch (e.Status)
-            {
-                case ConnectionStatuses.Disconnected:
-                    break;
-
-                case ConnectionStatuses.Connecting:
-                    break;
-
-                case ConnectionStatuses.Connected:
-                    //AddClient();
-                    break;
-            }
-        }
-
-        private static void AddClient()
-        {
-            _Connection.SendMessage("version 1023 1029 Chris Client");
-            _Connection.SendMessage("addme");
-            //_Connection.SendMessage("bad command");
-        }
-
-        private static void Login()
-        {
-
-        }
+    public abstract class ParserBase
+    {
+        protected abstract void HandleVersion(int csval, int scval, string verstring);
 
         const int MAP2_COORD_OFFSET = 15;
 
-        private static void ParsePacket(object sender, ConnectionPacketEventArgs e)
+        public void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
             System.Diagnostics.Debug.Assert(e != null);
             System.Diagnostics.Debug.Assert(e.Packet != null);
@@ -89,9 +42,8 @@ namespace Crossfire
                     var csval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var scval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var verstr = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
-
-                    //verify version
-                    AddClient();
+                    
+                    HandleVersion(csval, scval, verstr);
                     break;
 
                 case "failure":
@@ -126,30 +78,38 @@ namespace Crossfire
                     {
                         var stat_number = Tokenizer.GetByte(e.Packet, ref offset);
 
-                        switch (stat_number)
+                        switch ((NewClient.CharacterStats)stat_number)
                         {
-                            case 20: //range
-                            case 21: //title
-                                var stat_namelen = Tokenizer.GetByte(e.Packet, ref offset);
-                                var stat_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, stat_namelen);
+                            case NewClient.CharacterStats.Range:
+                            case NewClient.CharacterStats.Title:
+                                var stat_len = Tokenizer.GetByte(e.Packet, ref offset);
+                                var stat_text = Tokenizer.GetBytesAsString(e.Packet, ref offset, stat_len);
                                 break;
 
-                            case 17: //speed
-                            case 19: //weap speed
-                            case 26: //weight limit
+                            case NewClient.CharacterStats.Speed:
+                            case NewClient.CharacterStats.WeapSp:
+                            case NewClient.CharacterStats.WeightLim:
                                 var stat_32 = Tokenizer.GetUInt32(e.Packet, ref offset);
                                 break;
 
-                            case 28: //exp
+                            case NewClient.CharacterStats.Exp64:
                                 var stat_64_1 = Tokenizer.GetUInt32(e.Packet, ref offset);
                                 var stat_64_2 = Tokenizer.GetUInt32(e.Packet, ref offset);
                                 break;
 
                             default:
-                                var stat_value = Tokenizer.GetUInt16(e.Packet, ref offset);
-                            break;
+                                if ((stat_number >= NewClient.CharacterStats_SkillInfo) &&
+                                    (stat_number < NewClient.CharacterStats_SkillInfo + NewClient.CharacterStats_NumSkills))
+                                {
+                                    var stat_32_1 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                }
+                                else
+                                {
+                                    var stat_value = Tokenizer.GetUInt16(e.Packet, ref offset);
+                                }
+                                break;
                         }
-                        
+
                     }
                     break;
 
@@ -310,7 +270,7 @@ namespace Crossfire
                             admin_type = (NewClient.MsgTypeAdmin)sub_type;
                             break;
                     }
-                    
+
                     var message = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
                     Logger.Log(Logger.Levels.Info, "{0}\n{1}", admin_type, message);
@@ -325,7 +285,7 @@ namespace Crossfire
             //log excess data
             if (offset < e.Packet.Length)
             {
-                Logger.Log(Logger.Levels.Warn, "Excess Data:\n{0}", 
+                Logger.Log(Logger.Levels.Warn, "Excess Data:\n{0}",
                     HexDump.Utils.HexDump(e.Packet, offset));
             }
         }
