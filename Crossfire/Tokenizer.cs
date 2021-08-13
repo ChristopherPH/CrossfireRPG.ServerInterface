@@ -31,7 +31,7 @@ namespace Crossfire
             return str;
         }
 
-        public static int GetStringInt(byte[] buffer, ref int offset)
+        public static int GetStringAsInt(byte[] buffer, ref int offset)
         {
             var str = GetString(buffer, ref offset);
 
@@ -39,6 +39,62 @@ namespace Crossfire
                 throw new Exception();
 
             return val;
+        }
+
+        public static byte GetByte(byte[] buffer, ref int offset)
+        {
+            var val = buffer[offset++];
+            return val;
+        }
+
+        public static UInt16 GetUInt16(byte[] buffer, ref int offset)
+        {
+            var val = (UInt16)((buffer[offset] << 8) + 
+                (buffer[offset + 1]));
+
+            //var val = BitConverter.ToUInt16(new byte[] { so.buffer[1], so.buffer[0] }, 0);
+
+            offset += 2;
+
+            return val;
+        }
+
+        public static UInt32 GetUInt32(byte[] buffer, ref int offset)
+        {
+            var val = (UInt32)((buffer[offset] << 24) +
+                (buffer[offset + 1] << 16) +
+                (buffer[offset + 2] << 8) +
+                (buffer[offset + 3]));
+
+            offset += 4;
+
+            return val;
+        }
+
+        /// <summary>
+        /// Get length bytes from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static byte[] GetBytes(byte[] buffer, ref int offset, int length)
+        {
+            var b = new byte[length];
+            Array.Copy(buffer, offset, b, 0, length);
+            offset += length;
+
+            return b;
+        }
+
+        public static byte[] GetRemainingBytes(byte[] buffer, ref int offset)
+        {
+            return GetBytes(buffer, ref offset, buffer.Length - offset);
+        }
+
+        public static string GetRemainingBytesAsString(byte[] buffer, ref int offset)
+        {
+            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, buffer.Length - offset));
         }
     }
 }
