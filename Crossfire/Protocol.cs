@@ -29,8 +29,8 @@ namespace Crossfire
                     _Connection.OnPacket += ParsePacket;
                     _Connection.OnStatusChanged += ConnectionStatusChanged;
 
-                    if (_Connection.ConnectionStatus == ConnectionStatuses.Connected)
-                        AddClient();
+                    //if (_Connection.ConnectionStatus == ConnectionStatuses.Connected)
+                    //    AddClient();
                 }
             }
         }
@@ -51,7 +51,7 @@ namespace Crossfire
                     break;
 
                 case ConnectionStatuses.Connected:
-                    AddClient();
+                    //AddClient();
                     break;
             }
         }
@@ -60,6 +60,7 @@ namespace Crossfire
         {
             _Connection.SendMessage("version 1023 1029 Chris Client");
             _Connection.SendMessage("addme");
+            //_Connection.SendMessage("bad command");
         }
 
         private static void Login()
@@ -90,6 +91,7 @@ namespace Crossfire
                     var verstr = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
                     //verify version
+                    AddClient();
                     break;
 
                 case "failure":
@@ -110,9 +112,76 @@ namespace Crossfire
                 case "newmap":
                     break;
 
+                case "delinv":
+                    var tag = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    break;
+
+                case "query":
+                    var query_flags = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var query_text = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
+                    break;
+
+                case "stats":
+                    while (offset < e.Packet.Length)
+                    {
+                        var stat_number = Tokenizer.GetByte(e.Packet, ref offset);
+
+                        switch (stat_number)
+                        {
+                            case 20: //range
+                            case 21: //title
+                                var stat_namelen = Tokenizer.GetByte(e.Packet, ref offset);
+                                var stat_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, stat_namelen);
+                                break;
+
+                            case 17: //speed
+                            case 19: //weap speed
+                            case 26: //weight limit
+                                var stat_32 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                break;
+
+                            case 28: //exp
+                                var stat_64_1 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                var stat_64_2 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                break;
+
+                            default:
+                                var stat_value = Tokenizer.GetUInt16(e.Packet, ref offset);
+                            break;
+                        }
+                        
+                    }
+                    break;
+
                 case "smooth":
                     var face = Tokenizer.GetUInt16(e.Packet, ref offset);
                     var smoothpic = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    break;
+
+                case "anim":
+                    var anim_num = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    var anim_flags = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    while (offset < e.Packet.Length)
+                    {
+                        var anim_face = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    }
+                    break;
+
+                case "item2":
+                    var item_location = Tokenizer.GetUInt32(e.Packet, ref offset);
+                    while (offset < e.Packet.Length)
+                    {
+                        var item_tag = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        var item_flags = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        var item_weight = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        var item_face = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        var item_namelen = Tokenizer.GetByte(e.Packet, ref offset);
+                        var item_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, item_namelen);
+                        var item_anim = Tokenizer.GetUInt16(e.Packet, ref offset);
+                        var item_animspeed = Tokenizer.GetByte(e.Packet, ref offset);
+                        var item_nrof = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        var item_type = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    }
                     break;
 
                 case "image2":

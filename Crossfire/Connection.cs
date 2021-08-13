@@ -167,6 +167,8 @@ namespace Crossfire
             _stream.Write(lengthBytes, 0, lengthBytes.Length);
             _stream.Write(messageBytes, 0, messageBytes.Length);
 
+            Logger.Log(Logger.Levels.Debug, "C->S: cmd={0}", Message);
+
             return true;
         }
 

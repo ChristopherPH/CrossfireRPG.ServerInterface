@@ -87,6 +87,11 @@ namespace Crossfire
             return b;
         }
 
+        public static string GetBytesAsString(byte[] buffer, ref int offset, int length)
+        {
+            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, length));
+        }
+
         public static byte[] GetRemainingBytes(byte[] buffer, ref int offset)
         {
             return GetBytes(buffer, ref offset, buffer.Length - offset);
