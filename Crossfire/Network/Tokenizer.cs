@@ -71,6 +71,23 @@ namespace Crossfire
             return val;
         }
 
+        public static UInt64 GetUInt64(byte[] buffer, ref int offset)
+        {
+            var val = (UInt64)
+                ((buffer[offset] << 56) +
+                (buffer[offset + 1] << 48) +
+                (buffer[offset + 2] << 40) +
+                (buffer[offset + 3] << 32) +
+                (buffer[offset + 4] << 24) +
+                (buffer[offset + 5] << 16) +
+                (buffer[offset + 6] << 8) +
+                (buffer[offset + 7]));
+
+            offset += 8;
+
+            return val;
+        }
+
         /// <summary>
         /// Get length bytes from buffer
         /// </summary>

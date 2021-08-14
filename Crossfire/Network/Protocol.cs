@@ -33,19 +33,21 @@ namespace Crossfire
                     //if (_Connection.ConnectionStatus == ConnectionStatuses.Connected)
                     //    AddClient();
 
-                    parser.OnVersion += Parser_OnVersion;
+                    parser.Version += Parser_Version;
+
                 }
             }
         }
 
-        private static void Parser_OnVersion(object sender, EventArgs e)
+        private static void Parser_Version(object sender, Parser.VersionEventArgs e)
         {
-            throw new NotImplementedException();
+            _Connection.SendMessage("version 1023 1029 Chris Client");
+            _Connection.SendMessage("addme");
         }
 
         private static Connection _Connection;
 
-        private static Parser parser = new Parser();
+        public static Parser parser { get; } = new Parser();
 
         private static void ConnectionStatusChanged(object sender, ConnectionStatusEventArgs e)
         {

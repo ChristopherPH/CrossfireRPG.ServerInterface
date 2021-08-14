@@ -7,21 +7,50 @@ using System.Threading.Tasks;
 
 namespace Crossfire
 {
-    public class Parser : ParserBase
+    public abstract class CommandParser
     {
-        public event EventHandler<EventArgs> OnVersion;
-
-        protected override void HandleVersion(int csval, int scval, string verstring)
-        {
-            OnVersion?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    public abstract class ParserBase
-    {
-        protected abstract void HandleVersion(int csval, int scval, string verstring);
-
         const int MAP2_COORD_OFFSET = 15;
+        const float FLOAT_MULTF = 100000.0f;
+
+        protected abstract void HandleVersion(int csval, int scval, string verstring);
+        protected abstract void HandleFailure(string ProtocolCommand, string FailureString);
+
+        protected abstract void HandleAddmeSuccess();
+        protected abstract void HandleAddmeFailed();
+        protected abstract void HandleGoodbye();
+        protected abstract void HandleNewMap();
+
+        /// <summary>
+        /// Delete items carried in/by the object tag.
+        /// Tag of 0 means to delete all items on the space the character is standing on.
+        /// </summary>
+        /// <param name="Tag"></param>
+        protected abstract void HandleDeleteInventory(int ObjectTag);
+        protected abstract void HandleQuery(int Flags, string QueryText);
+
+        protected abstract void HandleStat(NewClient.CharacterStats Stat, Int64 Value);
+        protected abstract void HandleStat(NewClient.CharacterStats Stat, string Value);
+        protected abstract void HandleStat(NewClient.CharacterStats Stat, float Value);
+
+        protected abstract void HandleSkill(int Skill, Int64 Value);
+
+        protected abstract void HandleSmooth(UInt16 face, UInt16 smooth);
+        protected abstract void HandleAnimation(UInt16 AnimationNumber, UInt16 AnimationFlags, 
+            UInt16[] AnimationFaces);
+
+        protected abstract void HandleItem2(UInt32 item_location, UInt32 item_tag, UInt32 item_flags, 
+            UInt32 item_weight, UInt32 item_face, string item_name, UInt16 item_anim, byte item_animspeed, 
+            UInt32 item_nrof, UInt16 item_type);
+
+        protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
+
+        protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message);
+
+        protected abstract void HandleMap2Clear(int x, int y);
+        protected abstract void HandleMap2Darkness(int x, int y, byte darkness);
+        protected abstract void HandleMap2ClearAnimationSmooth(int x, int y, int layer);
+        protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
+        protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
 
         public void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
@@ -32,6 +61,8 @@ namespace Crossfire
             int offset = 0;
             var cmd = Tokenizer.GetString(e.Packet, ref offset);
 
+            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
+
             Logger.Log(Logger.Levels.Debug, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
             Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(e.Packet));
 
@@ -39,38 +70,46 @@ namespace Crossfire
             switch (cmd)
             {
                 case "version":
-                    var csval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
-                    var scval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
-                    var verstr = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
+                    var version_csval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var version_scval = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var version_verstr = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
                     
-                    HandleVersion(csval, scval, verstr);
+                    HandleVersion(version_csval, version_scval, version_verstr);
                     break;
 
                 case "failure":
                     var protocol_command = Tokenizer.GetString(e.Packet, ref offset);
                     var failure_string = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
+
+                    HandleFailure(protocol_command, failure_string);
                     Logger.Log(Logger.Levels.Error, "Failure: {0} {1}", protocol_command, failure_string);
                     break;
 
                 case "addme_success":
+                    HandleAddmeSuccess();
                     break;
 
                 case "addme_failed":
+                    HandleAddmeFailed();
                     break;
 
                 case "goodbye":
+                    HandleGoodbye();
                     break;
 
                 case "newmap":
+                    HandleNewMap();
                     break;
 
                 case "delinv":
                     var tag = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    HandleDeleteInventory(tag);
                     break;
 
                 case "query":
                     var query_flags = Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var query_text = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
+                    HandleQuery(query_flags, query_text);
                     break;
 
                 case "stats":
@@ -84,28 +123,37 @@ namespace Crossfire
                             case NewClient.CharacterStats.Title:
                                 var stat_len = Tokenizer.GetByte(e.Packet, ref offset);
                                 var stat_text = Tokenizer.GetBytesAsString(e.Packet, ref offset, stat_len);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_text);
                                 break;
 
                             case NewClient.CharacterStats.Speed:
                             case NewClient.CharacterStats.WeapSp:
+                                var stat_32f = Tokenizer.GetUInt32(e.Packet, ref offset);
+
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_32f / FLOAT_MULTF);
+                                break;
+
                             case NewClient.CharacterStats.WeightLim:
                                 var stat_32 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_32);
                                 break;
 
                             case NewClient.CharacterStats.Exp64:
-                                var stat_64_1 = Tokenizer.GetUInt32(e.Packet, ref offset);
-                                var stat_64_2 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                var stat_64 = Tokenizer.GetUInt64(e.Packet, ref offset);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_64);
                                 break;
 
                             default:
                                 if ((stat_number >= NewClient.CharacterStats_SkillInfo) &&
                                     (stat_number < NewClient.CharacterStats_SkillInfo + NewClient.CharacterStats_NumSkills))
                                 {
-                                    var stat_32_1 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                    var skill_32 = Tokenizer.GetUInt32(e.Packet, ref offset);
+                                    HandleSkill(stat_number - NewClient.CharacterStats_SkillInfo, skill_32);
                                 }
                                 else
                                 {
                                     var stat_value = Tokenizer.GetUInt16(e.Packet, ref offset);
+                                    HandleStat((NewClient.CharacterStats)stat_number, stat_value);
                                 }
                                 break;
                         }
@@ -116,15 +164,19 @@ namespace Crossfire
                 case "smooth":
                     var face = Tokenizer.GetUInt16(e.Packet, ref offset);
                     var smoothpic = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    HandleSmooth(face, smoothpic);
                     break;
 
                 case "anim":
                     var anim_num = Tokenizer.GetUInt16(e.Packet, ref offset);
                     var anim_flags = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    var anim_faces = new UInt16[e.Packet.Length - offset];
+
+                    int anim_offset = 0;
                     while (offset < e.Packet.Length)
-                    {
-                        var anim_face = Tokenizer.GetUInt16(e.Packet, ref offset);
-                    }
+                        anim_faces[anim_offset++] = Tokenizer.GetUInt16(e.Packet, ref offset);
+
+                    HandleAnimation(anim_num, anim_flags, anim_faces);
                     break;
 
                 case "item2":
@@ -141,6 +193,9 @@ namespace Crossfire
                         var item_animspeed = Tokenizer.GetByte(e.Packet, ref offset);
                         var item_nrof = Tokenizer.GetUInt32(e.Packet, ref offset);
                         var item_type = Tokenizer.GetUInt16(e.Packet, ref offset);
+
+                        HandleItem2(item_location, item_tag, item_flags, item_weight, item_face, 
+                            item_name, item_anim, item_animspeed, item_nrof, item_type);
                     }
                     break;
 
@@ -149,6 +204,8 @@ namespace Crossfire
                     var image_faceset = Tokenizer.GetByte(e.Packet, ref offset);
                     var image_len = Tokenizer.GetUInt32(e.Packet, ref offset);
                     var image_png = Tokenizer.GetBytes(e.Packet, ref offset, (int)image_len);
+
+                    HandleImage2(image_face, image_faceset, image_png);
                     break;
 
                 case "map2":
@@ -186,6 +243,7 @@ namespace Crossfire
                                 case 0x00: //clear
                                     if (map_data_len != 0)
                                         throw new Exception();
+                                    HandleMap2Clear(map_coord_x, map_coord_y);
                                     break;
 
                                 case 0x01: //darkness
@@ -193,6 +251,8 @@ namespace Crossfire
                                         throw new Exception();
 
                                     var darkness = Tokenizer.GetByte(e.Packet, ref offset); //0=dark, 255=light
+
+                                    HandleMap2Darkness(map_coord_x, map_coord_y, darkness);
                                     break;
 
                                 case 0x10:  //lowest layer
@@ -208,45 +268,46 @@ namespace Crossfire
                                     var layer = map_data_type - 0x10;
 
                                     var face_or_animation = Tokenizer.GetUInt16(e.Packet, ref offset);
+                                    var is_animation = (face_or_animation & 0x8000) != 0; //high bit set
 
-                                    var animspeed = 0;
-                                    var smooth = 0;
+                                    byte animspeed = 0;
+                                    byte smooth = 0;
 
-                                    if (map_data_len == 2)
+                                    switch (map_data_len)
                                     {
+                                        case 2:
+                                            break;
 
-                                    }
-                                    else if (map_data_len == 3)
-                                    {
-                                        if ((face_or_animation & 0x8000) != 0) //high bit set
-                                        {
+                                        case 3:
+                                            if (is_animation)
+                                                animspeed = Tokenizer.GetByte(e.Packet, ref offset);
+                                            else
+                                                smooth = Tokenizer.GetByte(e.Packet, ref offset);
+                                            break;
+
+                                        case 4:
                                             animspeed = Tokenizer.GetByte(e.Packet, ref offset);
-                                        }
-                                        else
-                                        {
                                             smooth = Tokenizer.GetByte(e.Packet, ref offset);
-                                        }
-                                    }
-                                    else if (map_data_len == 4)
-                                    {
-                                        animspeed = Tokenizer.GetByte(e.Packet, ref offset);
-                                        smooth = Tokenizer.GetByte(e.Packet, ref offset);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception();
+                                            break;
+
+                                        default:
+                                            throw new Exception();
                                     }
 
                                     if (face_or_animation == 0)
                                     {
-                                        //clear anim
+                                        HandleMap2ClearAnimationSmooth(map_coord_x, map_coord_y, layer);
                                     }
-
-                                    if ((face_or_animation & 0x8000) != 0) //high bit set
+                                    else if (is_animation)
                                     {
                                         var anim_type = (face_or_animation >> 6) & 0x03;      //top 2 bits
-                                    }
 
+                                        HandleMap2Animation(map_coord_x, map_coord_y, layer, face_or_animation, anim_type, animspeed, smooth);
+                                    }
+                                    else
+                                    {
+                                        HandleMap2Face(map_coord_x, map_coord_y, layer, face_or_animation, smooth);
+                                    }
                                     break;
 
                                 default:
@@ -261,7 +322,11 @@ namespace Crossfire
                     var colour = (NewClient.NewDrawInfo)Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var message_type = (NewClient.MsgTypes)Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var sub_type = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var message = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
+                    HandleDrawExtInfo(colour, message_type, sub_type, message);
+
+                    /*
                     NewClient.MsgTypeAdmin admin_type = NewClient.MsgTypeAdmin.Error;
 
                     switch (message_type)
@@ -269,12 +334,12 @@ namespace Crossfire
                         case NewClient.MsgTypes.Admin:
                             admin_type = (NewClient.MsgTypeAdmin)sub_type;
                             break;
+
+                        case NewClient.MsgTypes.MOTD: //no subtype
+                            break;
                     }
-
-                    var message = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
-
                     Logger.Log(Logger.Levels.Info, "{0}\n{1}", admin_type, message);
-
+                    */
                     break;
 
                 default:
