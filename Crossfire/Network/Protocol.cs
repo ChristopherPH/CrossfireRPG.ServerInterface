@@ -71,7 +71,6 @@ namespace Crossfire
         {
             _Connection.SendMessage("version 1023 1029 Chris Client");
             _Connection.SendMessage("addme");
-            //_Connection.SendMessage("bad command");
         }
 
         private static void Login()

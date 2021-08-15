@@ -16,6 +16,8 @@ namespace Crossfire
         public event EventHandler<AnimationEventArgs> Animation;
         public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
         public event EventHandler<Image2EventArgs> Image2;
+        public event EventHandler<StatEventArgs> Stats;
+        public event EventHandler<SkillEventArgs> Skills;
 
         protected override void HandleAddmeFailed()
         {
@@ -106,6 +108,11 @@ namespace Crossfire
 
         protected override void HandleSkill(int Skill, long Value)
         {
+            Skills?.Invoke(this, new SkillEventArgs()
+            {
+                Skill = Skill,
+                Value = Value,
+            });
         }
 
         protected override void HandleSmooth(ushort face, ushort smooth)
@@ -114,14 +121,29 @@ namespace Crossfire
 
         protected override void HandleStat(NewClient.CharacterStats Stat, long Value)
         {
+            Stats?.Invoke(this, new StatEventArgs()
+            {
+                Stat = Stat,
+                Value = Value.ToString(),
+            });
         }
 
         protected override void HandleStat(NewClient.CharacterStats Stat, string Value)
         {
+            Stats?.Invoke(this, new StatEventArgs()
+            {
+                Stat = Stat,
+                Value = Value,
+            });
         }
 
         protected override void HandleStat(NewClient.CharacterStats Stat, float Value)
         {
+            Stats?.Invoke(this, new StatEventArgs()
+            {
+                Stat = Stat,
+                Value = Value.ToString(),
+            });
         }
 
         protected override void HandleVersion(int csval, int scval, string verstring)
@@ -161,6 +183,17 @@ namespace Crossfire
             public UInt32 ImageFace { get; set; }
             public byte ImageFaceSet { get; set; }
             public byte[] ImageData { get; set; }
+        }
+
+        public class StatEventArgs
+        {
+            public NewClient.CharacterStats Stat { get; set; }
+            public string Value { get; set; }
+        }
+        public class SkillEventArgs
+        {
+            public int Skill { get; set; }
+            public Int64 Value { get; set; }
         }
     }
 }
