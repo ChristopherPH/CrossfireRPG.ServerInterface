@@ -17,6 +17,7 @@ namespace Crossfire
 
         protected abstract void HandleAddmeSuccess();
         protected abstract void HandleAddmeFailed();
+        protected abstract void HandlePlayer(UInt32 tag, UInt32 weight, UInt32 face, string Name);
         protected abstract void HandleGoodbye();
         protected abstract void HandleNewMap();
 
@@ -26,20 +27,23 @@ namespace Crossfire
         /// </summary>
         /// <param name="Tag"></param>
         protected abstract void HandleDeleteInventory(int ObjectTag);
+        protected abstract void HandleDeleteItem(UInt32 ObjectTag);
         protected abstract void HandleQuery(int Flags, string QueryText);
 
         protected abstract void HandleStat(NewClient.CharacterStats Stat, Int64 Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, string Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, float Value);
 
-        protected abstract void HandleSkill(int Skill, Int64 Value);
+        protected abstract void HandleAccountPlayer(string PlayerName);
+
+        protected abstract void HandleSkill(int Skill, byte Level, UInt64 Value);
 
         protected abstract void HandleSmooth(UInt16 face, UInt16 smooth);
         protected abstract void HandleAnimation(UInt16 AnimationNumber, UInt16 AnimationFlags, 
             UInt16[] AnimationFaces);
 
         protected abstract void HandleItem2(UInt32 item_location, UInt32 item_tag, UInt32 item_flags, 
-            UInt32 item_weight, UInt32 item_face, string item_name, UInt16 item_anim, byte item_animspeed, 
+            UInt32 item_weight, UInt32 item_face, string item_name, string item_name_plural, UInt16 item_anim, byte item_animspeed, 
             UInt32 item_nrof, UInt16 item_type);
 
         protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
@@ -97,13 +101,22 @@ namespace Crossfire
                     HandleGoodbye();
                     break;
 
+                case "player":
+                    var player_tag = Tokenizer.GetUInt32(e.Packet, ref offset);
+                    var player_weight = Tokenizer.GetUInt32(e.Packet, ref offset);
+                    var player_face = Tokenizer.GetUInt32(e.Packet, ref offset);
+                    var player_name_len = Tokenizer.GetByte(e.Packet, ref offset);
+                    var player_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, player_name_len);
+                    HandlePlayer(player_tag, player_weight, player_face, player_name);
+                    break;
+
                 case "newmap":
                     HandleNewMap();
                     break;
 
                 case "delinv":
-                    var tag = Tokenizer.GetStringAsInt(e.Packet, ref offset);
-                    HandleDeleteInventory(tag);
+                    var del_inv_tag = Tokenizer.GetStringAsInt(e.Packet, ref offset);
+                    HandleDeleteInventory(del_inv_tag);
                     break;
 
                 case "accountplayers":
@@ -126,6 +139,10 @@ namespace Crossfire
                                 break;
 
                             case NewClient.AccountCharacterLoginTypes.Name:
+                                var char_data_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                HandleAccountPlayer(char_data_name);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.Class:
                             case NewClient.AccountCharacterLoginTypes.Race:
                             case NewClient.AccountCharacterLoginTypes.Face:
@@ -139,6 +156,7 @@ namespace Crossfire
                                 break;
                         }
                     }
+
                     break;
 
                 case "query":
@@ -178,12 +196,18 @@ namespace Crossfire
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_64);
                                 break;
 
+                            case NewClient.CharacterStats.Hp:
+                                var stat_16 = Tokenizer.GetUInt16(e.Packet, ref offset);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_16);
+                                break;
+
                             default:
                                 if ((stat_number >= NewClient.CharacterStats_SkillInfo) &&
                                     (stat_number < NewClient.CharacterStats_SkillInfo + NewClient.CharacterStats_NumSkills))
                                 {
-                                    var skill_32 = Tokenizer.GetUInt32(e.Packet, ref offset);
-                                    HandleSkill(stat_number - NewClient.CharacterStats_SkillInfo, skill_32);
+                                    var skill_level = Tokenizer.GetByte(e.Packet, ref offset);
+                                    var skill_value = Tokenizer.GetUInt64(e.Packet, ref offset);
+                                    HandleSkill(stat_number - NewClient.CharacterStats_SkillInfo, skill_level, skill_value);
                                 }
                                 else
                                 {
@@ -223,14 +247,44 @@ namespace Crossfire
                         var item_weight = Tokenizer.GetUInt32(e.Packet, ref offset);
                         var item_face = Tokenizer.GetUInt32(e.Packet, ref offset);
                         var item_namelen = Tokenizer.GetByte(e.Packet, ref offset);
-                        var item_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, item_namelen);
+                        var item_name_bytes = Tokenizer.GetBytes(e.Packet, ref offset, item_namelen);
+
+                        string item_name, item_name_plural;
+                        int item_name_offset;
+                        for (item_name_offset = 0; item_name_offset < item_name_bytes.Length && item_name_bytes[item_name_offset] != 0x00; item_name_offset++) { }
+
+                        if (item_name_offset < item_name_bytes.Length)
+                        {
+                            item_name = Encoding.ASCII.GetString(item_name_bytes, 0, item_name_offset);
+                            item_name_plural = Encoding.ASCII.GetString(item_name_bytes, item_name_offset + 1, item_name_bytes.Length - 1 - item_name_offset);
+                        }
+                        else
+                        {
+                            item_name = Encoding.ASCII.GetString(item_name_bytes, 0, item_name_bytes.Length);
+                            item_name_plural = item_name;
+                        }
+
                         var item_anim = Tokenizer.GetUInt16(e.Packet, ref offset);
                         var item_animspeed = Tokenizer.GetByte(e.Packet, ref offset);
                         var item_nrof = Tokenizer.GetUInt32(e.Packet, ref offset);
                         var item_type = Tokenizer.GetUInt16(e.Packet, ref offset);
 
                         HandleItem2(item_location, item_tag, item_flags, item_weight, item_face, 
-                            item_name, item_anim, item_animspeed, item_nrof, item_type);
+                            item_name, item_name_plural, item_anim, item_animspeed, item_nrof, item_type);
+                    }
+                    break;
+
+                case "upditem":
+                    var update_item_flags = Tokenizer.GetByte(e.Packet, ref offset);
+                    var update_item_tag = Tokenizer.GetUInt32(e.Packet, ref offset);
+
+                    break;
+
+                case "delitem":
+                    while (offset < e.Packet.Length)
+                    {
+                        var del_item_tag = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        HandleDeleteItem(del_item_tag);
                     }
                     break;
 
@@ -385,8 +439,8 @@ namespace Crossfire
             //log excess data
             if (offset < e.Packet.Length)
             {
-                Logger.Log(Logger.Levels.Warn, "Excess Data:\n{0}",
-                    HexDump.Utils.HexDump(e.Packet, offset));
+                Logger.Log(Logger.Levels.Warn, "Excess Data for cmd {0}:\n{1}",
+                    cmd, HexDump.Utils.HexDump(e.Packet, offset));
             }
         }
     }

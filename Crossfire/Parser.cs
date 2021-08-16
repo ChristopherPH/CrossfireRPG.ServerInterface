@@ -11,15 +11,29 @@ namespace Crossfire
         public event EventHandler<VersionEventArgs> Version;
         public event EventHandler<EventArgs> NewMap;
         public event EventHandler<EventArgs> Goodbye;
+        public event EventHandler<PlayerEventArgs> Player;
         public event EventHandler<EventArgs> AddmeFailed;
         public event EventHandler<EventArgs> AddmeSuccess;
         public event EventHandler<AnimationEventArgs> Animation;
         public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
         public event EventHandler<Image2EventArgs> Image2;
+        public event EventHandler<Item2EventArgs> Item2;
+        public event EventHandler<DeleteItemEventArgs> DeleteItem;
+        public event EventHandler<DeleteInventoryEventArgs> DeleteInventory;
         public event EventHandler<StatEventArgs> Stats;
         public event EventHandler<SkillEventArgs> Skills;
         public event EventHandler<MapEventArgs> Map;
         public event EventHandler<SmoothEventArgs> Smooth;
+        public event EventHandler<AccountPlayerEventArgs> AccountPlayer;
+        public event EventHandler<FailureEventArgs> Failure;
+
+        protected override void HandleAccountPlayer(string PlayerName)
+        {
+            AccountPlayer?.Invoke(this, new AccountPlayerEventArgs()
+            {
+                PlayerName = PlayerName
+            });
+        }
 
         protected override void HandleAddmeFailed()
         {
@@ -43,6 +57,18 @@ namespace Crossfire
 
         protected override void HandleDeleteInventory(int ObjectTag)
         {
+            DeleteInventory?.Invoke(this, new DeleteInventoryEventArgs()
+            {
+                ObjectTag = ObjectTag
+            });
+        }
+
+        protected override void HandleDeleteItem(uint ObjectTag)
+        {
+            DeleteItem?.Invoke(this, new DeleteItemEventArgs()
+            {
+                ObjectTag = ObjectTag
+            });
         }
 
         protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message)
@@ -58,6 +84,11 @@ namespace Crossfire
 
         protected override void HandleFailure(string ProtocolCommand, string FailureString)
         {
+            Failure?.Invoke(this, new FailureEventArgs()
+            {
+                ProtocolCommand = ProtocolCommand, 
+                FailureString = FailureString
+            });
         }
 
         protected override void HandleGoodbye()
@@ -75,8 +106,24 @@ namespace Crossfire
             });
         }
 
-        protected override void HandleItem2(uint item_location, uint item_tag, uint item_flags, uint item_weight, uint item_face, string item_name, ushort item_anim, byte item_animspeed, uint item_nrof, ushort item_type)
+        protected override void HandleItem2(uint item_location, uint item_tag, uint item_flags, 
+            uint item_weight, uint item_face, string item_name, string item_name_plural,
+            ushort item_anim, byte item_animspeed, uint item_nrof, ushort item_type)
         {
+            Item2?.Invoke(this, new Item2EventArgs()
+            {
+                item_location = item_location,
+                item_tag = item_tag,
+                item_flags = item_flags,
+                item_weight = item_weight,
+                item_face = item_face,
+                item_name = item_name,
+                item_name_plural = item_name_plural,
+                item_anim = item_anim,
+                item_animspeed = item_animspeed,
+                item_nrof = item_nrof,
+                item_type = item_type,
+            });
         }
 
         protected override void HandleMap2Animation(int x, int y, int layer, ushort animation, int animationtype, byte animationspeed, byte smooth)
@@ -112,15 +159,27 @@ namespace Crossfire
             NewMap?.Invoke(this, EventArgs.Empty);
         }
 
+        protected override void HandlePlayer(uint tag, uint weight, uint face, string Name)
+        {
+            Player?.Invoke(this, new PlayerEventArgs()
+            {
+                tag = tag,
+                weight = weight,
+                face = face,
+                PlayerName = Name
+            });
+        }
+
         protected override void HandleQuery(int Flags, string QueryText)
         {
         }
 
-        protected override void HandleSkill(int Skill, long Value)
+        protected override void HandleSkill(int Skill, byte Level, UInt64 Value)
         {
             Skills?.Invoke(this, new SkillEventArgs()
             {
                 Skill = Skill,
+                Level = Level,
                 Value = Value,
             });
         }
@@ -193,37 +252,82 @@ namespace Crossfire
             public string Message { get; set; }
         }
 
-        public class Image2EventArgs
+        public class Image2EventArgs : EventArgs
         {
             public UInt32 ImageFace { get; set; }
             public byte ImageFaceSet { get; set; }
             public byte[] ImageData { get; set; }
         }
 
-        public class StatEventArgs
+        public class StatEventArgs : EventArgs
         {
             public NewClient.CharacterStats Stat { get; set; }
             public string Value { get; set; }
         }
-        public class SkillEventArgs
+        public class SkillEventArgs : EventArgs
         {
             public int Skill { get; set; }
-            public Int64 Value { get; set; }
+            public Byte Level { get; set; }
+            public UInt64 Value { get; set; }
         }
 
-        public class SmoothEventArgs
+        public class SmoothEventArgs : EventArgs
         {
             public int Smooth { get; set; }
             public Int64 SmoothFace { get; set; }
         }
 
-        public class MapEventArgs
+        public class MapEventArgs : EventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
             public int Layer { get; set; }
             public int Face { get; set; }
             public int Smooth { get; set; }
+        }
+
+        public class AccountPlayerEventArgs : EventArgs
+        {
+            public string PlayerName { get; set; }
+        }
+
+        public class FailureEventArgs : EventArgs
+        {
+            public string ProtocolCommand { get; set; }
+            public string FailureString { get; set; }
+        }
+
+        public class Item2EventArgs : EventArgs
+        {
+            public UInt32 item_location { get; set; }
+            public UInt32 item_tag { get; set; }
+            public UInt32 item_flags { get; set; }
+            public UInt32 item_weight { get; set; }
+            public UInt32 item_face { get; set; }
+            public string item_name { get; set; }
+            public string item_name_plural { get; set; }
+            public UInt16 item_anim { get; set; }
+            public byte item_animspeed { get; set; }
+            public UInt32 item_nrof { get; set; }
+            public UInt16 item_type { get; set; }
+        }
+
+        public class DeleteItemEventArgs : EventArgs
+        {
+            public UInt32 ObjectTag { get; set; }
+        }
+
+        public class DeleteInventoryEventArgs : EventArgs
+        {
+            public int ObjectTag { get; set; }
+        }
+
+        public class PlayerEventArgs : EventArgs
+        {
+            public UInt32 tag { get; set; }
+            public UInt32 weight { get; set; }
+            public UInt32 face { get; set; }
+            public string PlayerName { get; set; }
         }
     }
 }
