@@ -144,9 +144,19 @@ namespace Crossfire
             Cleanup();
         }
 
+
         public bool SendMessage(string Message)
         {
-            if ((_client == null) || (_stream == null) || (!_client.Connected) || string.IsNullOrWhiteSpace(Message))
+            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Message));
+
+            var messageBytes = Encoding.ASCII.GetBytes(Message);
+
+            return SendMessage(messageBytes);
+        }
+        
+        public bool SendMessage(byte[] Message)
+        {
+            if ((_client == null) || (_stream == null) || (!_client.Connected))
             {
                 Cleanup();
                 return false;
@@ -158,17 +168,17 @@ namespace Crossfire
                 return false;
             }
 
-            var messageBytes = Encoding.ASCII.GetBytes(Message);
-            var messageLength = messageBytes.Length;
+            var messageLength = Message.Length;
 
             var lengthBytes = new byte[2];
             lengthBytes[0] = (byte)((messageLength >> 8) & 0xFF);
             lengthBytes[1] = (byte)((messageLength) & 0xFF);
 
             _stream.Write(lengthBytes, 0, lengthBytes.Length);
-            _stream.Write(messageBytes, 0, messageBytes.Length);
+            _stream.Write(Message, 0, Message.Length);
 
-            Logger.Log(Logger.Levels.Debug, "C->S: cmd={0}", Message);
+            Logger.Log(Logger.Levels.Debug, "C->S: len={0}", messageLength);
+            Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(Message));
 
             return true;
         }

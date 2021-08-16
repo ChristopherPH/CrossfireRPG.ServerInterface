@@ -18,6 +18,8 @@ namespace Crossfire
         public event EventHandler<Image2EventArgs> Image2;
         public event EventHandler<StatEventArgs> Stats;
         public event EventHandler<SkillEventArgs> Skills;
+        public event EventHandler<MapEventArgs> Map;
+        public event EventHandler<SmoothEventArgs> Smooth;
 
         protected override void HandleAddmeFailed()
         {
@@ -95,6 +97,14 @@ namespace Crossfire
 
         protected override void HandleMap2Face(int x, int y, int layer, ushort face, byte smooth)
         {
+            Map?.Invoke(this, new MapEventArgs()
+            {
+                X = x,
+                Y = y,
+                Layer = layer,
+                Face = face,
+                Smooth = smooth
+            });
         }
 
         protected override void HandleNewMap()
@@ -117,6 +127,11 @@ namespace Crossfire
 
         protected override void HandleSmooth(ushort face, ushort smooth)
         {
+            Smooth?.Invoke(this, new SmoothEventArgs()
+            {
+                Smooth = face,
+                SmoothFace = smooth,
+            });
         }
 
         protected override void HandleStat(NewClient.CharacterStats Stat, long Value)
@@ -150,17 +165,17 @@ namespace Crossfire
         {
             Version?.Invoke(this, new VersionEventArgs()
             {
-                csval = csval,
-                scval = scval,
-                verstring = verstring,
+                ClientToServerProtocolVersion = csval,
+                ServerToClientProtocolVersion = scval,
+                ClientVersionString = verstring,
             });
         }
 
         public class VersionEventArgs : EventArgs
         {
-            public int csval { get; set; }
-            public int scval { get; set; }
-            public string verstring { get; set; }
+            public int ClientToServerProtocolVersion { get; set; }
+            public int ServerToClientProtocolVersion { get; set; }
+            public string ClientVersionString { get; set; }
         }
 
         public class AnimationEventArgs : EventArgs
@@ -194,6 +209,21 @@ namespace Crossfire
         {
             public int Skill { get; set; }
             public Int64 Value { get; set; }
+        }
+
+        public class SmoothEventArgs
+        {
+            public int Smooth { get; set; }
+            public Int64 SmoothFace { get; set; }
+        }
+
+        public class MapEventArgs
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+            public int Layer { get; set; }
+            public int Face { get; set; }
+            public int Smooth { get; set; }
         }
     }
 }

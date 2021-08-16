@@ -138,5 +138,17 @@ namespace Crossfire
 		public const int CharacterStats_ResistEnd = 117;    /* End Of Resistances (Inclusive)   */
 		public const int CharacterStats_SkillInfo = 140;
 		public const int CharacterStats_NumSkills = 50;
+
+		public enum AccountCharacterLoginTypes
+        {
+			Name = 1,
+			Class = 2,
+			Race = 3,
+			Level = 4,
+			Face = 5,
+			Party = 6,
+			Map = 7,
+			FaceNum = 8,
+        }
 	}
 }

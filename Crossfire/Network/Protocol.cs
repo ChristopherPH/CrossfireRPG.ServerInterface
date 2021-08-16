@@ -20,7 +20,7 @@ namespace Crossfire
                 if (_Connection != null)
                 {
                     _Connection.OnPacket -= parser.ParsePacket;
-                    _Connection.OnStatusChanged -= ConnectionStatusChanged;
+                    parser.Version -= Parser_Version;
                 }
 
                 _Connection = value;
@@ -28,54 +28,44 @@ namespace Crossfire
                 if (_Connection != null)
                 {
                     _Connection.OnPacket += parser.ParsePacket;
-                    _Connection.OnStatusChanged += ConnectionStatusChanged;
-
-                    //if (_Connection.ConnectionStatus == ConnectionStatuses.Connected)
-                    //    AddClient();
-
                     parser.Version += Parser_Version;
 
                 }
             }
         }
 
+        const int MinimumClientToServerVersion = 1023;
+        const int MinimumServerToClientVersion = 1029;
+
         private static void Parser_Version(object sender, Parser.VersionEventArgs e)
         {
-            _Connection.SendMessage("version 1023 1029 Chris Client");
-            _Connection.SendMessage("addme");
+            if (e.ClientToServerProtocolVersion < MinimumClientToServerVersion)
+                return;
+            if (e.ServerToClientProtocolVersion < MinimumServerToClientVersion)
+                return;
+
+            SendAddClient();
         }
 
         private static Connection _Connection;
 
         public static Parser parser { get; } = new Parser();
 
-        private static void ConnectionStatusChanged(object sender, ConnectionStatusEventArgs e)
+        public static void SendAddClient()
         {
-            System.Diagnostics.Debug.Assert(e != null);
-
-            switch (e.Status)
-            {
-                case ConnectionStatuses.Disconnected:
-                    break;
-
-                case ConnectionStatuses.Connecting:
-                    break;
-
-                case ConnectionStatuses.Connected:
-                    //AddClient();
-                    break;
-            }
-        }
-
-        private static void AddClient()
-        {
-            _Connection.SendMessage("version 1023 1029 Chris Client");
+            _Connection.SendMessage("version 1023 1029 Cloak's Windows Native Client");
             _Connection.SendMessage("addme");
         }
 
-        private static void Login()
+        public static void SendAccountLogin(string UserName, string Password)
         {
+            using (var cb = new CommandBuilder("accountlogin "))
+            {
+                cb.AddLengthPrefixedString(UserName);
+                cb.AddLengthPrefixedString(Password);
 
-        }       
+                _Connection.SendMessage(cb.GetBytes());
+            }
+        }
     }
 }

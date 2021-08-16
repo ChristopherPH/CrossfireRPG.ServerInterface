@@ -106,6 +106,41 @@ namespace Crossfire
                     HandleDeleteInventory(tag);
                     break;
 
+                case "accountplayers":
+                    var num_characters = Tokenizer.GetByte(e.Packet, ref offset);
+
+                    while (offset < e.Packet.Length)
+                    {
+                        var char_data_len = Tokenizer.GetByte(e.Packet, ref offset);
+                        if (char_data_len == 0)
+                            break;
+
+                        var char_data_type = (NewClient.AccountCharacterLoginTypes)Tokenizer.GetByte(e.Packet, ref offset);
+                        char_data_len--;
+
+                        switch (char_data_type)
+                        {
+                            case NewClient.AccountCharacterLoginTypes.Level:
+                            case NewClient.AccountCharacterLoginTypes.FaceNum:
+                                var char_data_int = Tokenizer.GetUInt16(e.Packet, ref offset);
+                                break;
+
+                            case NewClient.AccountCharacterLoginTypes.Name:
+                            case NewClient.AccountCharacterLoginTypes.Class:
+                            case NewClient.AccountCharacterLoginTypes.Race:
+                            case NewClient.AccountCharacterLoginTypes.Face:
+                            case NewClient.AccountCharacterLoginTypes.Party:
+                            case NewClient.AccountCharacterLoginTypes.Map:
+                                var char_data_str = Tokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                break;
+
+                            default:
+                                Tokenizer.GetBytes(e.Packet, ref offset, char_data_len);
+                                break;
+                        }
+                    }
+                    break;
+
                 case "query":
                     var query_flags = Tokenizer.GetStringAsInt(e.Packet, ref offset);
                     var query_text = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
