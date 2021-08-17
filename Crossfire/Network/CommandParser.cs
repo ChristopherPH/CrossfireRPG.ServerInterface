@@ -275,8 +275,69 @@ namespace Crossfire
                     break;
 
                 case "upditem":
-                    var update_item_flags = Tokenizer.GetByte(e.Packet, ref offset);
+                    var update_item_type = (NewClient.UpdateTypes)Tokenizer.GetByte(e.Packet, ref offset);
                     var update_item_tag = Tokenizer.GetUInt32(e.Packet, ref offset);
+
+                    while (offset < e.Packet.Length)
+                    {
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Location))
+                        {
+                            var update_item_location = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Flags))
+                        {
+                            var update_item_flags = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Weight))
+                        {
+                            var update_item_weight = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Face))
+                        {
+                            var update_item_face = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Name))
+                        {
+                            var update_item_namelen = Tokenizer.GetByte(e.Packet, ref offset);
+                            var update_item_name_bytes = Tokenizer.GetBytes(e.Packet, ref offset, update_item_namelen);
+
+                            string update_item_name, update_item_name_plural;
+                            int update_item_name_offset;
+                            for (update_item_name_offset = 0; update_item_name_offset < update_item_name_bytes.Length && update_item_name_bytes[update_item_name_offset] != 0x00; update_item_name_offset++) { }
+
+                            if (update_item_name_offset < update_item_name_bytes.Length)
+                            {
+                                update_item_name = Encoding.ASCII.GetString(update_item_name_bytes, 0, update_item_name_offset);
+                                update_item_name_plural = Encoding.ASCII.GetString(update_item_name_bytes, update_item_name_offset + 1, update_item_name_bytes.Length - 1 - update_item_name_offset);
+                            }
+                            else
+                            {
+                                update_item_name = Encoding.ASCII.GetString(update_item_name_bytes, 0, update_item_name_bytes.Length);
+                                update_item_name_plural = update_item_name;
+                            }
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.Animation))
+                        {
+                            var update_item_anim = Tokenizer.GetUInt16(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.AnimationSpeed))
+                        {
+                            var update_item_animspeed = Tokenizer.GetByte(e.Packet, ref offset);
+                        }
+
+                        if (update_item_type.HasFlag(NewClient.UpdateTypes.NumberOf))
+                        {
+                            var update_item_nrof = Tokenizer.GetUInt32(e.Packet, ref offset);
+                        }
+
+                        //HandleUpdateItem(update_item_flags, update_item_tag);
+                    }
 
                     break;
 

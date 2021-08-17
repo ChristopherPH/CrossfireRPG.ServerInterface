@@ -150,5 +150,19 @@ namespace Crossfire
 			Map = 7,
 			FaceNum = 8,
         }
+
+		[Flags]
+		public enum UpdateTypes : uint
+        {
+			Location = 0x01,
+			Flags = 0x02,
+			Weight = 0x04,
+			Face = 0x08,
+			Name = 0x10,
+			Animation = 0x20,
+			AnimationSpeed = 0x40,
+			NumberOf = 0x80,
+			All = 0xFF
+		}
 	}
 }
