@@ -59,6 +59,11 @@ namespace Crossfire
             });
         }
 
+        protected override void HandleComC(ushort comc_packet, uint comc_time)
+        {
+            System.Diagnostics.Debug.Print("Finished Command {0}:{1}", comc_packet, comc_time);
+        }
+
         protected override void HandleDeleteInventory(int ObjectTag)
         {
             DeleteInventory?.Invoke(this, new DeleteInventoryEventArgs()

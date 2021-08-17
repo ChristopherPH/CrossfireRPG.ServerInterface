@@ -8,8 +8,8 @@ namespace Crossfire.ServerInterface
 {
     public static class Tokenizer
     {
-        public static byte[] SpaceSeperator = new byte[] { (byte)' ' };
-        public static byte[] SpaceNewlineSeperator = new byte[] { (byte)' ', 0x0A };
+        public static byte[] SpaceSeperator = new byte[] { 0x20 };
+        public static byte[] SpaceNewlineSeperator = new byte[] { 0x20, 0x0A };
 
         public static string GetString(byte[] buffer, ref int offset)
         {

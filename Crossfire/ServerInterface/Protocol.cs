@@ -123,10 +123,13 @@ namespace Crossfire.ServerInterface
         {
             using (var cb = new CommandBuilder("ncom ")) //newcommand
             {
-                cb.AddInt16(nComPacket++);
+                cb.AddInt16(nComPacket);
                 cb.AddInt32(repeat);
                 cb.AddString(command);
 
+                System.Diagnostics.Debug.Print("Sending Command {0}:{1}", nComPacket, command);
+
+                nComPacket++;
                 _Connection.SendMessage(cb.GetBytes());
             }
         }

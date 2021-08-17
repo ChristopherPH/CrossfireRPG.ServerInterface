@@ -10,6 +10,9 @@ namespace Crossfire.ServerInterface
 {
     public class Connection
     {
+        const int DefaultServerPort = 13327;
+        const string DefaultServerHost = "127.0.0.1";
+
         public TcpClient client
         {
             get => _client;
@@ -27,7 +30,7 @@ namespace Crossfire.ServerInterface
 
         public ConnectionStatuses ConnectionStatus { get; private set; }
 
-        public bool Connect(string Host = "127.0.0.1", int Port = 13327)
+        public bool Connect(string Host = DefaultServerHost, int Port = DefaultServerPort)
         {
             Disconnect();
 

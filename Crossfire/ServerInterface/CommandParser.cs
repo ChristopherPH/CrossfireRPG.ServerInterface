@@ -58,6 +58,7 @@ namespace Crossfire.ServerInterface
         protected abstract void HandleMap2ClearAnimationSmooth(int x, int y, int layer);
         protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
+        protected abstract void HandleComC(UInt16 comc_packet, UInt32 comc_time);
 
         public void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
@@ -123,6 +124,12 @@ namespace Crossfire.ServerInterface
                     var player_name_len = Tokenizer.GetByte(e.Packet, ref offset);
                     var player_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, player_name_len);
                     HandlePlayer(player_tag, player_weight, player_face, player_name);
+                    break;
+
+                case "comc":
+                    var comc_packet = Tokenizer.GetUInt16(e.Packet, ref offset);
+                    var comc_time = Tokenizer.GetUInt32(e.Packet, ref offset);
+                    HandleComC(comc_packet, comc_time);
                     break;
 
                 case "newmap":
@@ -406,20 +413,21 @@ namespace Crossfire.ServerInterface
                             if (map_data_len == 0x07)
                             {
                                 map_data_len += Tokenizer.GetByte(e.Packet, ref offset);
-                                //throw new Exception("apparently unused");
+                                throw new Exception("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
                             }
 
                             switch (map_data_type)
                             {
                                 case 0x00: //clear
                                     if (map_data_len != 0)
-                                        throw new Exception();
+                                        throw new Exception("Invalid map_data_len: must be 0");
+
                                     HandleMap2Clear(map_coord_x, map_coord_y);
                                     break;
 
                                 case 0x01: //darkness
                                     if (map_data_len != 1)
-                                        throw new Exception();
+                                        throw new Exception("Invalid map_data_len: must be 1");
 
                                     var darkness = Tokenizer.GetByte(e.Packet, ref offset); //0=dark, 255=light
 
@@ -462,8 +470,7 @@ namespace Crossfire.ServerInterface
                                             break;
 
                                         default:
-                                            //throw new Exception();
-                                            break;
+                                            throw new Exception("Invalid map_data_len - must be 2,3,4: is " + map_data_len.ToString());
                                     }
 
                                     if (face_or_animation == 0)
@@ -497,21 +504,6 @@ namespace Crossfire.ServerInterface
                     var message = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
                     HandleDrawExtInfo(colour, message_type, sub_type, message);
-
-                    /*
-                    NewClient.MsgTypeAdmin admin_type = NewClient.MsgTypeAdmin.Error;
-
-                    switch (message_type)
-                    {
-                        case NewClient.MsgTypes.Admin:
-                            admin_type = (NewClient.MsgTypeAdmin)sub_type;
-                            break;
-
-                        case NewClient.MsgTypes.MOTD: //no subtype
-                            break;
-                    }
-                    Logger.Log(Logger.Levels.Info, "{0}\n{1}", admin_type, message);
-                    */
                     break;
 
                 case "replyinfo":
