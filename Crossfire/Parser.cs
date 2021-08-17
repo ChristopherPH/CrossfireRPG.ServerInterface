@@ -26,11 +26,14 @@ namespace Crossfire
         public event EventHandler<SmoothEventArgs> Smooth;
         public event EventHandler<AccountPlayerEventArgs> AccountPlayer;
         public event EventHandler<FailureEventArgs> Failure;
+        public event EventHandler<SetupEventArgs> Setup;
 
-        protected override void HandleAccountPlayer(string PlayerName)
+        protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, string PlayerName)
         {
             AccountPlayer?.Invoke(this, new AccountPlayerEventArgs()
             {
+                PlayerCount = PlayerCount,
+                PlayerNumber = PlayerNumber,
                 PlayerName = PlayerName
             });
         }
@@ -174,6 +177,15 @@ namespace Crossfire
         {
         }
 
+        protected override void HandleSetup(string SetupCommand, string SetupValue)
+        {
+            Setup?.Invoke(this, new SetupEventArgs()
+            {
+                SetupCommand = SetupCommand,
+                SetupValue = SetupValue,
+            });
+        }
+
         protected override void HandleSkill(int Skill, byte Level, UInt64 Value)
         {
             Skills?.Invoke(this, new SkillEventArgs()
@@ -288,6 +300,8 @@ namespace Crossfire
 
         public class AccountPlayerEventArgs : EventArgs
         {
+            public int PlayerCount { get; set; }
+            public int PlayerNumber { get; set; }
             public string PlayerName { get; set; }
         }
 
@@ -328,6 +342,12 @@ namespace Crossfire
             public UInt32 weight { get; set; }
             public UInt32 face { get; set; }
             public string PlayerName { get; set; }
+        }
+
+        public class SetupEventArgs : EventArgs
+        {
+            public string SetupCommand { get; set; }
+            public string SetupValue { get; set; }
         }
     }
 }

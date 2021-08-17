@@ -103,6 +103,11 @@ namespace Crossfire
             return commandBuffer.ToArray();
         }
 
+        public bool SendMessage(Connection connection)
+        {
+            return connection.SendMessage(GetBytes());
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

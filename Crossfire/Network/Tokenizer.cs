@@ -31,6 +31,29 @@ namespace Crossfire
             return str;
         }
 
+        public static string GetString2(byte[] buffer, ref int offset)
+        {
+            System.Diagnostics.Debug.Assert(buffer != null);
+            System.Diagnostics.Debug.Assert(buffer.Length > 0);
+            System.Diagnostics.Debug.Assert(offset >= 0);
+            System.Diagnostics.Debug.Assert(offset < buffer.Length);
+
+            var start = offset;
+
+            //read up to space or end of buffer
+            for (; offset < buffer.Length && buffer[offset] != ' ' && buffer[offset] != 0x0A; offset++) { }
+
+            var str = Encoding.ASCII.GetString(buffer, start, offset - start);
+            if (string.IsNullOrEmpty(str))
+                throw new Exception();
+
+            //skip over space if we can
+            if (offset < buffer.Length && (buffer[offset] == ' ' || buffer[offset] == 0x0A))
+                offset++;
+
+            return str;
+        }
+
         public static int GetStringAsInt(byte[] buffer, ref int offset)
         {
             var str = GetString(buffer, ref offset);

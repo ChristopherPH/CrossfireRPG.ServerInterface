@@ -9,6 +9,8 @@ namespace Crossfire
 {
     public abstract class CommandParser
     {
+        public const int ServerProtocolVersion = 1039;
+
         const int MAP2_COORD_OFFSET = 15;
         const float FLOAT_MULTF = 100000.0f;
 
@@ -17,6 +19,7 @@ namespace Crossfire
 
         protected abstract void HandleAddmeSuccess();
         protected abstract void HandleAddmeFailed();
+        protected abstract void HandleSetup(string SetupCommand, string SetupValue);
         protected abstract void HandlePlayer(UInt32 tag, UInt32 weight, UInt32 face, string Name);
         protected abstract void HandleGoodbye();
         protected abstract void HandleNewMap();
@@ -34,7 +37,7 @@ namespace Crossfire
         protected abstract void HandleStat(NewClient.CharacterStats Stat, string Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, float Value);
 
-        protected abstract void HandleAccountPlayer(string PlayerName);
+        protected abstract void HandleAccountPlayer(int PlayerCount, int PlayerNumber, string PlayerName);
 
         protected abstract void HandleSkill(int Skill, byte Level, UInt64 Value);
 
@@ -81,6 +84,18 @@ namespace Crossfire
                     HandleVersion(version_csval, version_scval, version_verstr);
                     break;
 
+                case "setup":
+                    while (offset < e.Packet.Length)
+                    {
+                        var setup_command = Tokenizer.GetString(e.Packet, ref offset);
+                        var setup_value = Tokenizer.GetString(e.Packet, ref offset);
+
+                        Logger.Log(Logger.Levels.Debug, "Setup: {0}={1}", setup_command, setup_value);
+
+                        HandleSetup(setup_command, setup_value);
+                    }
+                    break;
+
                 case "failure":
                     var protocol_command = Tokenizer.GetString(e.Packet, ref offset);
                     var failure_string = Tokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
@@ -121,12 +136,18 @@ namespace Crossfire
 
                 case "accountplayers":
                     var num_characters = Tokenizer.GetByte(e.Packet, ref offset);
+                    var character_count = 1;
+
+                    HandleAccountPlayer(num_characters, 0, string.Empty); //TODO: remove this hack to empty the player list
 
                     while (offset < e.Packet.Length)
                     {
                         var char_data_len = Tokenizer.GetByte(e.Packet, ref offset);
                         if (char_data_len == 0)
+                        {
+                            character_count++;
                             break;
+                        }
 
                         var char_data_type = (NewClient.AccountCharacterLoginTypes)Tokenizer.GetByte(e.Packet, ref offset);
                         char_data_len--;
@@ -140,7 +161,7 @@ namespace Crossfire
 
                             case NewClient.AccountCharacterLoginTypes.Name:
                                 var char_data_name = Tokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
-                                HandleAccountPlayer(char_data_name);
+                                HandleAccountPlayer(num_characters, character_count, char_data_name);
                                 break;
 
                             case NewClient.AccountCharacterLoginTypes.Class:
@@ -385,7 +406,7 @@ namespace Crossfire
                             if (map_data_len == 0x07)
                             {
                                 map_data_len += Tokenizer.GetByte(e.Packet, ref offset);
-                                throw new Exception("apparently unused");
+                                //throw new Exception("apparently unused");
                             }
 
                             switch (map_data_type)
@@ -418,7 +439,7 @@ namespace Crossfire
                                     var layer = map_data_type - 0x10;
 
                                     var face_or_animation = Tokenizer.GetUInt16(e.Packet, ref offset);
-                                    var is_animation = (face_or_animation & 0x8000) != 0; //high bit set
+                                    var is_animation = (face_or_animation >> 15) != 0; //high bit set
 
                                     byte animspeed = 0;
                                     byte smooth = 0;
@@ -441,7 +462,8 @@ namespace Crossfire
                                             break;
 
                                         default:
-                                            throw new Exception();
+                                            //throw new Exception();
+                                            break;
                                     }
 
                                     if (face_or_animation == 0)
@@ -460,8 +482,8 @@ namespace Crossfire
                                     }
                                     break;
 
-                                default:
-                                    throw new Exception();
+                               // default:
+                                 //   throw new Exception();
                             }
                         }
                     }
@@ -490,6 +512,18 @@ namespace Crossfire
                     }
                     Logger.Log(Logger.Levels.Info, "{0}\n{1}", admin_type, message);
                     */
+                    break;
+
+                case "replyinfo":
+                    var reply_info = Tokenizer.GetString2(e.Packet, ref offset);
+                    var reply_bytes = Tokenizer.GetRemainingBytes(e.Packet, ref offset);
+
+                    switch (reply_info)
+                    {
+                        case "motd": break;
+                        case "news": break;
+                        case "rules": break;
+                    }
                     break;
 
                 default:
