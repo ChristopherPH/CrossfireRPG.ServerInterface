@@ -54,6 +54,8 @@ namespace Crossfire.ServerInterface
         protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message);
 
         protected abstract void HandleMap2Clear(int x, int y);
+        protected abstract void HandleMap2ClearOld(int x, int y);
+        protected abstract void HandleMap2Scroll(int x, int y);
         protected abstract void HandleMap2Darkness(int x, int y, byte darkness);
         protected abstract void HandleMap2ClearAnimationSmooth(int x, int y, int layer);
         protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
@@ -412,14 +414,13 @@ namespace Crossfire.ServerInterface
                         //handle scroll
                         if ((map_coord & 0x1) != 0)
                         {
-                            //TODO: scroll
-                            //HandleMap2Scroll(x, y);
+                            HandleMap2Scroll(map_coord_x, map_coord_y);
                             continue;
                         }
 
 
-                        //TODO: clear/init space
-                        //HandleMap2ClearOld(map_coord_x, map_coord_y);
+                        //clear/init space
+                        HandleMap2ClearOld(map_coord_x, map_coord_y);
 
                         while (offset < e.Packet.Length)
                         {

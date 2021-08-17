@@ -25,6 +25,9 @@ namespace Crossfire
         public event EventHandler<StatEventArgs> Stats;
         public event EventHandler<SkillEventArgs> Skills;
         public event EventHandler<MapEventArgs> Map;
+        public event EventHandler<MapLocationEventArgs> MapClear;
+        public event EventHandler<MapLocationEventArgs> MapClearOld;
+        public event EventHandler<MapLocationEventArgs> MapScroll;
         public event EventHandler<SmoothEventArgs> Smooth;
         public event EventHandler<AccountPlayerEventArgs> AccountPlayer;
         public event EventHandler<FailureEventArgs> Failure;
@@ -141,11 +144,25 @@ namespace Crossfire
         }
 
         protected override void HandleMap2Clear(int x, int y)
-        { 
+        {
+            MapClear?.Invoke(this, new MapLocationEventArgs()
+            {
+                X = x,
+                Y = y,
+            });
         }
 
         protected override void HandleMap2ClearAnimationSmooth(int x, int y, int layer)
         {
+        }
+
+        protected override void HandleMap2ClearOld(int x, int y)
+        {
+            MapClearOld?.Invoke(this, new MapLocationEventArgs()
+            {
+                X = x,
+                Y = y,
+            });
         }
 
         protected override void HandleMap2Darkness(int x, int y, byte darkness)
@@ -161,6 +178,15 @@ namespace Crossfire
                 Layer = layer,
                 Face = face,
                 Smooth = smooth
+            });
+        }
+
+        protected override void HandleMap2Scroll(int x, int y)
+        {
+            MapScroll?.Invoke(this, new MapLocationEventArgs()
+            {
+                X = x,
+                Y = y,
             });
         }
 
@@ -323,6 +349,12 @@ namespace Crossfire
             public int Layer { get; set; }
             public int Face { get; set; }
             public int Smooth { get; set; }
+        }
+
+        public class MapLocationEventArgs : EventArgs
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
         }
 
         public class AccountPlayerEventArgs : EventArgs
