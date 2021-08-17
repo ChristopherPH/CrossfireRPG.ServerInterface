@@ -1,13 +1,15 @@
 ﻿using Crossfire.Utility;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Crossfire.ServerInterface
 {
-    public static class Protocol
+    public class Protocol
     {
 
         const int MinimumClientToServerVersion = 1023;
@@ -15,9 +17,9 @@ namespace Crossfire.ServerInterface
         public static int LoginMethod { get; set; } = 1;
 
         
-        public static Parser parser { get; } = new Parser();
+        public Parser parser { get; } = new Parser();
 
-        public static Connection Connection
+        public Connection Connection
         {
             get => _Connection;
             set
@@ -39,11 +41,26 @@ namespace Crossfire.ServerInterface
 
                     parser.Version += Parser_Version;
                     parser.Setup += Parser_Setup;
+                    parser.Image2 += Parser_Image2;
                 }
             }
         }
 
-        private static void Parser_Setup(object sender, Parser.SetupEventArgs e)
+        public Dictionary<uint, Image> Faces { get; } = new Dictionary<uint, Image>();
+
+        private void Parser_Image2(object sender, Parser.Image2EventArgs e)
+        {
+            using (var ms = new MemoryStream(e.ImageData))
+            {
+                Image image = Image.FromStream(ms);
+
+                System.Diagnostics.Debug.Assert(image != null);
+
+                Faces[e.ImageFace] = image;
+            }
+        }
+
+        private void Parser_Setup(object sender, Parser.SetupEventArgs e)
         {
             switch (e.SetupCommand.ToLower())
             {
@@ -67,10 +84,10 @@ namespace Crossfire.ServerInterface
             }
         }
 
-        private static Connection _Connection;
+        private Connection _Connection;
 
 
-        private static void Parser_Version(object sender, Parser.VersionEventArgs e)
+        private void Parser_Version(object sender, Parser.VersionEventArgs e)
         {
             //TODO: validate this
             if (e.ClientToServerProtocolVersion < MinimumClientToServerVersion)
@@ -81,7 +98,7 @@ namespace Crossfire.ServerInterface
             SetupClientConnection();
         }
 
-        public static void SetupClientConnection()
+        public void SetupClientConnection()
         {
             _Connection.SendMessage("version 1023 1029 Cloak's Windows Native Client");
 
@@ -91,7 +108,7 @@ namespace Crossfire.ServerInterface
             _Connection.SendMessage("setup loginmethod " + LoginMethod.ToString());
         }
 
-        public static void SendAccountLogin(string UserName, string Password)
+        public void SendAccountLogin(string UserName, string Password)
         {
             using (var cb = new CommandBuilder("accountlogin "))
             {
@@ -107,19 +124,19 @@ namespace Crossfire.ServerInterface
         /// Start playing with the given PlayerName, assuming there is a logged in account
         /// </summary>
         /// <param name="PlayerName"></param>
-        public static void SendAccountPlay(string PlayerName)
+        public void SendAccountPlay(string PlayerName)
         {
             _Connection.SendMessage("accountplay " + PlayerName);
         }
 
-        public static void SendApply(string tag)
+        public void SendApply(string tag)
         {
             _Connection.SendMessage("apply " + tag);
         }
 
-        private static UInt16 nComPacket = 0;
+        private UInt16 nComPacket = 0;
 
-        public static void SendCommand(string command, UInt32 repeat = 1)
+        public void SendCommand(string command, UInt32 repeat = 1)
         {
             using (var cb = new CommandBuilder("ncom ")) //newcommand
             {
