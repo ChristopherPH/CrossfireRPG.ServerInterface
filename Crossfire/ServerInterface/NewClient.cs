@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire
+namespace Crossfire.ServerInterface
 {
     public static class NewClient
     {

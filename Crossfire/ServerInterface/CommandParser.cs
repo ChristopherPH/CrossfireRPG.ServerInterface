@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire
+namespace Crossfire.ServerInterface
 {
     public abstract class CommandParser
     {
@@ -515,7 +515,7 @@ namespace Crossfire
                     break;
 
                 case "replyinfo":
-                    var reply_info = Tokenizer.GetString2(e.Packet, ref offset);
+                    var reply_info = Tokenizer.GetString(e.Packet, ref offset, Tokenizer.SpaceNewlineSeperator);
                     var reply_bytes = Tokenizer.GetRemainingBytes(e.Packet, ref offset);
 
                     switch (reply_info)

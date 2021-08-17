@@ -4,51 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire
+namespace Crossfire.ServerInterface
 {
     public static class Tokenizer
     {
+        public static byte[] SpaceSeperator = new byte[] { (byte)' ' };
+        public static byte[] SpaceNewlineSeperator = new byte[] { (byte)' ', 0x0A };
+
         public static string GetString(byte[] buffer, ref int offset)
         {
-            System.Diagnostics.Debug.Assert(buffer != null);
-            System.Diagnostics.Debug.Assert(buffer.Length > 0);
-            System.Diagnostics.Debug.Assert(offset >= 0);
-            System.Diagnostics.Debug.Assert(offset < buffer.Length);
-
-            var start = offset;
-
-            //read up to space or end of buffer
-            for (; offset < buffer.Length && buffer[offset] != ' '; offset++) { }
-
-            var str = Encoding.ASCII.GetString(buffer, start, offset - start);
-            if (string.IsNullOrEmpty(str))
-                throw new Exception();
-
-            //skip over space if we can
-            if (offset < buffer.Length && buffer[offset] == ' ')
-                offset++;
-
-            return str;
+            return GetString(buffer, ref offset, SpaceSeperator);
         }
 
-        public static string GetString2(byte[] buffer, ref int offset)
+        public static string GetString(byte[] buffer, ref int offset, byte[] separators)
         {
             System.Diagnostics.Debug.Assert(buffer != null);
             System.Diagnostics.Debug.Assert(buffer.Length > 0);
             System.Diagnostics.Debug.Assert(offset >= 0);
             System.Diagnostics.Debug.Assert(offset < buffer.Length);
+            System.Diagnostics.Debug.Assert(separators != null);
+            System.Diagnostics.Debug.Assert(separators.Length > 0);
 
             var start = offset;
 
-            //read up to space or end of buffer
-            for (; offset < buffer.Length && buffer[offset] != ' ' && buffer[offset] != 0x0A; offset++) { }
+            //read up to end of buffer, looking for a separator
+            for (; offset < buffer.Length; offset++) 
+            {
+                if (separators.Contains(buffer[offset]))
+                    break;
+            }
+
+            if (start == offset)
+                throw new Exception("String cannot start on a separator");
 
             var str = Encoding.ASCII.GetString(buffer, start, offset - start);
             if (string.IsNullOrEmpty(str))
                 throw new Exception();
 
-            //skip over space if we can
-            if (offset < buffer.Length && (buffer[offset] == ' ' || buffer[offset] == 0x0A))
+            //if we are not at the end of the buffer, it means we've found a separator, so skip over it
+            if (offset < buffer.Length)
                 offset++;
 
             return str;
