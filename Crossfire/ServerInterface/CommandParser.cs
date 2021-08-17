@@ -60,6 +60,9 @@ namespace Crossfire.ServerInterface
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
         protected abstract void HandleComC(UInt16 comc_packet, UInt32 comc_time);
 
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
+
         public void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
             System.Diagnostics.Debug.Assert(e != null);
@@ -311,21 +314,25 @@ namespace Crossfire.ServerInterface
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Location))
                         {
                             var update_item_location = Tokenizer.GetUInt32(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Location, update_item_location);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Flags))
                         {
                             var update_item_flags = Tokenizer.GetUInt32(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Flags, update_item_flags);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Weight))
                         {
                             var update_item_weight = Tokenizer.GetUInt32(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Weight, update_item_weight);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Face))
                         {
                             var update_item_face = Tokenizer.GetUInt32(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Face, update_item_face);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Name))
@@ -347,24 +354,28 @@ namespace Crossfire.ServerInterface
                                 update_item_name = Encoding.ASCII.GetString(update_item_name_bytes, 0, update_item_name_bytes.Length);
                                 update_item_name_plural = update_item_name;
                             }
+
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Name, update_item_name);
+                            //TODO:HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Name, update_item_name_plural);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Animation))
                         {
                             var update_item_anim = Tokenizer.GetUInt16(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Animation, update_item_anim);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.AnimationSpeed))
                         {
                             var update_item_animspeed = Tokenizer.GetByte(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.AnimationSpeed, update_item_animspeed);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.NumberOf))
                         {
                             var update_item_nrof = Tokenizer.GetUInt32(e.Packet, ref offset);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.NumberOf, update_item_nrof);
                         }
-
-                        //HandleUpdateItem(update_item_flags, update_item_tag);
                     }
 
                     break;
@@ -397,6 +408,18 @@ namespace Crossfire.ServerInterface
 
                         map_coord_x -= MAP2_COORD_OFFSET;
                         map_coord_y -= MAP2_COORD_OFFSET;
+
+                        //handle scroll
+                        if ((map_coord & 0x1) != 0)
+                        {
+                            //TODO: scroll
+                            //HandleMap2Scroll(x, y);
+                            continue;
+                        }
+
+
+                        //TODO: clear/init space
+                        //HandleMap2ClearOld(map_coord_x, map_coord_y);
 
                         while (offset < e.Packet.Length)
                         {
@@ -489,8 +512,8 @@ namespace Crossfire.ServerInterface
                                     }
                                     break;
 
-                               // default:
-                                 //   throw new Exception();
+                                default:
+                                    throw new Exception("Invalid map_data_type: " + map_data_type.ToString());
                             }
                         }
                     }

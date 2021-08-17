@@ -19,6 +19,7 @@ namespace Crossfire
         public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
         public event EventHandler<Image2EventArgs> Image2;
         public event EventHandler<Item2EventArgs> Item2;
+        public event EventHandler<UpdateItemEventArgs> UpdateItem;
         public event EventHandler<DeleteItemEventArgs> DeleteItem;
         public event EventHandler<DeleteInventoryEventArgs> DeleteInventory;
         public event EventHandler<StatEventArgs> Stats;
@@ -238,6 +239,26 @@ namespace Crossfire
             });
         }
 
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, long UpdateValue)
+        {
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            {
+                ObjectTag = ObjectTag,
+                UpdateType = UpdateType,
+                UpdateValue = UpdateValue
+            });
+        }
+
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue)
+        {
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            {
+                ObjectTag = ObjectTag,
+                UpdateType = UpdateType,
+                UpdateString = UpdateValue
+            });
+        }
+
         protected override void HandleVersion(int csval, int scval, string verstring)
         {
             Version?.Invoke(this, new VersionEventArgs()
@@ -354,6 +375,14 @@ namespace Crossfire
         {
             public string SetupCommand { get; set; }
             public string SetupValue { get; set; }
+        }
+
+        public class UpdateItemEventArgs : EventArgs
+        {
+            public UInt32 ObjectTag { get; set; }
+            public NewClient.UpdateTypes UpdateType { get; set; }
+            public Int64 UpdateValue { get; set; }
+            public string UpdateString { get; set; }
         }
     }
 }
