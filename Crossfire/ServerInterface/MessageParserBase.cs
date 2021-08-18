@@ -7,9 +7,18 @@ using System.Threading.Tasks;
 
 namespace Crossfire.ServerInterface
 {
-    public abstract class ProtocolParserBase
+    public abstract class MessageParserBase
     {
         public const int ServerProtocolVersion = 1039;
+
+        public MessageParserBase(SocketConnection Connection)
+        {
+            _Connection = Connection;
+            _Connection.OnPacket += ParsePacket;
+        }
+
+        private SocketConnection _Connection;
+
 
         const int MAP2_COORD_OFFSET = 15;
         const float FLOAT_MULTF = 100000.0f;
@@ -65,7 +74,7 @@ namespace Crossfire.ServerInterface
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
 
-        public void ParsePacket(object sender, ConnectionPacketEventArgs e)
+        protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
             System.Diagnostics.Debug.Assert(e != null);
             System.Diagnostics.Debug.Assert(e.Packet != null);
