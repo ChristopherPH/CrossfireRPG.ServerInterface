@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Crossfire.ServerInterface
 {
-    public static class Tokenizer
+    public static class BufferTokenizer
     {
         public static byte[] SpaceSeperator = new byte[] { 0x20 };
         public static byte[] SpaceNewlineSeperator = new byte[] { 0x20, 0x0A };

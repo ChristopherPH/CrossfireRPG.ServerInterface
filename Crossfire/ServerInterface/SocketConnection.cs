@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Crossfire.ServerInterface
 {
-    public class Connection
+    public class SocketConnection
     {
         const int DefaultServerPort = 13327;
         const string DefaultServerHost = "127.0.0.1";

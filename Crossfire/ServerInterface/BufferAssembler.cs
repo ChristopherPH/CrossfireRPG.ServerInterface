@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire
+namespace Crossfire.ServerInterface
 {
-    public class CommandBuilder : IDisposable
+    public class BufferAssembler : IDisposable
     {
         string command;
         MemoryStream commandBuffer = new MemoryStream();
         private bool disposedValue;
 
-        public CommandBuilder(string Command)
+        public BufferAssembler(string Command)
         {
             if (string.IsNullOrWhiteSpace(Command))
                 throw new ArgumentException("Invalid Parameter", nameof(Command));
