@@ -70,6 +70,7 @@ namespace Crossfire.ServerInterface
         protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
         protected abstract void HandleComC(UInt16 comc_packet, UInt32 comc_time);
+        protected abstract void HandleReplyInfo(string request, byte[] reply);
 
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
@@ -249,7 +250,7 @@ namespace Crossfire.ServerInterface
                                 {
                                     var skill_level = BufferTokenizer.GetByte(e.Packet, ref offset);
                                     var skill_value = BufferTokenizer.GetUInt64(e.Packet, ref offset);
-                                    HandleSkill(stat_number - NewClient.CharacterStats_SkillInfo, skill_level, skill_value);
+                                    HandleSkill(stat_number, skill_level, skill_value);
                                 }
                                 else
                                 {
@@ -545,9 +546,13 @@ namespace Crossfire.ServerInterface
 
                     switch (reply_info)
                     {
-                        case "motd": break;
-                        case "news": break;
-                        case "rules": break;
+                        //TODO: create handlers for known reply infos
+                        //case "motd": break;
+                        //case "news": break;
+                        //case "rules": break;
+                        default:
+                            HandleReplyInfo(reply_info, reply_bytes);
+                            break;
                     }
                     break;
 

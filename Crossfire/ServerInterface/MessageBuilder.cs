@@ -16,22 +16,11 @@ namespace Crossfire.ServerInterface
         }
 
         private SocketConnection Connection;
-
-        private void SendMessage(string Message)
-        {
-            Connection.SendMessage(Message);
-        }
-
-        private void SendMessage(string Format, params object[] args)
-        {
-            SendMessage(string.Format(Format, args));
-        }
-
         private UInt16 nComPacket = 0;
 
         public UInt16 SendCommand(string command, UInt32 repeat = 1)
         {
-            using (var cb = new BufferAssembler("ncom ")) //newcommand
+            using (var cb = new BufferAssembler("ncom ")) //NewCommand
             {
                 var rc = nComPacket;
                 cb.AddInt16(rc);
@@ -53,7 +42,7 @@ namespace Crossfire.ServerInterface
         /// <param name="PlayerName"></param>
         public void SendAccountPlay(string PlayerName)
         {
-            SendMessage("accountplay {0}", PlayerName);
+            Connection.SendMessage("accountplay {0}", PlayerName);
         }
 
         public void SendAccountLogin(string UserName, string Password)
@@ -69,17 +58,17 @@ namespace Crossfire.ServerInterface
 
         public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
         {
-            SendMessage("version {0} {1} {2}", ClientToServer, ServerToClient, ClientName);
+            Connection.SendMessage("version {0} {1} {2}", ClientToServer, ServerToClient, ClientName);
         }
 
         public void SendSetup(string SetupParameter, string SetupValue)
         {
-            SendMessage("setup {0} {1}", SetupParameter, SetupValue);
+            Connection.SendMessage("setup {0} {1}", SetupParameter, SetupValue);
         }
 
         public void SendRequestInfo(string Request)
         {
-            SendMessage("requestinfo {0}", Request);
+            Connection.SendMessage("requestinfo {0}", Request);
         }
 
         public void SendApply(string tag)

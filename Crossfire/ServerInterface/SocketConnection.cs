@@ -156,7 +156,20 @@ namespace Crossfire.ServerInterface
 
             return SendMessage(messageBytes);
         }
-        
+
+        public bool SendMessage(string Format, params object[] args)
+        {
+            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Format));
+
+            var Message = string.Format(Format, args);
+
+            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Message));
+
+            var messageBytes = Encoding.ASCII.GetBytes(Message);
+
+            return SendMessage(messageBytes);
+        }
+
         public bool SendMessage(byte[] Message)
         {
             if ((_client == null) || (_stream == null) || (!_client.Connected))
