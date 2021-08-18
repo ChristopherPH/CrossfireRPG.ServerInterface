@@ -8,6 +8,8 @@ namespace Crossfire.ServerInterface
 {
     public class MessageBuilder
     {
+        public const int ClientProtocolVersion = 1023;
+
         public MessageBuilder(SocketConnection Connection)
         {
             this.Connection = Connection;
@@ -54,9 +56,35 @@ namespace Crossfire.ServerInterface
             SendMessage("accountplay {0}", PlayerName);
         }
 
+        public void SendAccountLogin(string UserName, string Password)
+        {
+            using (var cb = new BufferAssembler("accountlogin "))
+            {
+                cb.AddLengthPrefixedString(UserName);
+                cb.AddLengthPrefixedString(Password);
+
+                Connection.SendMessage(cb.GetBytes());
+            }
+        }
+
+        public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
+        {
+            SendMessage("version {0} {1} {2}", ClientToServer, ServerToClient, ClientName);
+        }
+
         public void SendSetup(string SetupParameter, string SetupValue)
         {
             SendMessage("setup {0} {1}", SetupParameter, SetupValue);
+        }
+
+        public void SendRequestInfo(string Request)
+        {
+            SendMessage("requestinfo {0}", Request);
+        }
+
+        public void SendApply(string tag)
+        {
+            Connection.SendMessage("apply " + tag);
         }
     }
 }
