@@ -164,5 +164,30 @@ namespace Crossfire.ServerInterface
 			NumberOf = 0x80,
 			All = 0xFF
 		}
+
+
+		[Flags]
+		public enum ItemFlags : uint
+        {
+			None = 0,
+
+			Readied = 1,
+			Wielded = 2,
+			Worn = 3,
+			Active = 4,
+			Applied = 5,
+
+			Applied_Mask = 0x000F,
+			Unidentified = 0x0010,
+			Unpaid = 0x0200,
+			Magic = 0x0400,
+			Cursed = 0x0800,
+			Damned = 0x1000,
+			Open = 0x2000,
+			NoPick = 0x4000,
+			Locked = 0x8000,
+			Blessed = 0x0100,
+			Read = 0x0020,		//this is past tense, as in the item has been read
+		}
 	}
 }
