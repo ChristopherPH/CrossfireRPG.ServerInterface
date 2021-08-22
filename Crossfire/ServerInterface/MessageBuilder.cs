@@ -75,5 +75,48 @@ namespace Crossfire.ServerInterface
         {
             Connection.SendMessage("apply " + tag);
         }
+
+        public void SendExamine(string tag)
+        {
+            Connection.SendMessage("examine " + tag);
+        }
+
+        public void SendMove(string to, string tag, string nrof = "0")
+        {
+            Connection.SendMessage(string.Format("move {0} {1} {2}",
+                to, tag, nrof));
+        }
+
+        public void SendLock(UInt32 tag)
+        {
+            using (var cb = new BufferAssembler("lock "))
+            {
+                cb.AddByte((byte)1);
+                cb.AddInt32(tag);
+
+                Connection.SendMessage(cb.GetBytes());
+            }
+        }
+
+        public void SendUnlock(UInt32 tag)
+        {
+            using (var cb = new BufferAssembler("lock "))
+            {
+                cb.AddByte((byte)0 );
+                cb.AddInt32(tag);
+
+                Connection.SendMessage(cb.GetBytes());
+            }
+        }
+
+        public void SendMark(UInt32 tag)
+        {
+            using (var cb = new BufferAssembler("mark "))
+            {
+                cb.AddInt32(tag);
+
+                Connection.SendMessage(cb.GetBytes());
+            }
+        }
     }
 }
