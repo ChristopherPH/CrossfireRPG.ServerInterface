@@ -1,4 +1,4 @@
-﻿using Crossfire.Utility;
+﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.ServerInterface
+namespace CrossfireCore.ServerInterface
 {
     public class SocketConnection
     {

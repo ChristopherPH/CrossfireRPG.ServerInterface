@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.ServerInterface
+namespace CrossfireCore.ServerInterface
 {
     public class MessageParser : MessageParserBase
     {
