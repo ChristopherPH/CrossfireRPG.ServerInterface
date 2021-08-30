@@ -9,5 +9,14 @@
     <Import_RootNamespace>CrossfireCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferAssembler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferTokenizer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParserBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\NewClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\HexDump.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\Log.cs" />
   </ItemGroup>
 </Project>
