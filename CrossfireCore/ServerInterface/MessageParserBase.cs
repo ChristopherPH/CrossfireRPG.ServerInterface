@@ -19,6 +19,8 @@ namespace CrossfireCore.ServerInterface
 
         private SocketConnection _Connection;
 
+        //Save the spellmon value for the parser
+        private int ParserOption_SpellMon = 0;
 
         const int MAP2_COORD_OFFSET = 15;
         const float FLOAT_MULTF = 100000.0f;
@@ -75,6 +77,14 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
 
+        protected abstract void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime, Int16 Mana, Int16 Grace,
+            Int16 Damage, byte Skill, UInt32 Path, Int32 Face, string Name, string Description, byte Usage, 
+            string Requirements);
+
+        protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue);
+
+        protected abstract void HandleDeleteSpell(UInt32 SpellTag);
+
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
             System.Diagnostics.Debug.Assert(e != null);
@@ -109,6 +119,12 @@ namespace CrossfireCore.ServerInterface
                         Logger.Log(Logger.Levels.Debug, "Setup: {0}={1}", setup_command, setup_value);
 
                         HandleSetup(setup_command, setup_value);
+
+                        //Save spellmon for parser protocol
+                        if (setup_command == "spellmon" && setup_value != "FALSE")
+                        {
+                            ParserOption_SpellMon = int.Parse(setup_value);
+                        }
                     }
                     break;
 
@@ -242,6 +258,13 @@ namespace CrossfireCore.ServerInterface
                             case NewClient.CharacterStats.Hp:
                                 var stat_16 = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_16);
+                                break;
+
+                            case NewClient.CharacterStats.SpellAttune:
+                            case NewClient.CharacterStats.SpellRepel:
+                            case NewClient.CharacterStats.SpellDeny:
+                                var stat_sp32 = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_sp32);
                                 break;
 
                             default:
@@ -554,6 +577,71 @@ namespace CrossfireCore.ServerInterface
                             HandleReplyInfo(reply_info, reply_bytes);
                             break;
                     }
+                    break;
+
+                case "addspell":
+                    while (offset < e.Packet.Length)
+                    {
+                        var spell_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                        var spell_level = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_cast_time = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_mana = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_grace = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_damage = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_skill = BufferTokenizer.GetByte(e.Packet, ref offset);
+                        var spell_path = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                        var spell_face = BufferTokenizer.GetInt32(e.Packet, ref offset);
+                        var spell_name_len = BufferTokenizer.GetByte(e.Packet, ref offset);
+                        var spell_name = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, spell_name_len);
+                        var spell_desc_len = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                        var spell_desc = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, spell_desc_len);
+
+                        byte spell_usage = 0;
+                        string spell_requirement = string.Empty;
+
+                        //extra data for spellmon 2
+                        if (ParserOption_SpellMon > 1)
+                        {
+                            spell_usage = BufferTokenizer.GetByte(e.Packet, ref offset);
+                            var spell_requirement_len = BufferTokenizer.GetByte(e.Packet, ref offset);
+                            spell_requirement = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, spell_requirement_len);
+                        }
+
+                        HandleAddSpell(spell_tag, spell_level, spell_cast_time, spell_mana, spell_grace, spell_damage, spell_skill,
+                            spell_path, spell_face, spell_name, spell_desc, spell_usage, spell_requirement);
+                    }
+                    break;
+
+                case "updspell":
+                    var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(e.Packet, ref offset);
+                    var update_spell_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+
+                    while (offset < e.Packet.Length)
+                    {
+                        if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Mana))
+                        {
+                            var update_spell_value = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                            HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
+                        }
+
+                        if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Grace))
+                        {
+                            var update_spell_value = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                            HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
+                        }
+
+                        if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Damage))
+                        {
+                            var update_spell_value = BufferTokenizer.GetInt16(e.Packet, ref offset);
+                            HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
+                        }
+                    }
+                    break;
+
+                case "delspell":
+                    var del_spell_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+
+                    HandleDeleteSpell(del_spell_tag);
                     break;
 
                 default:

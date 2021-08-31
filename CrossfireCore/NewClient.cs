@@ -194,5 +194,13 @@ namespace CrossfireCore
 			Blessed = 0x0100,
 			Read = 0x0020,		//this is past tense, as in the item has been read
 		}
+
+		[Flags]
+		public enum UpdateSpellTypes : uint
+		{
+			Mana = 0x01,
+			Grace = 0x02,
+			Damage = 0x04,
+		}
 	}
 }

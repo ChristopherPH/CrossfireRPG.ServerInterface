@@ -76,9 +76,35 @@ namespace CrossfireCore.ServerInterface
             return val;
         }
 
+        //TODO: verify is correct
+        public static Int16 GetInt16(byte[] buffer, ref int offset)
+        {
+            var val = (Int16)((buffer[offset] << 8) +
+                (buffer[offset + 1]));
+
+            //var val2 = BitConverter.ToInt16(new byte[] { buffer[offset + 1], buffer[offset] }, 0);
+
+            offset += 2;
+
+            return val;
+        }
+
         public static UInt32 GetUInt32(byte[] buffer, ref int offset)
         {
             var val = (UInt32)((buffer[offset] << 24) +
+                (buffer[offset + 1] << 16) +
+                (buffer[offset + 2] << 8) +
+                (buffer[offset + 3]));
+
+            offset += 4;
+
+            return val;
+        }
+
+        //TODO: verify is correct
+        public static Int32 GetInt32(byte[] buffer, ref int offset)
+        {
+            var val = (Int32)((buffer[offset] << 24) +
                 (buffer[offset + 1] << 16) +
                 (buffer[offset + 2] << 8) +
                 (buffer[offset + 3]));

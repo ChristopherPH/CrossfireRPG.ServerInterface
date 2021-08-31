@@ -38,8 +38,11 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<ReplyInfoEventArgs> ReplyInfo;
         public event EventHandler<VersionEventArgs> Version;
         public event EventHandler<QueryEventArgs> Query;
-        
+        public event EventHandler<AddSpellEventArgs> AddSpell;
+        public event EventHandler<UpdateSpellEventArgs> UpdateSpell;
+        public event EventHandler<DeleteSpellEventArgs> DeleteSpell;
 
+        
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, string PlayerName)
         {
             AccountPlayer?.Invoke(this, new AccountPlayerEventArgs()
@@ -337,6 +340,46 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
+        protected override void HandleAddSpell(uint SpellTag, short Level, short CastingTime,
+                    short Mana, short Grace, short Damage, byte Skill, uint Path, int Face,
+                    string Name, string Description, byte Usage, string Requirements)
+        {
+            AddSpell?.Invoke(this, new AddSpellEventArgs()
+            {
+                SpellTag = SpellTag,
+                Level = Level,
+                CastingTime = CastingTime,
+                Mana = Mana,
+                Grace = Grace,
+                Damage = Damage,
+                Skill = Skill,
+                Path = Path,
+                Face = Face,
+                Name = Name,
+                Description = Description,
+                Usage = Usage,
+                Requirements = Requirements
+            });
+        }
+
+        protected override void HandleUpdateSpell(uint SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue)
+        {
+            UpdateSpell?.Invoke(this, new UpdateSpellEventArgs()
+            {
+                SpellTag = SpellTag,
+                UpdateType = UpdateType,
+                UpdateValue = UpdateValue
+            });
+        }
+
+        protected override void HandleDeleteSpell(uint SpellTag)
+        {
+            DeleteSpell?.Invoke(this, new DeleteSpellEventArgs()
+            {
+                SpellTag = SpellTag,
+            });
+        }
+
         public class VersionEventArgs : EventArgs
         {
             public int ClientToServerProtocolVersion { get; set; }
@@ -493,6 +536,35 @@ namespace CrossfireCore.ServerInterface
         {
             public int Flags { get; set; }
             public string QueryText { get; set; }
+        }
+
+        public class AddSpellEventArgs : EventArgs
+        {
+            public UInt32 SpellTag { get; set; }
+            public Int16 Level { get; set; }
+            public Int16 CastingTime { get; set; }
+            public Int16 Mana { get; set; }
+            public Int16 Grace { get; set; }
+            public Int16 Damage { get; set; }
+            public byte Skill { get; set; }
+            public UInt32 Path { get; set; }
+            public Int32 Face { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public byte Usage { get; set; }
+            public string Requirements { get; set; }
+        }
+
+        public class UpdateSpellEventArgs : EventArgs
+        {
+            public UInt32 SpellTag { get; set; }
+            public NewClient.UpdateSpellTypes UpdateType { get; set; }
+            public Int64 UpdateValue { get; set; }
+        }
+
+        public class DeleteSpellEventArgs : EventArgs
+        {
+            public UInt32 SpellTag { get; set; }
         }
     }
 }
