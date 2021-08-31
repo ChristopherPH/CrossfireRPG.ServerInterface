@@ -16,7 +16,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParserBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\HexDump.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Log.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\StringExtensions.cs" />
   </ItemGroup>
 </Project>

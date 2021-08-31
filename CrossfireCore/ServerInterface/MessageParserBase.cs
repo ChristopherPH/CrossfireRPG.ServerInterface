@@ -231,7 +231,7 @@ namespace CrossfireCore.ServerInterface
 
                             case NewClient.CharacterStats.WeightLim:
                                 var stat_32 = BufferTokenizer.GetUInt32(e.Packet, ref offset);
-                                HandleStat((NewClient.CharacterStats)stat_number, stat_32);
+                                HandleStat((NewClient.CharacterStats)stat_number, (float)stat_32 / 1000);
                                 break;
 
                             case NewClient.CharacterStats.Exp64:

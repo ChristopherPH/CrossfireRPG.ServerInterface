@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,37 +56,41 @@ namespace CrossfireCore
 
         public enum CharacterStats
         {
-			Hp = 1,
-			MaxHp = 2,
-			Sp = 3,
-			MaxSp = 4,
-			Str = 5,
-			Int = 6,
-			Wis = 7,
-			Dex = 8,
-			Con = 9,
-			Cha = 10,
-			Exp = 11,  /* No Longer Used */
-			Level = 12,
-			Wc = 13,
-			Ac = 14,
-			Dam = 15,
-			Armour = 16,
-			Speed = 17,
-			Food = 18,
-			WeapSp = 19,
-			Range = 20,
-			Title = 21,
-			Pow = 22,
-			Grace = 23,
-			MaxGrace = 24,
-			Flags = 25,
-			WeightLim = 26,
-			Exp64 = 28,
+			[Description("Health")]			Hp = 1,
+			[Description("Max Health")]		MaxHp = 2,
+			[Description("Mana")]			Sp = 3,
+			[Description("Max Mana")]		MaxSp = 4,
 
-			SpellAttune = 29,
-			SpellRepel = 30,
-			SpellDeny = 31,
+			[Description("Strength")]		Str = 5,
+			[Description("Intelligence")]	Int = 6,
+			[Description("Wisdom")]			Wis = 7,
+			[Description("Dexterity")]		Dex = 8,
+			[Description("Constitution")]	Con = 9,
+			[Description("Charisma")]		Cha = 10,
+
+			[Description("Experience")]		Exp = 11,  /* No Longer Used */
+			[Description("Level")]			Level = 12,
+			[Description("Weapon Class")]	Wc = 13,
+			[Description("Armour Class")]	Ac = 14,
+			[Description("Damage")]			Dam = 15,
+			[Description("Armour")]			Armour = 16,
+			[Description("Speed")]			Speed = 17,
+			[Description("Hunger")]			Food = 18,
+			[Description("Weapon Speed")]	WeapSp = 19,
+			[Description("Range")]			Range = 20,
+			[Description("Title")]			Title = 21,
+			[Description("Power")]			Pow = 22,
+			[Description("Grace")]			Grace = 23,
+			[Description("Max Grace")]		MaxGrace = 24,
+			
+			Flags = 25,
+
+			[Description("Weight Limit")]	WeightLim = 26,
+			[Description("Experience")]		Exp64 = 28,
+
+			[Description("Spell Attune")]	SpellAttune = 29,
+			[Description("Spell Repel")]	SpellRepel = 30,
+			[Description("Spell Deny")]		SpellDeny = 31,
 
 			RaceStr = 32,
 			RaceInt = 33,
@@ -114,24 +119,24 @@ namespace CrossfireCore
 			GolemHp = 53,			/* Golem's Current Hp = 0, If No Golem. */
 			GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
 
-			ResPhys = 100,
-			ResMag = 101,
-			ResFire = 102,
-			ResElec = 103,
-			ResCold = 104,
-			ResConf = 105,
-			ResAcid = 106,
-			ResDrain = 107,
-			ResGhosthit = 108,
-			ResPoison = 109,
-			ResSlow = 110,
-			ResPara = 111,
-			TurnUndead = 112,
-			ResFear = 113,
-			ResDeplete = 114,
-			ResDeath = 115,
-			ResHolyword = 116,
-			ResBlind = 117,
+			[Description("Resist Physical")]	ResPhys = 100,
+			[Description("Resist Magic")]		ResMag = 101,
+			[Description("Resist Fire")]		ResFire = 102,
+			[Description("Resist Electricity")]	ResElec = 103,
+			[Description("Resist Cold")]		ResCold = 104,
+			[Description("Resist Conf")]		ResConf = 105,
+			[Description("Resist Acid")]		ResAcid = 106,
+			[Description("Resist Drain")]		ResDrain = 107,
+			[Description("Resist Ghost Hit")]	ResGhosthit = 108,
+			[Description("Resist Poison")]		ResPoison = 109,
+			[Description("Resist Slow")]		ResSlow = 110,
+			[Description("Resist Paralysis")]	ResPara = 111,
+			[Description("Turn Undead")]		TurnUndead = 112,
+			[Description("Resist Fear")]		ResFear = 113,
+			[Description("Resist Deplete")]		ResDeplete = 114,
+			[Description("Resist Death")]		ResDeath = 115,
+			[Description("Resist Holy Word")]	ResHolyword = 116,
+			[Description("Resist Blindness")]	ResBlind = 117,
 		}
 
 		public const int CharacterStats_ResistStart = 100;  /* Start Of Resistances (Inclusive) */
