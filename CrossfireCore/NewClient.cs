@@ -124,7 +124,7 @@ namespace CrossfireCore
 			[Description("Resist Fire")]		ResFire = 102,
 			[Description("Resist Electricity")]	ResElec = 103,
 			[Description("Resist Cold")]		ResCold = 104,
-			[Description("Resist Conf")]		ResConf = 105,
+			[Description("Resist Confusion")]	ResConf = 105,
 			[Description("Resist Acid")]		ResAcid = 106,
 			[Description("Resist Drain")]		ResDrain = 107,
 			[Description("Resist Ghost Hit")]	ResGhosthit = 108,
