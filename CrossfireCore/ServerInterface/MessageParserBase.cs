@@ -96,9 +96,12 @@ namespace CrossfireCore.ServerInterface
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
 
-            Logger.Log(Logger.Levels.Debug, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
-            Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(e.Packet));
+            if (cmd != "tick")
+            {
+                Logger.Log(Logger.Levels.Debug, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+            }
 
+            Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(e.Packet));
 
             switch (cmd)
             {
@@ -290,6 +293,11 @@ namespace CrossfireCore.ServerInterface
                     var face = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                     var smoothpic = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                     HandleSmooth(face, smoothpic);
+                    break;
+
+                case "tick":
+                    var tick_count = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                    //TODO: handle tick
                     break;
 
                 case "anim":
@@ -642,6 +650,48 @@ namespace CrossfireCore.ServerInterface
                     var del_spell_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
 
                     HandleDeleteSpell(del_spell_tag);
+                    break;
+
+                case "pickup":
+                    var pickup_mask = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                    //TODO: handle pickup
+                    break;
+
+                case "addquest":
+                    while (offset < e.Packet.Length)
+                    {
+                        var quest_code = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                        var quest_title_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                        var quest_title = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, quest_title_len);
+                        var quest_face = BufferTokenizer.GetInt32(e.Packet, ref offset);
+                        var quest_replay = BufferTokenizer.GetByte(e.Packet, ref offset);
+                        var quest_parent_code = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                        var quest_end = BufferTokenizer.GetByte(e.Packet, ref offset);
+                        var quest_step_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                        var quest_step = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, quest_step_len);
+                        //TODO: handle
+                    }
+                    break;
+
+                case "updquest":
+                    var update_quest_code = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                    var update_quest_end = BufferTokenizer.GetByte(e.Packet, ref offset);
+                    var update_quest_step_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                    var update_quest_step = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, update_quest_step_len);
+                    //TODO: parse and handle 
+                    break;
+
+                case "addknowledge":
+                    while (offset < e.Packet.Length)
+                    {
+                        var knowledge_id = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+                        var knowledge_type_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                        var knowledge_type = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, knowledge_type_len);
+                        var knowledge_title_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                        var knowledge_title = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, knowledge_title_len);
+                        var knowledge_face = BufferTokenizer.GetInt32(e.Packet, ref offset);
+                        //TODO: handle
+                    }
                     break;
 
                 default:
