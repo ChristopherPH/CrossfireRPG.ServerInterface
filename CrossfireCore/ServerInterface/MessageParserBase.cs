@@ -48,7 +48,9 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleStat(NewClient.CharacterStats Stat, string Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, float Value);
 
-        protected abstract void HandleAccountPlayer(int PlayerCount, int PlayerNumber, string PlayerName);
+        protected abstract void HandleAccountPlayer(int PlayerCount, int PlayerNumber, 
+            UInt16 Level, UInt16 FaceNumber, string Name, string Class, string Race,
+            string Face, string Party, string Map);
 
         protected abstract void HandleSkill(int Skill, byte Level, UInt64 Value);
 
@@ -179,14 +181,38 @@ namespace CrossfireCore.ServerInterface
                     var num_characters = BufferTokenizer.GetByte(e.Packet, ref offset);
                     var character_count = 1;
 
-                    HandleAccountPlayer(num_characters, 0, string.Empty); //TODO: remove this hack to empty the player list
+                    //TODO: remove this hack to empty the player list
+                    HandleAccountPlayer(num_characters, 0, 0, 0,  "", "", "", "", "", ""); 
+
+                    UInt16 account_player_level = 0;
+                    UInt16 account_player_facenum = 0;
+                    string account_player_name = "";
+                    string account_player_class = "";
+                    string account_player_race = "";
+                    string account_player_face = "";
+                    string account_player_party = "";
+                    string account_player_map = "";
 
                     while (offset < e.Packet.Length)
                     {
                         var char_data_len = BufferTokenizer.GetByte(e.Packet, ref offset);
                         if (char_data_len == 0)
                         {
+                            HandleAccountPlayer(num_characters, character_count,
+                                account_player_level, account_player_facenum, account_player_name,
+                                account_player_class, account_player_race, account_player_face,
+                                account_player_party, account_player_map);
+
                             character_count++;
+
+                            account_player_level = 0;
+                            account_player_facenum = 0;
+                            account_player_name = "";
+                            account_player_class = "";
+                            account_player_race = "";
+                            account_player_face = "";
+                            account_player_party = "";
+                            account_player_map = "";
                             break;
                         }
 
@@ -196,21 +222,35 @@ namespace CrossfireCore.ServerInterface
                         switch (char_data_type)
                         {
                             case NewClient.AccountCharacterLoginTypes.Level:
+                                account_player_level = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.FaceNum:
-                                var char_data_int = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                                account_player_facenum = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                                 break;
 
                             case NewClient.AccountCharacterLoginTypes.Name:
-                                var char_data_name = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
-                                HandleAccountPlayer(num_characters, character_count, char_data_name);
+                                account_player_name = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
                                 break;
 
                             case NewClient.AccountCharacterLoginTypes.Class:
+                                account_player_class = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.Race:
+                                account_player_race = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.Face:
+                                account_player_face = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.Party:
+                                account_player_party = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                break;
+
                             case NewClient.AccountCharacterLoginTypes.Map:
-                                var char_data_str = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
+                                account_player_map = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, char_data_len);
                                 break;
 
                             default:
@@ -447,7 +487,7 @@ namespace CrossfireCore.ServerInterface
 
                         var map_coord_x = (map_coord >> 10) & 0x3F;         //top 6 bits
                         var map_coord_y = (map_coord >> 4) & 0x3F;          //next 6 bits
-                        var map_coord_l = (map_coord) & 0x0F;               //bottom 4 bits
+                        var map_coord_l = (map_coord) & 0x0F;               //bottom 4 bits //TODO: find a use for this variable
 
                         map_coord_x -= MAP2_COORD_OFFSET;
                         map_coord_y -= MAP2_COORD_OFFSET;
