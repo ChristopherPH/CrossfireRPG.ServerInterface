@@ -213,7 +213,7 @@ namespace CrossfireCore.ServerInterface
                             account_player_face = "";
                             account_player_party = "";
                             account_player_map = "";
-                            break;
+                            continue;
                         }
 
                         var char_data_type = (NewClient.AccountCharacterLoginTypes)BufferTokenizer.GetByte(e.Packet, ref offset);
