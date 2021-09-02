@@ -31,6 +31,33 @@ namespace CrossfireCore.ServerInterface
         public List<(string Type, string Name, Int32 Face, int Attempt)> Knowledges { get; } = new List<(string Type, string Name, Int32 Face, int Attempt)>();
         public UInt64[] ExperienceTable { get; private set; }
 
+        public Dictionary<string, RaceClassInfo> Races { get; } = new Dictionary<string, RaceClassInfo>();
+        public Dictionary<string, RaceClassInfo> Classes { get; } = new Dictionary<string, RaceClassInfo>();
+
+        public class RaceClassChoice
+        {
+            public string ArchName { get; set; } = string.Empty;
+            public string ArchDescription { get; set; } = string.Empty;
+        }
+
+        public class RaceClassStat
+        {
+            public NewClient.CharacterStats Stat { get; set; }
+            public string StatValue { get; set; } = string.Empty;
+        }
+
+        public class RaceClassInfo
+        {
+            public string Arch { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+            public string ChoiceName { get; set; } = string.Empty;
+            public string ChoiceDescription { get; set; } = string.Empty;
+
+            public List<RaceClassStat> Stats { get; set; } = new List<RaceClassStat>();
+            public List<RaceClassChoice> Choices { get; set; } = new List<RaceClassChoice>();
+        }
+
         //Helper functions
         public string GetSpellPath(uint Path)
         {
@@ -166,6 +193,11 @@ namespace CrossfireCore.ServerInterface
                 case "race_info":
                     var race_arch = BufferTokenizer.GetString(e.Reply, ref offset, BufferTokenizer.NewlineSeperator);
 
+                    this.Races[race_arch] = new RaceClassInfo()
+                    {
+                        Arch = race_arch
+                    };
+
                     while (offset < e.Reply.Length)
                     {
                         var race_info_key = BufferTokenizer.GetString(e.Reply, ref offset);
@@ -174,47 +206,49 @@ namespace CrossfireCore.ServerInterface
                         {
                             case "name":
                                 var race_name_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var race_name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_name_len);
+                                this.Races[race_arch].Name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_name_len);
                                 break;
 
                             case "msg":
                                 var race_desc_len = BufferTokenizer.GetUInt16(e.Reply, ref offset);
-                                var race_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_desc_len);
+                                this.Races[race_arch].Description = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_desc_len);
                                 break;
 
                             case "stats":
                                 var race_stats_number = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 while (race_stats_number != 0)
                                 {
+                                    var race_stat_value = string.Empty;
+
                                     switch ((NewClient.CharacterStats)race_stats_number)
                                     {
                                         case NewClient.CharacterStats.Range:
                                         case NewClient.CharacterStats.Title:
                                             var stat_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                            var stat_text = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, stat_len);
+                                            race_stat_value = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, stat_len);
                                             break;
 
                                         case NewClient.CharacterStats.Speed:
                                         case NewClient.CharacterStats.WeapSp:
-                                            var stat_32f = BufferTokenizer.GetUInt32(e.Reply, ref offset); ;
+                                            race_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.WeightLim:
-                                            var stat_32 = BufferTokenizer.GetUInt32(e.Reply, ref offset);
+                                            race_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.Exp64:
-                                            var stat_64 = BufferTokenizer.GetUInt64(e.Reply, ref offset);
+                                            race_stat_value = BufferTokenizer.GetUInt64(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.Hp:
-                                            var stat_16 = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                                            race_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.SpellAttune:
                                         case NewClient.CharacterStats.SpellRepel:
                                         case NewClient.CharacterStats.SpellDeny:
-                                            var stat_sp32 = BufferTokenizer.GetUInt32(e.Reply, ref offset);
+                                            race_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         default:
@@ -226,10 +260,16 @@ namespace CrossfireCore.ServerInterface
                                             }
                                             else
                                             {
-                                                var stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                                                race_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
                                             }
                                             break;
                                     }
+
+                                    this.Races[race_arch].Stats.Add(new RaceClassStat()
+                                    {
+                                         Stat = (NewClient.CharacterStats)race_stats_number,
+                                         StatValue = race_stat_value,
+                                    });
 
                                     race_stats_number = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 }
@@ -237,16 +277,20 @@ namespace CrossfireCore.ServerInterface
 
                             case "choice":
                                 var race_choice_name_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var race_choice_name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_name_len);
+                                this.Races[race_arch].ChoiceName = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_name_len);
+
                                 var race_choice_desc_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var race_choice_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_desc_len);
+                                this.Races[race_arch].ChoiceDescription = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_desc_len);
 
                                 var race_choice_arch_len = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 while (race_choice_arch_len != 0)
                                 {
-                                    var race_choice_arch = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_arch_len);
+                                    var choicePair = new RaceClassChoice();
+                                    this.Races[race_arch].Choices.Add(choicePair);
+
+                                    choicePair.ArchName = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_arch_len);
                                     var race_choice_arch_desc_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                    var race_choice_arch_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_arch_desc_len);
+                                    choicePair.ArchDescription = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, race_choice_arch_desc_len);
 
                                     race_choice_arch_len = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 }
@@ -266,6 +310,11 @@ namespace CrossfireCore.ServerInterface
                 case "class_info":
                     var class_arch = BufferTokenizer.GetString(e.Reply, ref offset, BufferTokenizer.NewlineSeperator);
 
+                    this.Classes[class_arch] = new RaceClassInfo()
+                    {
+                        Arch = class_arch
+                    };
+
                     while (offset < e.Reply.Length)
                     {
                         var class_info_key = BufferTokenizer.GetString(e.Reply, ref offset);
@@ -274,47 +323,49 @@ namespace CrossfireCore.ServerInterface
                         {
                             case "name":
                                 var class_name_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var class_name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_name_len);
+                                this.Classes[class_arch].Name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_name_len);
                                 break;
 
                             case "msg":
                                 var class_desc_len = BufferTokenizer.GetUInt16(e.Reply, ref offset);
-                                var class_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_desc_len);
+                                this.Classes[class_arch].Description = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_desc_len);
                                 break;
 
                             case "stats":
                                 var class_stats_number = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 while (class_stats_number != 0)
                                 {
+                                    var class_stat_value = string.Empty;
+
                                     switch ((NewClient.CharacterStats)class_stats_number)
                                     {
                                         case NewClient.CharacterStats.Range:
                                         case NewClient.CharacterStats.Title:
                                             var stat_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                            var stat_text = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, stat_len);
+                                            class_stat_value = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, stat_len);
                                             break;
 
                                         case NewClient.CharacterStats.Speed:
                                         case NewClient.CharacterStats.WeapSp:
-                                            var stat_32f = BufferTokenizer.GetUInt32(e.Reply, ref offset); ;
+                                            class_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.WeightLim:
-                                            var stat_32 = BufferTokenizer.GetUInt32(e.Reply, ref offset);
+                                            class_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.Exp64:
-                                            var stat_64 = BufferTokenizer.GetUInt64(e.Reply, ref offset);
+                                            class_stat_value = BufferTokenizer.GetUInt64(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.Hp:
-                                            var stat_16 = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                                            class_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
                                             break;
 
                                         case NewClient.CharacterStats.SpellAttune:
                                         case NewClient.CharacterStats.SpellRepel:
                                         case NewClient.CharacterStats.SpellDeny:
-                                            var stat_sp32 = BufferTokenizer.GetUInt32(e.Reply, ref offset);
+                                            class_stat_value = BufferTokenizer.GetUInt32(e.Reply, ref offset).ToString();
                                             break;
 
                                         default:
@@ -326,10 +377,16 @@ namespace CrossfireCore.ServerInterface
                                             }
                                             else
                                             {
-                                                var stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                                                class_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
                                             }
                                             break;
                                     }
+
+                                    this.Classes[class_arch].Stats.Add(new RaceClassStat()
+                                    {
+                                        Stat = (NewClient.CharacterStats)class_stats_number,
+                                        StatValue = class_stat_value,
+                                    });
 
                                     class_stats_number = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 }
@@ -337,16 +394,20 @@ namespace CrossfireCore.ServerInterface
 
                             case "choice":
                                 var class_choice_name_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var class_choice_name = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_name_len);
+                                this.Classes[class_arch].ChoiceName = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_name_len);
+
                                 var class_choice_desc_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                var class_choice_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_desc_len);
+                                this.Classes[class_arch].ChoiceDescription = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_desc_len);
 
                                 var class_choice_arch_len = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 while (class_choice_arch_len != 0)
                                 {
-                                    var class_choice_arch = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_arch_len);
+                                    var choicePair = new RaceClassChoice();
+                                    this.Classes[class_arch].Choices.Add(choicePair);
+
+                                    choicePair.ArchName = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_arch_len);
                                     var class_choice_arch_desc_len = BufferTokenizer.GetByte(e.Reply, ref offset);
-                                    var class_choice_arch_desc = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_arch_desc_len);
+                                    choicePair.ArchDescription = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, class_choice_arch_desc_len);
 
                                     class_choice_arch_len = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 }
