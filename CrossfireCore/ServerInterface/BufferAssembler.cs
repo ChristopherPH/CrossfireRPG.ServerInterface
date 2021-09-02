@@ -41,7 +41,7 @@ namespace CrossfireCore.ServerInterface
             commandBuffer.Write(new byte[] { b }, 0, 1);
         }
 
-        public void AddInt16(UInt16 i)
+        public void AddUInt16(UInt16 i)
         {
             var bytes = new byte[2];
 
@@ -51,7 +51,20 @@ namespace CrossfireCore.ServerInterface
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
-        public void AddInt32(UInt32 i)
+        public void AddUInt32(UInt32 i)
+        {
+            var bytes = new byte[4];
+
+            bytes[0] = (byte)((i >> 24) & 0xFF);
+            bytes[1] = (byte)((i >> 16) & 0xFF);
+            bytes[2] = (byte)((i >> 8) & 0xFF);
+            bytes[3] = (byte)((i) & 0xFF);
+
+            commandBuffer.Write(bytes, 0, bytes.Length);
+        }
+
+        //TODO: verify 
+        public void AddInt32(Int32 i)
         {
             var bytes = new byte[4];
 

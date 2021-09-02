@@ -23,8 +23,8 @@ namespace CrossfireCore.ServerInterface
             using (var cb = new BufferAssembler("ncom ")) //NewCommand
             {
                 var rc = nComPacket;
-                cb.AddInt16(rc);
-                cb.AddInt32(repeat);
+                cb.AddUInt16(rc);
+                cb.AddUInt32(repeat);
                 cb.AddString(command);
 
                 System.Diagnostics.Debug.Print("Sending Command {0}:{1}", nComPacket, command);
@@ -92,7 +92,7 @@ namespace CrossfireCore.ServerInterface
             using (var cb = new BufferAssembler("lock "))
             {
                 cb.AddByte((byte)1);
-                cb.AddInt32(tag);
+                cb.AddUInt32(tag);
 
                 Connection.SendMessage(cb.GetBytes());
             }
@@ -103,7 +103,7 @@ namespace CrossfireCore.ServerInterface
             using (var cb = new BufferAssembler("lock "))
             {
                 cb.AddByte((byte)0 );
-                cb.AddInt32(tag);
+                cb.AddUInt32(tag);
 
                 Connection.SendMessage(cb.GetBytes());
             }
@@ -112,6 +112,16 @@ namespace CrossfireCore.ServerInterface
         public void SendMark(UInt32 tag)
         {
             using (var cb = new BufferAssembler("mark "))
+            {
+                cb.AddUInt32(tag);
+
+                Connection.SendMessage(cb.GetBytes());
+            }
+        }
+
+        public void SendAskFace(Int32 tag)
+        {
+            using (var cb = new BufferAssembler("askface "))
             {
                 cb.AddInt32(tag);
 
