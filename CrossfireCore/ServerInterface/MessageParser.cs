@@ -44,6 +44,7 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<AddQuestEventArgs> AddQuest;
         public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
         public event EventHandler<AddKnowledgeEventArgs> AddKnowledge;
+        public event EventHandler<PickupEventArgs> Pickup;
 
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, UInt16 Level, 
             UInt16 FaceNumber, string Name, string Class, string Race, string Face, string Party, string Map)
@@ -426,6 +427,14 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
+        protected override void HandlePickup(UInt32 PickupFlags)
+        {
+            Pickup?.Invoke(this, new PickupEventArgs()
+            {
+                Flags = PickupFlags,
+            });
+        }
+
         public class VersionEventArgs : EventArgs
         {
             public int ClientToServerProtocolVersion { get; set; }
@@ -644,6 +653,11 @@ namespace CrossfireCore.ServerInterface
             public string Type { get; set; }
             public string Title { get; set; }
             public Int32 Face { get; set; }
+        }
+
+        public class PickupEventArgs : EventArgs
+        {
+            public UInt32 Flags { get; set; }
         }
     }
 }
