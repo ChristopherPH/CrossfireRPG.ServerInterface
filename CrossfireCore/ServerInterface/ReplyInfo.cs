@@ -19,6 +19,8 @@ namespace CrossfireCore.ServerInterface
         private MessageBuilder _Builder;
         private MessageParser _Parser;
 
+        public event EventHandler<InfoAvailableEventArgs> InfoAvailable;
+
         //Server Info
         public string Motd { get; private set; }
         public string News { get; private set; }
@@ -354,6 +356,8 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 default:
+                    Logger.Log(Logger.Levels.Warn, "Unknown ReplyInfo {0}:\n{1}",
+                        e.Request, HexDump.Utils.HexDump(e.Reply));
                     return;
             }
 
@@ -362,7 +366,16 @@ namespace CrossfireCore.ServerInterface
                 Logger.Log(Logger.Levels.Warn, "Excess Data for ReplyInfo {0}:\n{1}",
                     e.Request, HexDump.Utils.HexDump(e.Reply, offset));
             }
+
+            InfoAvailable?.Invoke(this, new InfoAvailableEventArgs()
+            {
+                InfoType = e.Request
+            });
         }
 
+        public class InfoAvailableEventArgs : EventArgs
+        {
+            public string InfoType { get; set; }
+        }
     }
 }
