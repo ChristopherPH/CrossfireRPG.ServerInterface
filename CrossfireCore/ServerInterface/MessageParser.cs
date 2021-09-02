@@ -41,8 +41,10 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<AddSpellEventArgs> AddSpell;
         public event EventHandler<UpdateSpellEventArgs> UpdateSpell;
         public event EventHandler<DeleteSpellEventArgs> DeleteSpell;
+        public event EventHandler<AddQuestEventArgs> AddQuest;
+        public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
+        public event EventHandler<AddKnowledgeEventArgs> AddKnowledge;
 
-        
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, UInt16 Level, 
             UInt16 FaceNumber, string Name, string Class, string Race, string Face, string Party, string Map)
         {
@@ -370,7 +372,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleUpdateSpell(uint SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue)
+        protected override void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue)
         {
             UpdateSpell?.Invoke(this, new UpdateSpellEventArgs()
             {
@@ -380,11 +382,47 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleDeleteSpell(uint SpellTag)
+        protected override void HandleDeleteSpell(UInt32 SpellTag)
         {
             DeleteSpell?.Invoke(this, new DeleteSpellEventArgs()
             {
                 SpellTag = SpellTag,
+            });
+        }
+
+        protected override void HandleAddQuest(UInt32 Code, string Title, int Face, 
+            byte Replay, uint Parent, byte End, string Step)
+        {
+            AddQuest?.Invoke(this, new AddQuestEventArgs()
+            {
+                Code = Code,
+                Title = Title,
+                Face = Face,
+                Replay = Replay,
+                Parent = Parent, 
+                End = End,
+                Step = Step,
+            });
+        }
+
+        protected override void HandleUpdateQuest(UInt32 Code, byte End, string Step)
+        {
+            UpdateQuest?.Invoke(this, new UpdateQuestEventArgs()
+            {
+                Code = Code,
+                End = End,
+                Step = Step,
+            });
+        }
+
+        protected override void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face)
+        {
+            AddKnowledge?.Invoke(this, new AddKnowledgeEventArgs()
+            {
+                ID = ID,
+                Type = Type,
+                Title = Title,
+                Face = Face
             });
         }
 
@@ -580,6 +618,32 @@ namespace CrossfireCore.ServerInterface
         public class DeleteSpellEventArgs : EventArgs
         {
             public UInt32 SpellTag { get; set; }
+        }
+
+        public class AddQuestEventArgs : EventArgs
+        {
+            public UInt32 Code { get; set; }
+            public string Title { get; set; }
+            public Int32 Face { get; set; }
+            public byte Replay { get; set; }
+            public UInt32 Parent { get; set; }
+            public byte End { get; set; }
+            public string Step { get; set; }
+        }
+
+        public class UpdateQuestEventArgs : EventArgs
+        {
+            public UInt32 Code { get; set; }
+            public byte End { get; set; }
+            public string Step { get; set; }
+        }
+
+        public class AddKnowledgeEventArgs : EventArgs
+        {
+            public UInt32 ID { get; set; }
+            public string Type { get; set; }
+            public string Title { get; set; }
+            public Int32 Face { get; set; }
         }
     }
 }

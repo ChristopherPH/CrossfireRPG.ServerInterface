@@ -87,6 +87,11 @@ namespace CrossfireCore.ServerInterface
 
         protected abstract void HandleDeleteSpell(UInt32 SpellTag);
 
+        protected abstract void HandleAddQuest(UInt32 Code, string Title, Int32 Face, byte Replay, UInt32 Parent,
+            byte End, string Step);
+        protected abstract void HandleUpdateQuest(UInt32 Code, byte End, string Step);
+        protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face);
+
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
             System.Diagnostics.Debug.Assert(e != null);
@@ -709,6 +714,8 @@ namespace CrossfireCore.ServerInterface
                         var quest_end = BufferTokenizer.GetByte(e.Packet, ref offset);
                         var quest_step_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                         var quest_step = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, quest_step_len);
+                        HandleAddQuest(quest_code, quest_title, quest_face, quest_replay, quest_parent_code,
+                            quest_end, quest_step);
                         //TODO: handle
                     }
                     break;
@@ -718,6 +725,7 @@ namespace CrossfireCore.ServerInterface
                     var update_quest_end = BufferTokenizer.GetByte(e.Packet, ref offset);
                     var update_quest_step_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                     var update_quest_step = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, update_quest_step_len);
+                    HandleUpdateQuest(update_quest_code, update_quest_end, update_quest_step);
                     //TODO: parse and handle 
                     break;
 
@@ -730,7 +738,8 @@ namespace CrossfireCore.ServerInterface
                         var knowledge_title_len = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                         var knowledge_title = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, knowledge_title_len);
                         var knowledge_face = BufferTokenizer.GetInt32(e.Packet, ref offset);
-                        //TODO: handle
+
+                        HandleAddKnowledge(knowledge_id, knowledge_type, knowledge_title, knowledge_face);
                     }
                     break;
 
