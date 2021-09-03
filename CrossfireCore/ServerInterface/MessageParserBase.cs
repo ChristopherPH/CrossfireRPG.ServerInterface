@@ -592,7 +592,8 @@ namespace CrossfireCore.ServerInterface
                                     {
                                         var anim_type = (face_or_animation >> 6) & 0x03;      //top 2 bits
 
-                                        HandleMap2Animation(map_coord_x, map_coord_y, layer, face_or_animation, anim_type, animspeed, smooth);
+                                        var animation = (UInt16)(face_or_animation & 0x1FFF);
+                                        HandleMap2Animation(map_coord_x, map_coord_y, layer, animation, anim_type, animspeed, smooth);
                                     }
                                     else
                                     {

@@ -72,6 +72,7 @@ namespace CrossfireCore.ServerInterface
             return s ?? "";
         }
 
+        //Supported Request functions
         public void RequestMOTD()
         {
             _Builder.SendRequestInfo("motd");

@@ -169,7 +169,9 @@ namespace CrossfireCore.ServerInterface
                 Y = y,
                 Layer = layer,
                 Animation = animation,
-                AnimationType = animationtype
+                AnimationType = animationtype,
+                AnimationSpeed = animationspeed,
+                Smooth = smooth,
             });
         }
 
@@ -518,6 +520,8 @@ namespace CrossfireCore.ServerInterface
             public int Layer { get; set; }
             public UInt16 Animation { get; set; }
             public int AnimationType { get; set; }
+            public byte AnimationSpeed { get; set; }
+            public byte Smooth { get; set; }
         }
 
         public class AccountPlayerEventArgs : EventArgs
