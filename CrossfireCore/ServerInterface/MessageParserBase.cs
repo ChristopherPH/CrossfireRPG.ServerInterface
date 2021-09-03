@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CrossfireCore.ServerInterface
 {
-    public abstract class MessageParserBase
+    public abstract partial class MessageParserBase
     {
         public const int ServerProtocolVersion = 1039;
 

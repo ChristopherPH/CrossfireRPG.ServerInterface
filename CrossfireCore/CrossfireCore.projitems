@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParserBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParserEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\ReplyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EnumExtensions.cs" />
