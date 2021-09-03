@@ -43,23 +43,50 @@ namespace CrossfireCore.ServerInterface
             {
                 var asyncResult = _client.BeginConnect(Host, Port, ConnectCallback, _client);
 
+                //just in case we connect right away!
                 if (asyncResult.CompletedSynchronously)
-                    throw new Exception();
-                if (asyncResult.IsCompleted)
-                    throw new Exception();
+                {
+                    if (_client.Connected)
+                    {
+                        _stream = client.GetStream();
+
+                        //check if there are problems with the stream
+                        System.Diagnostics.Debug.Assert(_stream != null);
+                        System.Diagnostics.Debug.Assert(_stream.CanRead);
+                        System.Diagnostics.Debug.Assert(_stream.CanWrite);
+
+                        //start waiting for data
+                        WaitForHeader(new StateObject(client, _stream));
+
+                        SetConnectionStatus(ConnectionStatuses.Connected);
+
+                        return true;
+                    }
+
+                    return false;
+                }
             }
             catch (SocketException ex)
+            {
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorCode = ex.ErrorCode,
+                    ErrorMessage = ex.Message,
+                });
+
+                //at this point, we didn't set our connection status,
+                //and never got a valid socket, so just clean up
+                //instead of disconnecting
+                Cleanup();
+                return false;
+            }
+            catch (Exception ex)
             {
                 OnError?.Invoke(this, new ConnectionErrorEventArgs()
                 {
                     ErrorMessage = ex.Message
                 });
 
-                Cleanup();
-                return false;
-            }
-            catch (Exception ex)
-            {
                 Cleanup();
                 return false;
             }
@@ -88,18 +115,23 @@ namespace CrossfireCore.ServerInterface
                     ErrorMessage = ex.Message
                 });
 
-                Cleanup();
+                Disconnect();
                 return;
             }
             catch (Exception ex)
             {
-                Cleanup();
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorMessage = ex.Message
+                });
+
+                Disconnect();
                 return;
             }
 
             if (!client.Connected)
             {
-                Cleanup();
+                Disconnect();
                 return;
             }
 
@@ -141,8 +173,9 @@ namespace CrossfireCore.ServerInterface
             if ((_client != null) && (_client.Connected))
             {
                 _client.Close();
-                SetConnectionStatus(ConnectionStatuses.Disconnected);
             }
+
+            SetConnectionStatus(ConnectionStatuses.Disconnected);
 
             Cleanup();
         }
