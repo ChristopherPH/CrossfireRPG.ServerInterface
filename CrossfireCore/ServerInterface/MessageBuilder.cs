@@ -16,9 +16,9 @@ namespace CrossfireCore.ServerInterface
         }
 
         private SocketConnection Connection;
-        private UInt16 nComPacket = 0;
+        private UInt16 nComPacket = 1;
 
-        public UInt16 SendCommand(string command, UInt32 repeat = 1)
+        public UInt16 SendNewCommand(string command, UInt32 repeat = 1)
         {
             using (var cb = new BufferAssembler("ncom ")) //NewCommand
             {
@@ -27,10 +27,12 @@ namespace CrossfireCore.ServerInterface
                 cb.AddUInt32(repeat);
                 cb.AddString(command);
 
-                System.Diagnostics.Debug.Print("Sending Command {0}:{1}", nComPacket, command);
-
                 nComPacket++;
-                Connection.SendMessage(cb.GetBytes());
+                if (nComPacket == 0)
+                    nComPacket = 1;
+
+                if (Connection.SendMessage(cb.GetBytes()) == false)
+                    return 0;
 
                 return rc;
             }

@@ -45,6 +45,7 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
         public event EventHandler<AddKnowledgeEventArgs> AddKnowledge;
         public event EventHandler<PickupEventArgs> Pickup;
+        public event EventHandler<CompletedCommandEventArgs> CompletedCommand;
 
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, UInt16 Level, 
             UInt16 FaceNumber, string Name, string Class, string Race, string Face, string Party, string Map)
@@ -84,9 +85,13 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleComC(ushort comc_packet, uint comc_time)
+        protected override void HandleCompletedCommand(ushort comc_packet, uint comc_time)
         {
-            System.Diagnostics.Debug.Print("Finished Command {0}:{1}", comc_packet, comc_time);
+            CompletedCommand?.Invoke(this, new CompletedCommandEventArgs()
+            {
+                Packet = comc_packet,
+                Time = comc_time,
+            });
         }
 
         protected override void HandleDeleteInventory(int ObjectTag)
@@ -663,5 +668,12 @@ namespace CrossfireCore.ServerInterface
         {
             public UInt32 Flags { get; set; }
         }
+
+        public class CompletedCommandEventArgs : EventArgs
+        {
+            public UInt16 Packet { get; set; }
+            public UInt32 Time { get; set; }
+        }
+
     }
 }

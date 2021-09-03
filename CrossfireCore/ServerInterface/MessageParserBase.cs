@@ -73,7 +73,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleMap2ClearAnimationSmooth(int x, int y, int layer);
         protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
-        protected abstract void HandleComC(UInt16 comc_packet, UInt32 comc_time);
+        protected abstract void HandleCompletedCommand(UInt16 comc_packet, UInt32 comc_time);
         protected abstract void HandleReplyInfo(string request, byte[] reply);
 
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
@@ -171,7 +171,8 @@ namespace CrossfireCore.ServerInterface
                 case "comc":
                     var comc_packet = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                     var comc_time = BufferTokenizer.GetUInt32(e.Packet, ref offset);
-                    HandleComC(comc_packet, comc_time);
+                    //TODO: convert completed command time as it isn't quite correct
+                    HandleCompletedCommand(comc_packet, comc_time);
                     break;
 
                 case "newmap":
