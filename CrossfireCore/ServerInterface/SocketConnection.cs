@@ -289,6 +289,11 @@ namespace CrossfireCore.ServerInterface
             }
             catch (Exception ex)
             {
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorMessage = ex.Message
+                });
+
                 Disconnect();
                 return;
             }
