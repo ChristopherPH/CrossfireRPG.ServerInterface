@@ -92,6 +92,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleUpdateQuest(UInt32 Code, byte End, string Step);
         protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face);
         protected abstract void HandlePickup(UInt32 PickupFlags);
+        protected abstract void HandleTick(UInt32 TickCount);
 
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
@@ -344,7 +345,7 @@ namespace CrossfireCore.ServerInterface
 
                 case "tick":
                     var tick_count = BufferTokenizer.GetUInt32(e.Packet, ref offset);
-                    //TODO: handle tick
+                    HandleTick(tick_count);
                     break;
 
                 case "anim":
@@ -622,17 +623,9 @@ namespace CrossfireCore.ServerInterface
                 case "replyinfo":
                     var reply_info = BufferTokenizer.GetString(e.Packet, ref offset, BufferTokenizer.SpaceNewlineSeperator);
                     var reply_bytes = BufferTokenizer.GetRemainingBytes(e.Packet, ref offset);
-
-                    switch (reply_info)
-                    {
-                        //TODO: create handlers for known reply infos
-                        //case "motd": break;
-                        //case "news": break;
-                        //case "rules": break;
-                        default:
-                            HandleReplyInfo(reply_info, reply_bytes);
-                            break;
-                    }
+                    HandleReplyInfo(reply_info, reply_bytes);
+                    
+                    //TODO: bring in replyinfo object into this message parser
                     break;
 
                 case "addspell":

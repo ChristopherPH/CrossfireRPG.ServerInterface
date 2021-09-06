@@ -125,7 +125,7 @@ namespace CrossfireCore.ServerInterface
         {
             using (var cb = new BufferAssembler("askface "))
             {
-                cb.AddInt32(tag);
+                cb.AddIntAsString(tag);
 
                 Connection.SendMessage(cb.GetBytes());
             }

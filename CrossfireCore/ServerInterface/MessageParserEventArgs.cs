@@ -239,5 +239,10 @@ namespace CrossfireCore.ServerInterface
             public UInt16 Packet { get; set; }
             public UInt32 Time { get; set; }
         }
+
+        public class TickEventArgs : EventArgs
+        {
+            public UInt32 TickCount { get; set; }
+        }
     }
 }

@@ -248,7 +248,19 @@ namespace CrossfireCore.ServerInterface
             so.wantLen = HeaderSize;
             so.bufferLen = 0;
 
-            var asyncResult = so.stream.BeginRead(so.buffer, 0, so.wantLen, BeginReadCallback, so);
+            try
+            {
+                var asyncResult = so.stream.BeginRead(so.buffer, 0, so.wantLen, BeginReadCallback, so);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorMessage = ex.Message
+                });
+
+                Disconnect();
+            }
         }
 
         private void WaitForMessage(StateObject so, int MessageLength)
@@ -265,7 +277,19 @@ namespace CrossfireCore.ServerInterface
             so.wantLen = MessageLength;
             so.bufferLen = 0;
 
-            var asyncResult = so.stream.BeginRead(so.buffer, 0, so.wantLen, BeginReadCallback, so);
+            try
+            {
+                var asyncResult = so.stream.BeginRead(so.buffer, 0, so.wantLen, BeginReadCallback, so);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorMessage = ex.Message
+                });
+
+                Disconnect();
+            }
         }
 
         private void BeginReadCallback(IAsyncResult ar)
@@ -311,7 +335,19 @@ namespace CrossfireCore.ServerInterface
                 Logger.Log(Logger.Levels.Debug, "Partial Packet: Read:{0} Want:{1} Have:{2}",
                     bytesRead, so.wantLen, so.bufferLen);
 
-                var asyncResult = so.stream.BeginRead(so.buffer, so.bufferLen, so.wantLen - so.bufferLen, BeginReadCallback, so);
+                try
+                {
+                    var asyncResult = so.stream.BeginRead(so.buffer, so.bufferLen, so.wantLen - so.bufferLen, BeginReadCallback, so);
+                }
+                catch (Exception ex)
+                {
+                    OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                    {
+                        ErrorMessage = ex.Message
+                    });
+
+                    Disconnect();
+                }
                 return;
             }
 

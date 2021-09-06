@@ -45,6 +45,7 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
         public event EventHandler<AddKnowledgeEventArgs> AddKnowledge;
         public event EventHandler<PickupEventArgs> Pickup;
+        public event EventHandler<TickEventArgs> Tick;
         public event EventHandler<CompletedCommandEventArgs> CompletedCommand;
 
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, UInt16 Level, 
@@ -439,6 +440,14 @@ namespace CrossfireCore.ServerInterface
             Pickup?.Invoke(this, new PickupEventArgs()
             {
                 Flags = PickupFlags,
+            });
+        }
+
+        protected override void HandleTick(UInt32 TickCount)
+        {
+            Tick?.Invoke(this, new TickEventArgs()
+            {
+                TickCount = TickCount,
             });
         }
     }
