@@ -9,23 +9,28 @@ namespace CrossfireCore.ServerInterface
 {
     public class BufferAssembler : IDisposable
     {
-        string command;
+        public string Command { get; }
+        public long DataLength => commandBuffer.Length - Command.Length;
+
         MemoryStream commandBuffer = new MemoryStream();
         private bool disposedValue;
 
-        public BufferAssembler(string Command)
+        public BufferAssembler(string Command, bool AddSpaceAfterCommand = true)
         {
             if (string.IsNullOrWhiteSpace(Command))
                 throw new ArgumentException("Invalid Parameter", nameof(Command));
 
-            command = Command;
+            this.Command = Command;
             var commandBytes = Encoding.ASCII.GetBytes(Command);
             commandBuffer.Write(commandBytes, 0, commandBytes.Length);
+
+            if (AddSpaceAfterCommand)
+                AddSpace();
         }
 
         public override string ToString()
         {
-            return string.Format("{0}: {1}", command, commandBuffer.Length);
+            return string.Format("{0}: {1}", Command, commandBuffer.Length);
         }
 
         void AddBytes(byte[] bytes)
@@ -117,7 +122,7 @@ namespace CrossfireCore.ServerInterface
         }
         
         /*
-        public bool SendMessage(Connection connection)
+        public bool SendBuffer(SocketConnection connection)
         {
             return connection.SendMessage(GetBytes());
         }
