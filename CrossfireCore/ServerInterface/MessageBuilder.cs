@@ -1,7 +1,6 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ namespace CrossfireCore.ServerInterface
 {
     public class MessageBuilder
     {
-        static TraceSource Logger = new TraceSource(nameof(MessageBuilder));
+        static Logger _Logger = new Logger(nameof(MessageBuilder));
 
         public const int ClientProtocolVersion = 1023;
 
@@ -24,7 +23,7 @@ namespace CrossfireCore.ServerInterface
 
         private bool SendMessage(BufferAssembler ba)
         {
-            Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
+            _Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
             return _Connection.SendMessage(ba.GetBytes());
         }
 

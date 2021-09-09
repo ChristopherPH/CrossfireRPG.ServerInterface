@@ -1,7 +1,6 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -11,7 +10,7 @@ namespace CrossfireCore.ServerInterface
 {
     public class SocketConnection
     {
-        static TraceSource Logger = new TraceSource(nameof(SocketConnection));
+        static Logger _Logger = new Logger(nameof(SocketConnection));
 
         const int DefaultServerPort = 13327;
         const string DefaultServerHost = "127.0.0.1";
@@ -94,7 +93,7 @@ namespace CrossfireCore.ServerInterface
                 return false;
             }
 
-            Logger.Info("Connecting to {0}:{1}", Host, Port);
+            _Logger.Info("Connecting to {0}:{1}", Host, Port);
             SetConnectionStatus(ConnectionStatuses.Connecting);
 
             return true;
@@ -150,7 +149,7 @@ namespace CrossfireCore.ServerInterface
             WaitForHeader(new StateObject(client, _stream));
 
             //notify connected
-            Logger.Info("Connected");
+            _Logger.Info("Connected");
             SetConnectionStatus(ConnectionStatuses.Connected);
         }
 
@@ -180,7 +179,7 @@ namespace CrossfireCore.ServerInterface
                 _client.Close();
             }
 
-            Logger.Info("Disconnected");
+            _Logger.Info("Disconnected");
             SetConnectionStatus(ConnectionStatuses.Disconnected);
 
             Cleanup();
@@ -232,7 +231,7 @@ namespace CrossfireCore.ServerInterface
             _stream.Write(lengthBytes, 0, lengthBytes.Length);
             _stream.Write(Message, 0, Message.Length);
 
-            Logger.Verbose("Write {0} bytes\n{1}", 
+            _Logger.Debug("Write {0} bytes\n{1}", 
                 messageLength, HexDump.Utils.HexDump(Message));
 
             return true;
@@ -334,14 +333,14 @@ namespace CrossfireCore.ServerInterface
                 return;
             }
 
-            Logger.Verbose("Read {0} bytes\n{1}", bytesRead, 
+            _Logger.Debug("Read {0} bytes\n{1}", bytesRead, 
                 HexDump.Utils.HexDump(so.buffer, so.bufferLen, bytesRead));
 
             //collect buffer data
             so.bufferLen += bytesRead;
             if (so.bufferLen < so.wantLen)
             {
-                Logger.Verbose("Partial Packet: Read:{0} Want:{1} Have:{2}",
+                _Logger.Debug("Partial Packet: Read:{0} Want:{1} Have:{2}",
                     bytesRead, so.wantLen, so.bufferLen);
 
                 try

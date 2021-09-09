@@ -1,7 +1,6 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ namespace CrossfireCore.ServerInterface
 {
     public abstract partial class MessageParserBase
     {
-        static TraceSource Logger = new TraceSource(nameof(MessageParserBase));
+        static Logger _Logger = new Logger(nameof(MessageParserBase));
 
         public const int ServerProtocolVersion = 1039;
 
@@ -112,11 +111,11 @@ namespace CrossfireCore.ServerInterface
             switch (cmd)
             {
                 case "tick":
-                    Logger.Verbose("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+                    _Logger.Debug("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
                     break;
 
                 default:
-                    Logger.Info("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+                    _Logger.Info("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
                     break;
             }
 
@@ -151,7 +150,7 @@ namespace CrossfireCore.ServerInterface
                     var failure_string = BufferTokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
                     HandleFailure(protocol_command, failure_string);
-                    Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
+                    _Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
                     break;
 
                 case "addme_success":
@@ -747,14 +746,14 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 default:
-                    Logger.Warning("Unhandled Command: {0}", cmd);
+                    _Logger.Warning("Unhandled Command: {0}", cmd);
                     break;
             }
 
             //log excess data
             if (offset < e.Packet.Length)
             {
-                Logger.Warning("Excess Data for cmd {0}:\n{1}",
+                _Logger.Warning("Excess Data for cmd {0}:\n{1}",
                     cmd, HexDump.Utils.HexDump(e.Packet, offset));
             }
         }
