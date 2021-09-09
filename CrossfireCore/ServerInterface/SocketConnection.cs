@@ -1,6 +1,7 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -10,6 +11,8 @@ namespace CrossfireCore.ServerInterface
 {
     public class SocketConnection
     {
+        static TraceSource Logger = new TraceSource(nameof(SocketConnection));
+
         const int DefaultServerPort = 13327;
         const string DefaultServerHost = "127.0.0.1";
 
@@ -28,7 +31,7 @@ namespace CrossfireCore.ServerInterface
         TcpClient _client;
         NetworkStream _stream;
 
-        public ConnectionStatuses ConnectionStatus { get; private set; }
+        public ConnectionStatuses ConnectionStatus { get; private set; } = ConnectionStatuses.Disconnected;
 
         public bool Connect(string Host = DefaultServerHost, int Port = DefaultServerPort)
         {
@@ -91,6 +94,7 @@ namespace CrossfireCore.ServerInterface
                 return false;
             }
 
+            Logger.Info("Connecting to {0}:{1}", Host, Port);
             SetConnectionStatus(ConnectionStatuses.Connecting);
 
             return true;
@@ -146,6 +150,7 @@ namespace CrossfireCore.ServerInterface
             WaitForHeader(new StateObject(client, _stream));
 
             //notify connected
+            Logger.Info("Connected");
             SetConnectionStatus(ConnectionStatuses.Connected);
         }
 
@@ -175,6 +180,7 @@ namespace CrossfireCore.ServerInterface
                 _client.Close();
             }
 
+            Logger.Info("Disconnected");
             SetConnectionStatus(ConnectionStatuses.Disconnected);
 
             Cleanup();
@@ -226,8 +232,8 @@ namespace CrossfireCore.ServerInterface
             _stream.Write(lengthBytes, 0, lengthBytes.Length);
             _stream.Write(Message, 0, Message.Length);
 
-            Logger.Log(Logger.Levels.Debug, "C->S: len={0}", messageLength);
-            Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(Message));
+            Logger.Verbose("Write {0} bytes\n{1}", 
+                messageLength, HexDump.Utils.HexDump(Message));
 
             return true;
         }
@@ -328,11 +334,14 @@ namespace CrossfireCore.ServerInterface
                 return;
             }
 
+            Logger.Verbose("Read {0} bytes\n{1}", bytesRead, 
+                HexDump.Utils.HexDump(so.buffer, so.bufferLen, bytesRead));
+
             //collect buffer data
             so.bufferLen += bytesRead;
             if (so.bufferLen < so.wantLen)
             {
-                Logger.Log(Logger.Levels.Debug, "Partial Packet: Read:{0} Want:{1} Have:{2}",
+                Logger.Verbose("Partial Packet: Read:{0} Want:{1} Have:{2}",
                     bytesRead, so.wantLen, so.bufferLen);
 
                 try
@@ -388,12 +397,15 @@ namespace CrossfireCore.ServerInterface
 
         protected void SetConnectionStatus(ConnectionStatuses Status)
         {
-            ConnectionStatus = Status;
-
-            OnStatusChanged?.Invoke(this, new ConnectionStatusEventArgs() 
+            if (ConnectionStatus != Status)
             {
-                Status = Status,
-            });
+                ConnectionStatus = Status;
+
+                OnStatusChanged?.Invoke(this, new ConnectionStatusEventArgs()
+                {
+                    Status = Status,
+                });
+            }
         }
 
         class StateObject
