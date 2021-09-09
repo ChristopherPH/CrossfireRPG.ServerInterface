@@ -1,6 +1,7 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace CrossfireCore.ServerInterface
 {
     public abstract partial class MessageParserBase
     {
+        static TraceSource Logger = new TraceSource(nameof(MessageParserBase));
+
         public const int ServerProtocolVersion = 1039;
 
         public MessageParserBase(SocketConnection Connection)
@@ -105,12 +108,17 @@ namespace CrossfireCore.ServerInterface
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
 
-            if (cmd != "tick")
+            //Log commands, but at different levels based on the command
+            switch (cmd)
             {
-                Logger.Log(Logger.Levels.Debug, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
-            }
+                case "tick":
+                    Logger.Verbose("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+                    break;
 
-            Logger.Log(Logger.Levels.Comm, "{0}", HexDump.Utils.HexDump(e.Packet));
+                default:
+                    Logger.Info("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+                    break;
+            }
 
             switch (cmd)
             {
@@ -128,8 +136,6 @@ namespace CrossfireCore.ServerInterface
                         var setup_command = BufferTokenizer.GetString(e.Packet, ref offset);
                         var setup_value = BufferTokenizer.GetString(e.Packet, ref offset);
 
-                        Logger.Log(Logger.Levels.Debug, "Setup: {0}={1}", setup_command, setup_value);
-
                         HandleSetup(setup_command, setup_value);
 
                         //Save spellmon for parser protocol
@@ -145,7 +151,7 @@ namespace CrossfireCore.ServerInterface
                     var failure_string = BufferTokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
                     HandleFailure(protocol_command, failure_string);
-                    Logger.Log(Logger.Levels.Error, "Failure: {0} {1}", protocol_command, failure_string);
+                    Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
                     break;
 
                 case "addme_success":
@@ -741,14 +747,14 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 default:
-                    Logger.Log(Logger.Levels.Warn, "Unhandled Command: {0}", cmd);
+                    Logger.Warning("Unhandled Command: {0}", cmd);
                     break;
             }
 
             //log excess data
             if (offset < e.Packet.Length)
             {
-                Logger.Log(Logger.Levels.Warn, "Excess Data for cmd {0}:\n{1}",
+                Logger.Warning("Excess Data for cmd {0}:\n{1}",
                     cmd, HexDump.Utils.HexDump(e.Packet, offset));
             }
         }

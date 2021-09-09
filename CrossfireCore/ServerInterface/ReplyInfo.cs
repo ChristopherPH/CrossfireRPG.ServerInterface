@@ -1,6 +1,7 @@
 ﻿using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 
@@ -8,6 +9,8 @@ namespace CrossfireCore.ServerInterface
 {
     public class ReplyInfo
     {
+        static TraceSource Logger = new TraceSource(nameof(ReplyInfo));
+
         public ReplyInfo(MessageBuilder Builder, MessageParser Parser)
         {
             _Builder = Builder;
@@ -418,14 +421,14 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 default:
-                    Logger.Log(Logger.Levels.Warn, "Unknown ReplyInfo {0}:\n{1}",
+                    Logger.Warning("Unknown ReplyInfo {0}:\n{1}",
                         e.Request, HexDump.Utils.HexDump(e.Reply));
                     return;
             }
 
             if (offset < e.Reply.Length)
             {
-                Logger.Log(Logger.Levels.Warn, "Excess Data for ReplyInfo {0}:\n{1}",
+                Logger.Warning("Excess Data for ReplyInfo {0}:\n{1}",
                     e.Request, HexDump.Utils.HexDump(e.Reply, offset));
             }
 

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CrossfireCore.Utility;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,33 +10,42 @@ namespace CrossfireCore.ServerInterface
 {
     public class MessageBuilder
     {
+        static TraceSource Logger = new TraceSource(nameof(MessageBuilder));
+
         public const int ClientProtocolVersion = 1023;
 
         public MessageBuilder(SocketConnection Connection)
         {
-            this.Connection = Connection;
+            this._Connection = Connection;
         }
 
-        private SocketConnection Connection;
+        private SocketConnection _Connection;
         private UInt16 nComPacket = 1;
+
+        private bool SendMessage(BufferAssembler ba)
+        {
+            Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
+            return _Connection.SendMessage(ba.GetBytes());
+        }
 
         public UInt16 SendNewCommand(string command, UInt32 repeat = 1)
         {
-            using (var cb = new BufferAssembler("ncom ")) //NewCommand
+            using (var ba = new BufferAssembler("ncom")) //NewCommand
             {
-                var rc = nComPacket;
-                cb.AddUInt16(rc);
-                cb.AddUInt32(repeat);
-                cb.AddString(command);
+                var tmpPacket = nComPacket;
+
+                ba.AddUInt16(tmpPacket);
+                ba.AddUInt32(repeat);
+                ba.AddString(command);
 
                 nComPacket++;
-                if (nComPacket == 0)
+                if (nComPacket == 0)    //don't allow a commandNumber of 0
                     nComPacket = 1;
 
-                if (Connection.SendMessage(cb.GetBytes()) == false)
-                    return 0;
+                if (SendMessage(ba) == false)
+                    return 0;   //no command
 
-                return rc;
+                return tmpPacket;
             }
         }
 
@@ -44,90 +55,124 @@ namespace CrossfireCore.ServerInterface
         /// <param name="PlayerName"></param>
         public void SendAccountPlay(string PlayerName)
         {
-            Connection.SendMessage("accountplay {0}", PlayerName);
+            using (var ba = new  BufferAssembler("accountplay"))
+            {
+                ba.AddString(PlayerName);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendAccountLogin(string UserName, string Password)
         {
-            using (var cb = new BufferAssembler("accountlogin "))
+            using (var ba = new BufferAssembler("accountlogin"))
             {
-                cb.AddLengthPrefixedString(UserName);
-                cb.AddLengthPrefixedString(Password);
+                ba.AddLengthPrefixedString(UserName);
+                ba.AddLengthPrefixedString(Password);
 
-                Connection.SendMessage(cb.GetBytes());
+                SendMessage(ba);
             }
         }
 
         public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
         {
-            Connection.SendMessage("version {0} {1} {2}", ClientToServer, ServerToClient, ClientName);
+            using (var ba = new BufferAssembler("version"))
+            {
+                ba.AddString("{0} {1} {2}", ClientToServer, ServerToClient, ClientName);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendSetup(string SetupParameter, string SetupValue)
         {
-            Connection.SendMessage("setup {0} {1}", SetupParameter, SetupValue);
+            using (var ba = new BufferAssembler("setup"))
+            {
+                ba.AddString("{0} {1}", SetupParameter, SetupValue);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendRequestInfo(string Request)
         {
-            Connection.SendMessage("requestinfo {0}", Request);
+            using (var ba = new BufferAssembler("requestinfo"))
+            {
+                ba.AddString(Request);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendApply(string tag)
         {
-            Connection.SendMessage("apply " + tag);
+            using (var ba = new BufferAssembler("apply"))
+            {
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendExamine(string tag)
         {
-            Connection.SendMessage("examine " + tag);
+            using (var ba = new BufferAssembler("examine"))
+            {
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendMove(string to, string tag, string nrof = "0")
         {
-            Connection.SendMessage(string.Format("move {0} {1} {2}",
-                to, tag, nrof));
+            using (var ba = new BufferAssembler("move"))
+            {
+                ba.AddString(" {0} {1} {2}", to, tag, nrof);
+
+                SendMessage(ba);
+            }
         }
 
         public void SendLock(UInt32 tag)
         {
-            using (var cb = new BufferAssembler("lock "))
+            using (var ba = new BufferAssembler("lock"))
             {
-                cb.AddByte((byte)1);
-                cb.AddUInt32(tag);
+                ba.AddByte((byte)1);
+                ba.AddUInt32(tag);
 
-                Connection.SendMessage(cb.GetBytes());
+                SendMessage(ba);
             }
         }
 
         public void SendUnlock(UInt32 tag)
         {
-            using (var cb = new BufferAssembler("lock "))
+            using (var ba = new BufferAssembler("lock"))
             {
-                cb.AddByte((byte)0 );
-                cb.AddUInt32(tag);
+                ba.AddByte((byte)0);
+                ba.AddUInt32(tag);
 
-                Connection.SendMessage(cb.GetBytes());
+                SendMessage(ba);
             }
         }
 
         public void SendMark(UInt32 tag)
         {
-            using (var cb = new BufferAssembler("mark "))
+            using (var ba = new BufferAssembler("mark"))
             {
-                cb.AddUInt32(tag);
+                ba.AddUInt32(tag);
 
-                Connection.SendMessage(cb.GetBytes());
+                SendMessage(ba);
             }
         }
 
         public void SendAskFace(Int32 tag)
         {
-            using (var cb = new BufferAssembler("askface "))
+            using (var ba = new BufferAssembler("askface"))
             {
-                cb.AddIntAsString(tag);
+                ba.AddIntAsString(tag);
 
-                Connection.SendMessage(cb.GetBytes());
+                SendMessage(ba);
             }
         }
     }
