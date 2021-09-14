@@ -174,5 +174,15 @@ namespace CrossfireCore.ServerInterface
                 SendMessage(ba);
             }
         }
+
+        public void SendReadySkill(string Skill)
+        {
+            SendNewCommand(string.Format("ready_skill {0}", Skill));
+        }
+
+        public void SendUseSkill(string Skill)
+        {
+            SendNewCommand(string.Format("use_skill {0}", Skill));
+        }
     }
 }
