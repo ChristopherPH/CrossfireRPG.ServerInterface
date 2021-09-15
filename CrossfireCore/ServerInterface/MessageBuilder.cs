@@ -184,5 +184,25 @@ namespace CrossfireCore.ServerInterface
         {
             SendNewCommand(string.Format("use_skill {0}", Skill));
         }
+
+        public void SendCastSpell(string Spell)
+        {
+            SendNewCommand(string.Format("cast {0}", Spell));
+        }
+
+        public void SendCastSpell(UInt32 Spell)
+        {
+            SendNewCommand(string.Format("cast {0}", Spell));
+        }
+
+        public void SendInvokeSpell(string Spell)
+        {
+            SendNewCommand(string.Format("invoke {0}", Spell));
+        }
+
+        public void SendInvokeSpell(UInt32 Spell)
+        {
+            SendNewCommand(string.Format("invoke {0}", Spell));
+        }
     }
 }
