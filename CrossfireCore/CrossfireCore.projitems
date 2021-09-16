@@ -9,6 +9,7 @@
     <Import_RootNamespace>CrossfireCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ClientTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferAssembler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferTokenizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageBuilder.cs" />
