@@ -30,9 +30,11 @@ namespace Crossfire
         public List<Item> Items { get; } = new List<Item>();
 
         public IEnumerable<Item> PlayerItems =>
-            Items.Where(x => x.Location == _PlayerTag && _PlayerTag != 0);
+            Items.Where(x => (x.Location == _PlayerTag) && (_PlayerTag != 0));
         public IEnumerable<Item> GroundItems =>
             Items.Where(x => x.Location == 0);
+        public IEnumerable<Item> ContainedItems =>
+            Items.Where(x => (x.Location != 0) && ((_PlayerTag != 0) && (x.Location != _PlayerTag)));
 
         public Item GetItemByTag(UInt32 ItemTag)
         {
@@ -71,6 +73,8 @@ namespace Crossfire
             var ix = Items.FindIndex(x => x.Tag == e.item_tag);
             if (ix != -1)
             {
+                _Logger.Warning("Trying to add existing object {0}, updating instead", e.item_tag);
+
                 Items[ix] = item;
                 OnItemChanged(ItemChangedEventArgs.ChangeTypes.Updated, item, ix);
             }
@@ -182,6 +186,11 @@ namespace Crossfire
         public Item Item { get; set; }
         public UInt32 ItemTag => Item.Tag;
         public int ItemIndex { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("ItemChanged[{0}]: {1}", ChangeType, Item);
+        }
     }
 
     public class Item
@@ -219,5 +228,10 @@ namespace Crossfire
         public bool IsLocked => Flags.HasFlag(NewClient.ItemFlags.Locked);
         public bool IsBlessed => Flags.HasFlag(NewClient.ItemFlags.Blessed);
         public bool IsRead => Flags.HasFlag(NewClient.ItemFlags.Read);
+
+        public override string ToString()
+        {
+            return string.Format("Item: {0} ({1})", Name, Tag);
+        }
     }
 }
