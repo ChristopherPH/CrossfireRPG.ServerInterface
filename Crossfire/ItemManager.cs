@@ -12,10 +12,12 @@ namespace Crossfire
 {
     public class ItemManager
     {
-        public ItemManager(MessageParser Parser)
+        public ItemManager(SocketConnection Connection, MessageParser Parser)
         {
+            _Connection = Connection;
             _Parser = Parser;
 
+            _Connection.OnStatusChanged += _Connection_OnStatusChanged;
             _Parser.Item2 += _Parser_Item2;
             _Parser.UpdateItem += _Parser_UpdateItem;
             _Parser.DeleteItem += _Parser_DeleteItem;
@@ -23,6 +25,7 @@ namespace Crossfire
             _Parser.Player += _Parser_Player;
         }
 
+        private SocketConnection _Connection;
         private MessageParser _Parser;
         private UInt32 _PlayerTag = 0;
         static Logger _Logger = new Logger(nameof(ItemManager));
@@ -51,6 +54,11 @@ namespace Crossfire
                 Item = Item,
                 ItemIndex = ItemIndex
             });
+        }
+
+        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        {
+            Items.Clear();
         }
 
         private void _Parser_Item2(object sender, MessageParserBase.Item2EventArgs e)
