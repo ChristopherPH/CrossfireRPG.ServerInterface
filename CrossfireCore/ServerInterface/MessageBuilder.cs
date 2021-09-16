@@ -175,6 +175,16 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendAskSmooth(Int32 tag)
+        {
+            using (var ba = new BufferAssembler("asksmooth"))
+            {
+                ba.AddIntAsString(tag);
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendReadySkill(string Skill)
         {
             SendNewCommand(string.Format("ready_skill {0}", Skill));
