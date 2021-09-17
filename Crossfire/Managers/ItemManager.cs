@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Crossfire
+namespace Crossfire.Managers
 {
     public class ItemManager
     {
@@ -44,13 +44,13 @@ namespace Crossfire
             return Items.FirstOrDefault(x => x.Tag == ItemTag);
         }
 
-        public event EventHandler<ItemChangedEventArgs> ItemChanged;
+        public event EventHandler<ItemModifiedEventArgs> ItemChanged;
 
-        protected void OnItemChanged(ItemChangedEventArgs.ChangeTypes ChangeType, Item Item, int ItemIndex)
+        protected void OnItemChanged(ItemModifiedEventArgs.ModificationTypes ChangeType, Item Item, int ItemIndex)
         {
-            ItemChanged?.Invoke(this, new ItemChangedEventArgs()
+            ItemChanged?.Invoke(this, new ItemModifiedEventArgs()
             {
-                ChangeType = ChangeType,
+                Modification = ChangeType,
                 Item = Item,
                 ItemIndex = ItemIndex
             });
@@ -84,12 +84,12 @@ namespace Crossfire
                 _Logger.Warning("Trying to add existing object {0}, updating instead", e.item_tag);
 
                 Items[ix] = item;
-                OnItemChanged(ItemChangedEventArgs.ChangeTypes.Updated, item, ix);
+                OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Updated, item, ix);
             }
             else
             {
                 Items.Add(item);
-                OnItemChanged(ItemChangedEventArgs.ChangeTypes.Added, item, Items.Count - 1);
+                OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Added, item, Items.Count - 1);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Crossfire
             }
 
             //trigger event before actually removing item, so listeners can view item data
-            OnItemChanged(ItemChangedEventArgs.ChangeTypes.Removed, Items[ix], ix);
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, Items[ix], ix);
 
             Items.RemoveAt(ix);
         }
@@ -116,7 +116,7 @@ namespace Crossfire
                 foreach (var item in items)
                 {
                     //trigger event before actually removing item, so listeners can view item data
-                    OnItemChanged(ItemChangedEventArgs.ChangeTypes.Removed, item, Items.IndexOf(item));
+                    OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, item, Items.IndexOf(item));
 
                     Items.Remove(item);
                 }
@@ -133,7 +133,7 @@ namespace Crossfire
             }
 
             var item = Items[ix];
-            var changeType = ItemChangedEventArgs.ChangeTypes.Updated;
+            var changeType = ItemModifiedEventArgs.ModificationTypes.Updated;
 
             switch (e.UpdateType)
             {
@@ -143,7 +143,7 @@ namespace Crossfire
 
                 case NewClient.UpdateTypes.Flags:
                     item.Flags = (NewClient.ItemFlags)e.UpdateValue;
-                    changeType = ItemChangedEventArgs.ChangeTypes.Flags;
+                    changeType = ItemModifiedEventArgs.ModificationTypes.Flags;
                     break;
 
                 case NewClient.UpdateTypes.Weight:
@@ -180,9 +180,9 @@ namespace Crossfire
         }
     }
 
-    public class ItemChangedEventArgs : EventArgs
+    public class ItemModifiedEventArgs : EventArgs
     {
-        public enum ChangeTypes
+        public enum ModificationTypes
         {
             Added,
             Removed,
@@ -190,14 +190,14 @@ namespace Crossfire
             Flags,
         }
 
-        public ChangeTypes ChangeType { get; set; }
+        public ModificationTypes Modification { get; set; }
         public Item Item { get; set; }
         public UInt32 ItemTag => Item.Tag;
         public int ItemIndex { get; set; }
 
         public override string ToString()
         {
-            return string.Format("ItemChanged[{0}]: {1}", ChangeType, Item);
+            return string.Format("ItemChanged[{0}]: {1}", Modification, Item);
         }
     }
 
