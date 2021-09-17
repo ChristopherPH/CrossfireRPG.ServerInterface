@@ -127,7 +127,7 @@ namespace CrossfireCore.ServerInterface
         {
             using (var ba = new BufferAssembler("move"))
             {
-                ba.AddString(" {0} {1} {2}", to, tag, nrof);
+                ba.AddString("{0} {1} {2}", to, tag, nrof);
 
                 SendMessage(ba);
             }
