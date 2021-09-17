@@ -68,12 +68,29 @@ namespace CrossfireCore.ServerInterface
 
         protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message);
 
+        /// <summary>
+        /// Clear everything at the given x/y co-ords
+        /// </summary>
         protected abstract void HandleMap2Clear(int x, int y);
+#if THIS_IS_IN_THE_GTK_CLIENT
         protected abstract void HandleMap2ClearOld(int x, int y);
+#endif
         protected abstract void HandleMap2Scroll(int x, int y);
         protected abstract void HandleMap2Darkness(int x, int y, byte darkness);
-        protected abstract void HandleMap2ClearAnimationSmooth(int x, int y, int layer);
+
+        /// <summary>
+        /// Clear face, animation and smooth at the given x/y co-ords (face/animation was 0)
+        /// </summary>
+        protected abstract void HandleMap2ClearLayer(int x, int y, int layer);
+
+        /// <summary>
+        /// Add face and smoothing info at the given x/y co-ords
+        /// </summary>
         protected abstract void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth);
+
+        /// <summary>
+        /// Add animation and smoothing info at the given x/y co-ords
+        /// </summary>
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, int animationtype, byte animationspeed, byte smooth);
         protected abstract void HandleCompletedCommand(UInt16 comc_packet, UInt32 comc_time);
         protected abstract void HandleReplyInfo(string request, byte[] reply);
@@ -356,7 +373,7 @@ namespace CrossfireCore.ServerInterface
                 case "anim":
                     var anim_num = BufferTokenizer.GetUInt16(e.Packet, ref offset);
                     var anim_flags = BufferTokenizer.GetUInt16(e.Packet, ref offset);
-                    var anim_faces = new UInt16[e.Packet.Length - offset];
+                    var anim_faces = new UInt16[(e.Packet.Length - offset) / 2];
 
                     int anim_offset = 0;
                     while (offset < e.Packet.Length)
@@ -512,9 +529,10 @@ namespace CrossfireCore.ServerInterface
                             continue;
                         }
 
-
+#if THIS_IS_IN_THE_GTK_CLIENT
                         //clear/init space
                         HandleMap2ClearOld(map_coord_x, map_coord_y);
+#endif
 
                         while (offset < e.Packet.Length)
                         {
@@ -572,7 +590,7 @@ namespace CrossfireCore.ServerInterface
 
                                     switch (map_data_len)
                                     {
-                                        case 2:
+                                        case 2: //no smooth information
                                             break;
 
                                         case 3:
@@ -593,7 +611,7 @@ namespace CrossfireCore.ServerInterface
 
                                     if (face_or_animation == 0)
                                     {
-                                        HandleMap2ClearAnimationSmooth(map_coord_x, map_coord_y, layer);
+                                        HandleMap2ClearLayer(map_coord_x, map_coord_y, layer);
                                     }
                                     else if (is_animation)
                                     {

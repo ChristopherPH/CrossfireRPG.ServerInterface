@@ -50,7 +50,14 @@ namespace CrossfireCore.ServerInterface
 
         public class SmoothEventArgs : EventArgs
         {
+            /// <summary>
+            /// Face to Smooth
+            /// </summary>
             public int Smooth { get; set; }
+
+            /// <summary>
+            /// Face to use when smoothing
+            /// </summary>
             public Int64 SmoothFace { get; set; }
         }
 

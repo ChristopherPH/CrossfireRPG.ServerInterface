@@ -25,9 +25,11 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<StatEventArgs> Stats;
         public event EventHandler<SkillEventArgs> Skills;
         public event EventHandler<MapEventArgs> Map;
-        public event EventHandler<MapLocationLayerEventArgs> MapClearAnimationSmooth;
+        public event EventHandler<MapLocationLayerEventArgs> MapClearLayer;
         public event EventHandler<MapLocationEventArgs> MapClear;
+#if THIS_IS_IN_THE_GTK_CLIENT
         public event EventHandler<MapLocationEventArgs> MapClearOld;
+#endif
         public event EventHandler<MapLocationEventArgs> MapScroll;
         public event EventHandler<MapAnimationEventArgs> MapAnimation;
         public event EventHandler<MapDarknessEventArgs> MapDarkness;
@@ -190,9 +192,9 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleMap2ClearAnimationSmooth(int x, int y, int layer)
+        protected override void HandleMap2ClearLayer(int x, int y, int layer)
         {
-            MapClearAnimationSmooth?.Invoke(this, new MapLocationLayerEventArgs()
+            MapClearLayer?.Invoke(this, new MapLocationLayerEventArgs()
             {
                 X = x,
                 Y = y,
@@ -200,6 +202,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
+#if THIS_IS_IN_THE_GTK_CLIENT
         protected override void HandleMap2ClearOld(int x, int y)
         {
             MapClearOld?.Invoke(this, new MapLocationEventArgs()
@@ -208,6 +211,7 @@ namespace CrossfireCore.ServerInterface
                 Y = y,
             });
         }
+#endif
 
         protected override void HandleMap2Darkness(int x, int y, byte darkness)
         {
