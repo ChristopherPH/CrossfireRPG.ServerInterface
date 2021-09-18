@@ -125,6 +125,9 @@ namespace Crossfire.Managers
 
         private void _Parser_UpdateItem(object sender, MessageParserBase.UpdateItemEventArgs e)
         {
+           if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
+                return;
+
             var ix = Items.FindIndex(x => x.Tag == e.ObjectTag);
             if (ix == -1)
             {
