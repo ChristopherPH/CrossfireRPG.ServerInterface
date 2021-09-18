@@ -35,9 +35,9 @@ namespace Crossfire.Managers
         public IEnumerable<Item> PlayerItems =>
             Items.Where(x => (x.Location == _PlayerTag) && (_PlayerTag != 0));
         public IEnumerable<Item> GroundItems =>
-            Items.Where(x => x.Location == 0);
+            Items.Where(x => x.IsOnGround);
         public IEnumerable<Item> ContainedItems =>
-            Items.Where(x => (x.Location != 0) && ((_PlayerTag != 0) && (x.Location != _PlayerTag)));
+            Items.Where(x => (x.IsOnGround) && ((_PlayerTag != 0) && (x.Location != _PlayerTag)));
 
         public Item GetItemByTag(UInt32 ItemTag)
         {
@@ -68,7 +68,7 @@ namespace Crossfire.Managers
                 Location = e.item_location,
                 Tag = e.item_tag,
                 Flags = (NewClient.ItemFlags)e.item_flags,
-                Weight = (float)e.item_weight / 1000,
+                Weight = e.item_weight == uint.MaxValue ? float.NaN : (float)e.item_weight / 1000,
                 Face = e.item_face,
                 Name = e.item_name,
                 NamePlural = e.item_name_plural,
@@ -150,7 +150,10 @@ namespace Crossfire.Managers
                     break;
 
                 case NewClient.UpdateTypes.Weight:
-                    item.Weight = (float)e.UpdateValue / 1000;
+                    if (e.UpdateValue == uint.MaxValue)
+                        item.Weight = float.NaN;
+                    else
+                        item.Weight = (float)e.UpdateValue / 1000;
                     break;
 
                 case NewClient.UpdateTypes.Face:
@@ -218,6 +221,11 @@ namespace Crossfire.Managers
         /// Item weight in kg
         /// </summary>
         public float Weight { get; set; }
+
+        /// <summary>
+        /// Item weight in kg multiplied by NumberOf
+        /// </summary>
+        public float TotalWeight => !HasWeight ? float.NaN : Weight * (NumberOf < 1 ? 1 : NumberOf);
         public UInt32 Face { get; set; }
         public string Name { get; set; }
         public string NamePlural { get; set; }
@@ -228,6 +236,7 @@ namespace Crossfire.Managers
 
 
         public bool IsOnGround => Location == 0;
+        public bool HasWeight => !float.IsNaN(Weight);
         public bool IsApplied => (Flags & NewClient.ItemFlags.Applied_Mask) > 0;
         public bool IsUnidentified => Flags.HasFlag(NewClient.ItemFlags.Unidentified);
         public bool IsUnpaid => Flags.HasFlag(NewClient.ItemFlags.Unpaid);
