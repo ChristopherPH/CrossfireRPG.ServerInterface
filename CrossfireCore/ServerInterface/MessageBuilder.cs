@@ -185,6 +185,16 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendLookAt(int x, int y)
+        {
+            using (var ba = new BufferAssembler("lookat"))
+            {
+                ba.AddString("{0} {1}", x, y);
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendReadySkill(string Skill)
         {
             SendNewCommand(string.Format("ready_skill {0}", Skill));
