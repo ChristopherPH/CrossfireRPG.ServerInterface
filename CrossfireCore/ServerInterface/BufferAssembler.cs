@@ -86,6 +86,11 @@ namespace CrossfireCore.ServerInterface
             AddString(i.ToString());
         }
 
+        public void AddIntAsString(UInt32 i)
+        {
+            AddString(i.ToString());
+        }
+
         public void AddString(string s)
         {
             if (string.IsNullOrEmpty(s))

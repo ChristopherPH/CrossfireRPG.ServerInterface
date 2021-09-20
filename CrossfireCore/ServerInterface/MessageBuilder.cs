@@ -214,5 +214,10 @@ namespace CrossfireCore.ServerInterface
         {
             SendNewCommand(string.Format("invoke {0}", Spell));
         }
+
+        public void SendPickup(UInt32 PickupFlags)
+        {
+            SendNewCommand(string.Format("pickup {0}", PickupFlags));
+        }
     }
 }
