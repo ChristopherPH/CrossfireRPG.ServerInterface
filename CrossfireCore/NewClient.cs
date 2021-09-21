@@ -176,13 +176,36 @@ namespace CrossfireCore
         {
 			None = 0,
 
+			/// <summary>
+			/// Bows, Wands, Rods
+			/// </summary>
 			Readied = 1,
-			Wielded = 2,
+
+			/// <summary>
+			/// Weapons
+			/// </summary>
+			Wielded = 2,    //weapon
+
+			/// <summary>
+			/// Skills, Armour, Helmets, Shields, Rings, Boots, Gloves, Amulets, Girdles, Bracers, Cloaks
+			/// </summary>
 			Worn = 3,
+
+			/// <summary>
+			/// Containers
+			/// </summary>
 			Active = 4,
+
+			/// <summary>
+			/// Misc applied items
+			/// </summary>
 			Applied = 5,
 
+			/// <summary>
+			/// Bitmask to retrieve type of applied
+			/// </summary>
 			Applied_Mask = 0x000F,
+
 			Unidentified = 0x0010,
 			Unpaid = 0x0200,
 			Magic = 0x0400,
