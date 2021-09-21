@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Crossfire.Managers
 {
@@ -33,12 +31,16 @@ namespace Crossfire.Managers
         static Logger _Logger = new Logger(nameof(ItemManager));
 
         public List<Item> Items { get; } = new List<Item>();
+        public Item OpenContainer { get; private set; } = null;
 
         public IEnumerable<Item> PlayerItems => Items.Where(x => x.Location == ItemLocations.Player);
         public IEnumerable<Item> PlayerHeldItems => PlayerItems.Where(x => !x.IsInContainer);
         public IEnumerable<Item> PlayerContainedItems => PlayerItems.Where(x => x.IsInContainer);
+        public IEnumerable<Item> PlayerActiveContainers => PlayerItems.Where(x => x.ApplyType == NewClient.ItemFlags.Active);
         public IEnumerable<Item> GroundItems => Items.Where(x => x.IsOnGround);
         public IEnumerable<Item> ContainedItems => Items.Where(x => x.IsInContainer);
+        public IEnumerable<Item> OpenContainerItems => (OpenContainer == null) ? Enumerable.Empty<Item>() :
+            ContainedItems.Where(x => x.LocationTag == OpenContainer.Tag);
 
         public Item GetItemByTag(UInt32 ItemTag)
         {
@@ -46,6 +48,7 @@ namespace Crossfire.Managers
         }
 
         public event EventHandler<ItemModifiedEventArgs> ItemChanged;
+        public event EventHandler<ContainerModifiedEventArgs> ContainerChanged;
 
         protected void OnItemChanged(ItemModifiedEventArgs.ModificationTypes ChangeType, NewClient.UpdateTypes UpdateType, Item Item, int ItemIndex)
         {
@@ -58,9 +61,20 @@ namespace Crossfire.Managers
             });
         }
 
+        protected void OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes ChangeType, Item Item, int ItemIndex)
+        {
+            ContainerChanged?.Invoke(this, new ContainerModifiedEventArgs()
+            {
+                Modification = ChangeType,
+                Item = Item,
+                ItemIndex = ItemIndex
+            });
+        }
+
         private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
             Items.Clear();
+            OpenContainer = null;
         }
 
         private void _Parser_Item2(object sender, MessageParserBase.Item2EventArgs e)
@@ -95,8 +109,25 @@ namespace Crossfire.Managers
             else
             {
                 Items.Add(item);
+                ix = Items.Count - 1;
+
                 OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Added, 
-                    NewClient.UpdateTypes.All, item, Items.Count - 1);
+                    NewClient.UpdateTypes.All, item, ix);
+            }
+
+            if (item.IsOpen)
+            {
+                if (OpenContainer != null)
+                {
+                    _Logger.Warning("Container {0} was already open when received new open container {1}", OpenContainer, item);
+
+                    OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                        OpenContainer, Items.IndexOf(OpenContainer));
+                }
+
+                OpenContainer = item;
+                OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Opened,
+                        item, ix);
             }
         }
 
@@ -109,9 +140,18 @@ namespace Crossfire.Managers
                 return;
             }
 
+            var item = Items[ix];
+
+            if (item == OpenContainer)
+            {
+                OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                    item, ix);
+                OpenContainer = null;
+            }
+
             //trigger event before actually removing item, so listeners can view item data
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, 
-                NewClient.UpdateTypes.All, Items[ix], ix);
+                NewClient.UpdateTypes.All, item, ix);
 
             Items.RemoveAt(ix);
         }
@@ -123,6 +163,13 @@ namespace Crossfire.Managers
             {
                 foreach (var item in items)
                 {
+                    if (item == OpenContainer)
+                    {
+                        OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                            item, Items.IndexOf(item));
+                        OpenContainer = null;
+                    }
+
                     //trigger event before actually removing item, so listeners can view item data
                     OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, 
                         NewClient.UpdateTypes.All, item, Items.IndexOf(item));
@@ -188,6 +235,33 @@ namespace Crossfire.Managers
             }
 
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Updated, e.UpdateType, item, ix);
+
+            //handle container opened/closed 
+            if (e.UpdateType == NewClient.UpdateTypes.Flags)
+            {
+                //item was open, is no longer open
+                if ((item == OpenContainer) && !item.IsOpen)
+                {
+                    OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                        item, ix);
+                    OpenContainer = null;
+                }
+
+                if (item.IsOpen)
+                {
+                    if (OpenContainer != null)
+                    {
+                        _Logger.Warning("Container {0} was already open when received updated open container {1}", OpenContainer, item);
+    
+                        OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                            OpenContainer, Items.IndexOf(OpenContainer));
+                    }
+
+                    OpenContainer = item;
+                    OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Opened,
+                            item, ix);
+                }
+            }
         }
 
         private void _Parser_Player(object sender, MessageParserBase.PlayerEventArgs e)
@@ -197,6 +271,7 @@ namespace Crossfire.Managers
             if (_PlayerTag == 0)
             {
                 Items.Clear();
+                OpenContainer = null;
                 return;
             }
 
@@ -268,6 +343,9 @@ namespace Crossfire.Managers
 
         public bool IsItemContainerOpen(Item item)
         {
+            //Technically we can just look at the OpenContainer variable and 
+            //check the tags, but this way we future proof for multiple
+            //open containers
             var container = GetItemContainer(item);
             if (container == null)
                 return false;
@@ -284,6 +362,11 @@ namespace Crossfire.Managers
             return container.IsApplied;
         }
 
+        /// <summary>
+        /// Moves item to player's open container, then active container, then player inventory
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="count"></param>
         public void MoveItemToPlayer(Item item, int count = 0)
         {
             if (item == null)
@@ -326,7 +409,26 @@ namespace Crossfire.Managers
 
         public override string ToString()
         {
-            return string.Format("ItemChanged[{0}]: {1}", Modification, Item);
+            return string.Format("ItemModified[{0}]: {1}", Modification, Item);
+        }
+    }
+
+    public class ContainerModifiedEventArgs : EventArgs
+    {
+        public enum ModificationTypes
+        {
+            Opened,
+            Closed
+        }
+
+        public ModificationTypes Modification { get; set; }
+        public Item Item { get; set; }
+        public UInt32 ItemTag => Item.Tag;
+        public int ItemIndex { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("ContainerModified[{0}]: {1}", Modification, Item);
         }
     }
 
@@ -377,6 +479,7 @@ namespace Crossfire.Managers
         public bool IsOnGround => LocationTag == 0;
         public bool HasWeight => !float.IsNaN(Weight);
         public bool IsApplied => (Flags & NewClient.ItemFlags.Applied_Mask) > 0;
+        public NewClient.ItemFlags ApplyType => Flags & NewClient.ItemFlags.Applied_Mask;
         public bool IsUnidentified => Flags.HasFlag(NewClient.ItemFlags.Unidentified);
         public bool IsUnpaid => Flags.HasFlag(NewClient.ItemFlags.Unpaid);
         public bool IsMagic => Flags.HasFlag(NewClient.ItemFlags.Magic);
