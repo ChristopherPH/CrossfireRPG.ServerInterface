@@ -115,6 +115,8 @@ namespace Crossfire.Managers
                     NewClient.UpdateTypes.All, item, ix);
             }
 
+            _Logger.Debug("Added item {0}", item);
+
             if (item.IsOpen)
             {
                 if (OpenContainer != null)
@@ -142,6 +144,8 @@ namespace Crossfire.Managers
 
             var item = Items[ix];
 
+            _Logger.Debug("Deleted item {0}", item);
+
             if (item == OpenContainer)
             {
                 OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
@@ -158,6 +162,13 @@ namespace Crossfire.Managers
 
         private void _Parser_DeleteInventory(object sender, MessageParserBase.DeleteInventoryEventArgs e)
         {
+            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
+                _Logger.Debug("Deleting inventory of player");
+            else if (e.ObjectTag == 0)
+                _Logger.Debug("Deleting inventory of ground");
+            else
+                _Logger.Debug("Deleting inventory of item {0}", GetItemByTag((UInt32)e.ObjectTag));
+
             var items = Items.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
             {
@@ -192,6 +203,9 @@ namespace Crossfire.Managers
             }
 
             var item = Items[ix];
+
+            _Logger.Debug("Update {0} of item {1} to {2}/{3}", 
+                e.UpdateType, item, e.UpdateValue, e.UpdateString);
 
             switch (e.UpdateType)
             {
