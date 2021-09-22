@@ -67,7 +67,7 @@ namespace CrossfireCore.ServerInterface
             public int Y { get; set; }
             public int Layer { get; set; }
             public int Face { get; set; }
-            public int Smooth { get; set; }
+            public byte Smooth { get; set; }
         }
 
         public class MapLocationEventArgs : EventArgs
