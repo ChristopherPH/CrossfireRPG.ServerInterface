@@ -73,8 +73,16 @@ namespace Crossfire.Managers
 
         private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
+            if (OpenContainer != null)
+            {
+                OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
+                    OpenContainer, Items.IndexOf(OpenContainer));
+
+                OpenContainer = null;
+            }
+
+            //TODO: do we need to send ChangedEvents when this happens?
             Items.Clear();
-            OpenContainer = null;
         }
 
         private void _Parser_Item2(object sender, MessageParserBase.Item2EventArgs e)
@@ -144,7 +152,6 @@ namespace Crossfire.Managers
 
             var item = Items[ix];
 
-            _Logger.Debug("Deleted item {0}", item);
 
             if (item == OpenContainer)
             {
@@ -152,6 +159,8 @@ namespace Crossfire.Managers
                     item, ix);
                 OpenContainer = null;
             }
+
+            _Logger.Debug("Deleted item {0}", item);
 
             //trigger event before actually removing item, so listeners can view item data
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, 
@@ -162,18 +171,34 @@ namespace Crossfire.Managers
 
         private void _Parser_DeleteInventory(object sender, MessageParserBase.DeleteInventoryEventArgs e)
         {
+            var location = string.Empty;
+
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
-                _Logger.Debug("Deleting inventory of player");
+            {
+                location = "player";
+            }
             else if (e.ObjectTag == 0)
-                _Logger.Debug("Deleting inventory of ground");
+            {
+                location = "ground";
+            }
             else
-                _Logger.Debug("Deleting inventory of item {0}", GetItemByTag((UInt32)e.ObjectTag));
+            {
+                var item = GetItemByTag((UInt32)e.ObjectTag);
+                if (item == null)
+                    location = "missing object: " + e.ObjectTag;
+                else
+                    location = item.ToString();
+            }
+
+            _Logger.Debug("Deleting inventory of item {0}", location);
 
             var items = Items.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
             {
                 foreach (var item in items)
                 {
+                    _Logger.Debug("Deleted item {0} from {1}", item, location);
+
                     if (item == OpenContainer)
                     {
                         OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
