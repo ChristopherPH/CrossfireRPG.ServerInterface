@@ -350,7 +350,7 @@ namespace CrossfireCore.ServerInterface
                                 }
                                 else
                                 {
-                                    var stat_value = BufferTokenizer.GetUInt16(e.Packet, ref offset);
+                                    var stat_value = BufferTokenizer.GetInt16(e.Packet, ref offset);
                                     HandleStat((NewClient.CharacterStats)stat_number, stat_value);
                                 }
                                 break;
