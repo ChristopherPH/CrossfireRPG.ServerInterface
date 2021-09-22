@@ -27,7 +27,7 @@ namespace CrossfireCore.ServerInterface
             return _Connection.SendMessage(ba.GetBytes());
         }
 
-        public UInt16 SendNewCommand(string command, UInt32 repeat = 1)
+        public UInt16 SendNewCommand(string command, UInt32 repeat = 0)
         {
             using (var ba = new BufferAssembler("ncom")) //NewCommand
             {
