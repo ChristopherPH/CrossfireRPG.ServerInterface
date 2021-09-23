@@ -31,6 +31,8 @@ namespace CrossfireCore.ServerInterface
         NetworkStream _stream;
 
         public ConnectionStatuses ConnectionStatus { get; private set; } = ConnectionStatuses.Disconnected;
+        public string Host { get; private set; } = string.Empty;
+        public int Port { get; private set; } = 0;
 
         public bool Connect(string Host = DefaultServerHost, int Port = DefaultServerPort)
         {
@@ -59,6 +61,9 @@ namespace CrossfireCore.ServerInterface
 
                         //start waiting for data
                         WaitForHeader(new StateObject(client, _stream));
+
+                        this.Host = Host;
+                        this.Port = Port;
 
                         SetConnectionStatus(ConnectionStatuses.Connected);
 
@@ -94,6 +99,10 @@ namespace CrossfireCore.ServerInterface
             }
 
             _Logger.Info("Connecting to {0}:{1}", Host, Port);
+
+            this.Host = Host;
+            this.Port = Port;
+
             SetConnectionStatus(ConnectionStatuses.Connecting);
 
             return true;
@@ -170,6 +179,9 @@ namespace CrossfireCore.ServerInterface
                 _stream.Close();
                 _stream = null;
             }
+
+            this.Host = string.Empty;
+            this.Port = 0;
         }
 
         public void Disconnect()
