@@ -1,4 +1,5 @@
-﻿using CrossfireCore.Utility;
+﻿using Common;
+using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

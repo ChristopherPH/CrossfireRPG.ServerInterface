@@ -1,6 +1,6 @@
-﻿using Crossfire.Utility;
+﻿using Common;
+using Crossfire.Utility;
 using CrossfireCore.ServerInterface;
-using CrossfireCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
