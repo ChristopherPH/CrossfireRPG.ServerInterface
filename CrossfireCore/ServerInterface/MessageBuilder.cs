@@ -73,6 +73,17 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendAccountNew(string UserName, string Password)
+        {
+            using (var ba = new BufferAssembler("accountnew"))
+            {
+                ba.AddLengthPrefixedString(UserName);
+                ba.AddLengthPrefixedString(Password);
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
         {
             using (var ba = new BufferAssembler("version"))
