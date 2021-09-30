@@ -308,7 +308,7 @@ namespace CrossfireCore.ServerInterface
                                             }
                                             else
                                             {
-                                                race_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
+                                                race_stat_value = BufferTokenizer.GetInt16(e.Reply, ref offset).ToString();
                                             }
                                             break;
                                     }
@@ -425,7 +425,7 @@ namespace CrossfireCore.ServerInterface
                                             }
                                             else
                                             {
-                                                class_stat_value = BufferTokenizer.GetUInt16(e.Reply, ref offset).ToString();
+                                                class_stat_value = BufferTokenizer.GetInt16(e.Reply, ref offset).ToString();
                                             }
                                             break;
                                     }

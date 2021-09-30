@@ -119,8 +119,8 @@ namespace CrossfireCore.ServerInterface
         }
 
         public void SendCreatePlayer(string UserName, string Password, 
-            string RaceArch, string ClassArch, List<KeyValuePair<string, int>> Stats, 
-            string StartingMapArch, List<KeyValuePair<string, string>> Choices)
+            string RaceArch, string ClassArch, IEnumerable<KeyValuePair<string, int>> Stats, 
+            string StartingMapArch, IEnumerable<KeyValuePair<string, string>> Choices)
         {
             using (var ba = new BufferAssembler("createplayer"))
             {
