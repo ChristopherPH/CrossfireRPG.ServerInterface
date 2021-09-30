@@ -107,13 +107,18 @@ namespace CrossfireCore.ServerInterface
 
         public void AddLengthPrefixedString(string s)
         {
-            if (string.IsNullOrEmpty(s) || (s.Length > byte.MaxValue))
+            if ((s == null) || (s.Length > byte.MaxValue))
                 throw new ArgumentException("Invalid Parameter", nameof(s));
 
             AddByte((byte)s.Length);
 
             var bytes = Encoding.ASCII.GetBytes(s);
             commandBuffer.Write(bytes, 0, bytes.Length);
+        }
+
+        public void AddLengthPrefixedString(string format, params object[] args)
+        {
+            AddLengthPrefixedString(string.Format(format, args));
         }
 
         public void AddSpace()

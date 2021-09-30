@@ -107,6 +107,66 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendCreatePlayer(string UserName, string Password)
+        {
+            using (var ba = new BufferAssembler("createplayer"))
+            {
+                ba.AddLengthPrefixedString(UserName);
+                ba.AddLengthPrefixedString(Password);
+
+                SendMessage(ba);
+            }
+        }
+
+        public void SendCreatePlayer(string UserName, string Password, 
+            string RaceArch, string ClassArch, List<KeyValuePair<string, int>> Stats, 
+            string StartingMapArch, List<KeyValuePair<string, string>> Choices)
+        {
+            using (var ba = new BufferAssembler("createplayer"))
+            {
+                ba.AddLengthPrefixedString(UserName);
+                ba.AddLengthPrefixedString(Password);
+
+                if (!string.IsNullOrWhiteSpace(RaceArch))
+                    ba.AddLengthPrefixedString("race {0}\0", RaceArch);
+
+                if (!string.IsNullOrWhiteSpace(ClassArch))
+                    ba.AddLengthPrefixedString("class {0}\0", ClassArch);
+
+                if (Stats != null)
+                {
+                    foreach (var stat in Stats)
+                    {
+                        if (!string.IsNullOrWhiteSpace(stat.Key))
+                        {
+                            ba.AddLengthPrefixedString("{0} {1}\0", 
+                                stat.Key, stat.Value);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(StartingMapArch))
+                {
+                    ba.AddLengthPrefixedString("starting_map {0}\0", StartingMapArch);
+                }
+
+                if (Choices != null)
+                {
+                    foreach (var choice in Choices)
+                    {
+                        if (!string.IsNullOrWhiteSpace(choice.Key) &&
+                            !string.IsNullOrWhiteSpace(choice.Value))
+                        {
+                            ba.AddLengthPrefixedString("choice {0} {1}\0",
+                                choice.Key, choice.Value);
+                        }
+                    }
+                }
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
         {
             using (var ba = new BufferAssembler("version"))
