@@ -36,6 +36,9 @@ namespace CrossfireCore.ServerInterface
 
         public Dictionary<string, RaceClassInfo> Races { get; } = new Dictionary<string, RaceClassInfo>();
         public Dictionary<string, RaceClassInfo> Classes { get; } = new Dictionary<string, RaceClassInfo>();
+        public List<StartingMap> StartingMaps { get; } = new List<StartingMap>();
+
+        public NewCharInfo NewCharacterInfo { get; private set; } = new NewCharInfo();
 
         public class RaceClassChoice
         {
@@ -59,6 +62,37 @@ namespace CrossfireCore.ServerInterface
 
             public List<RaceClassStat> Stats { get; set; } = new List<RaceClassStat>();
             public List<RaceClassChoice> Choices { get; set; } = new List<RaceClassChoice>();
+        }
+
+        public class StartingMap
+        {
+            public string Arch { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+        }
+
+        public class NewCharInfo
+        {
+            public int Points { get; set; }
+            public int StatMin { get; set; }
+            public int StatMax { get; set; }
+            public List<string> StatNames { get; set; } = new List<string>();
+            public List<NewCharInfoValues> Values { get; } = new List<NewCharInfoValues>();
+        }
+
+        public class NewCharInfoValues
+        {
+            public enum NewCharInfoTypes
+            {
+                Required = 'R',
+                Optional = 'O',
+                Values = 'V',
+                Information = 'I'
+            }
+
+            public NewCharInfoTypes InfoType { get; set; }
+            public string Variable { get; set; }
+            public string Values { get; set; }
         }
 
         //Helper functions
@@ -119,6 +153,16 @@ namespace CrossfireCore.ServerInterface
         public void RequestClasses()
         {
             _Builder.SendRequestInfo("class_list");
+        }
+
+        public void RequestStartingMap()
+        {
+            _Builder.SendRequestInfo("startingmap");
+        }
+
+        public void RequestNewCharInfo()
+        {
+            _Builder.SendRequestInfo("newcharinfo");
         }
 
         private void _Parser_ReplyInfo(object sender, MessageParser.ReplyInfoEventArgs e)
@@ -415,6 +459,96 @@ namespace CrossfireCore.ServerInterface
 
                                     class_choice_arch_len = BufferTokenizer.GetByte(e.Reply, ref offset);
                                 }
+                                break;
+                        }
+                    }
+                    break;
+
+                case "startingmap":
+                    StartingMaps.Clear();
+                    StartingMap startingMap = null;
+
+                    while (offset < e.Reply.Length)
+                    {
+                        var starting_map_type = BufferTokenizer.GetByte(e.Reply, ref offset);
+                        var starting_map_data_len = BufferTokenizer.GetInt16(e.Reply, ref offset);
+                        var starting_map_data = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, starting_map_data_len);
+
+                        switch (starting_map_type)
+                        {
+                            case 1: //INFO_MAP_ARCH_NAME
+                                if (startingMap != null)
+                                    StartingMaps.Add(startingMap);
+
+                                startingMap = new StartingMap()
+                                {
+                                    Arch = starting_map_data
+                                };
+                                break;
+
+                            case 2: //INFO_MAP_NAME
+                                startingMap.Name = starting_map_data;
+                                break;
+
+                            case 3: //INFO_MAP_DESCRIPTION
+                                startingMap.Description = starting_map_data;
+                                break;
+                        }
+                    }
+
+                    if (startingMap != null)
+                        StartingMaps.Add(startingMap);
+                    break;
+
+                case "newcharinfo":
+                    this.NewCharacterInfo = new NewCharInfo();
+
+                    while (offset < e.Reply.Length)
+                    {
+                        var newcharinfo_len = BufferTokenizer.GetByte(e.Reply, ref offset);
+                        if (newcharinfo_len == 0)
+                            continue;
+
+                        //get the string without the null terminator
+                        var newcharinfo_line = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, newcharinfo_len - 1);
+                        BufferTokenizer.GetByte(e.Reply, ref offset); //skip null terminator
+
+                        var newcharinfo_type = newcharinfo_line[0];
+                        var newcharinfo_variable = newcharinfo_line.Substring(2, newcharinfo_line.IndexOf(' ', 2) - 2);
+                        var newcharinfo_value = newcharinfo_line.Substring(newcharinfo_variable.Length + 3);
+
+                        var newcharinfovalues = new NewCharInfoValues()
+                        {
+                            InfoType = (NewCharInfoValues.NewCharInfoTypes)newcharinfo_type,
+                            Variable = newcharinfo_variable,
+                            Values = newcharinfo_value
+                        };
+
+                        NewCharacterInfo.Values.Add(newcharinfovalues);
+
+                        switch (newcharinfo_variable)
+                        {
+                            case "points":
+                                this.NewCharacterInfo.Points = int.Parse(newcharinfo_value);
+                                break;
+
+                            case "statrange":
+                                var newcharinfo_range = newcharinfo_value.Split(' ');
+                                this.NewCharacterInfo.StatMin = int.Parse(newcharinfo_range[0]);
+                                this.NewCharacterInfo.StatMax = int.Parse(newcharinfo_range[1]);
+                                break;
+
+                            case "statname":
+                                this.NewCharacterInfo.StatNames.AddRange(newcharinfo_value.Split(' '));
+                                break;
+
+                            case "race":
+                            case "class":
+                            case "startingmap":
+                                break;
+
+                            default:
+                                _Logger.Warning("Unknown newcharinfo: {0}", newcharinfo_line);
                                 break;
                         }
                     }
