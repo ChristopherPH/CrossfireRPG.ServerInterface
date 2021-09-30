@@ -84,6 +84,18 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendAccountAddPlayer(bool Force, string UserName, string Password)
+        {
+            using (var ba = new BufferAssembler("accountaddplayer"))
+            {
+                ba.AddByte(Force ? (byte)1 : (byte)0);
+                ba.AddLengthPrefixedString(UserName);
+                ba.AddLengthPrefixedString(Password);
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendVersion(int ClientToServer, int ServerToClient, string ClientName)
         {
             using (var ba = new BufferAssembler("version"))
