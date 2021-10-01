@@ -165,6 +165,21 @@ namespace CrossfireCore.ServerInterface
             _Builder.SendRequestInfo("newcharinfo");
         }
 
+        public void ClearReplyInfo()
+        {
+            Motd = string.Empty;
+            News = string.Empty;
+            Rules = string.Empty;
+            Skills.Clear();
+            SpellPaths.Clear();
+            Knowledges.Clear();
+            ExperienceTable = null;
+            Races.Clear();
+            Classes.Clear();
+            StartingMaps.Clear();
+            NewCharacterInfo = new NewCharInfo();
+        }
+
         private void _Parser_ReplyInfo(object sender, MessageParser.ReplyInfoEventArgs e)
         {
             int offset = 0;
@@ -184,6 +199,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "skill_info":
+                    Skills.Clear();
                     while (offset < e.Reply.Length)
                     {
                         var SkillSet = BufferTokenizer.GetString(e.Reply, ref offset, new byte[] { 0x0A }).Split(':');
@@ -206,6 +222,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "spell_paths":
+                    SpellPaths.Clear();
                     while (offset < e.Reply.Length)
                     {
                         var SpellPathData = BufferTokenizer.GetString(e.Reply, ref offset, new byte[] { 0x0A }).Split(':');
@@ -218,6 +235,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "knowledge_info":
+                    Knowledges.Clear();
                     while (offset < e.Reply.Length)
                     {
                         var knowledge_info = BufferTokenizer.GetString(e.Reply, ref offset, new byte[] { 0x0A }).Split(':');
@@ -232,6 +250,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "race_list":
+                    this.Races.Clear();
                     var race_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset).Split('|');
                     foreach (var race in race_arches)
                         if (!string.IsNullOrWhiteSpace(race))
@@ -349,6 +368,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "class_list":
+                    this.Classes.Clear();
                     var class_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset).Split('|');
                     foreach (var cls in class_arches)
                         if (!string.IsNullOrWhiteSpace(cls))
