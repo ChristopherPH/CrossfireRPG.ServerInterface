@@ -42,7 +42,12 @@ namespace Crossfire.Managers
             }
         }
 
-        public UInt16 SendUserCommand(string Command, uint Repeat = 0)
+        public UInt16 SendUserCommand(string format, params object[] args)
+        {
+            return SendUserCommand(string.Format(format, args));
+        }
+
+        public UInt16 SendUserCommand(string Command)
         {
             if (string.IsNullOrWhiteSpace(Command))
                 return 0;
@@ -58,7 +63,6 @@ namespace Crossfire.Managers
                 var args = new UserCommandEventArgs()
                 {
                     Command = cmd.Trim(),
-                    Repeat = Repeat,
                 };
 
                 //Allow any handlers to either change or cancel the message
@@ -97,6 +101,51 @@ namespace Crossfire.Managers
                 return false;
 
             return _WaitingIDs.Contains(CommandID);
+        }
+
+        public void SendReadySkill(string Skill)
+        {
+            SendUserCommand("ready_skill {0}", Skill);
+        }
+
+        public void SendUseSkill(string Skill)
+        {
+            SendUserCommand("use_skill {0}", Skill);
+        }
+
+        public void SendCastSpell(string Spell)
+        {
+            SendUserCommand("cast {0}", Spell);
+        }
+
+        public void SendCastSpell(UInt32 Spell)
+        {
+            SendUserCommand("cast {0}", Spell);
+        }
+
+        public void SendInvokeSpell(string Spell)
+        {
+            SendUserCommand("invoke {0}", Spell);
+        }
+
+        public void SendInvokeSpell(UInt32 Spell)
+        {
+            SendUserCommand("invoke {0}", Spell);
+        }
+
+        public void SendPickup(UInt32 PickupFlags)
+        {
+            SendUserCommand("pickup {0}", PickupFlags);
+        }
+
+        public void SendDelete()
+        {
+            SendUserCommand("delete");
+        }
+
+        public void SendKnowledgeShow(UInt32 KnowledgeID)
+        {
+            SendUserCommand("knowledge show {0}", KnowledgeID);
         }
     }
 

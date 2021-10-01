@@ -289,39 +289,14 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
-        public void SendReadySkill(string Skill)
+        public void SendReply(string Reply)
         {
-            SendNewCommand(string.Format("ready_skill {0}", Skill));
-        }
+            using (var ba = new BufferAssembler("reply"))
+            {
+                ba.AddString(Reply);
 
-        public void SendUseSkill(string Skill)
-        {
-            SendNewCommand(string.Format("use_skill {0}", Skill));
-        }
-
-        public void SendCastSpell(string Spell)
-        {
-            SendNewCommand(string.Format("cast {0}", Spell));
-        }
-
-        public void SendCastSpell(UInt32 Spell)
-        {
-            SendNewCommand(string.Format("cast {0}", Spell));
-        }
-
-        public void SendInvokeSpell(string Spell)
-        {
-            SendNewCommand(string.Format("invoke {0}", Spell));
-        }
-
-        public void SendInvokeSpell(UInt32 Spell)
-        {
-            SendNewCommand(string.Format("invoke {0}", Spell));
-        }
-
-        public void SendPickup(UInt32 PickupFlags)
-        {
-            SendNewCommand(string.Format("pickup {0}", PickupFlags));
+                SendMessage(ba);
+            }
         }
     }
 }
