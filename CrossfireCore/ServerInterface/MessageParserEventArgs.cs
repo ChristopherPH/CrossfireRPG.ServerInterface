@@ -24,6 +24,7 @@ namespace CrossfireCore.ServerInterface
         public class DrawExtInfoEventArgs : EventArgs
         {
             public NewClient.NewDrawInfo Colour { get; set; }
+            public NewClient.NewDrawInfo Flags { get; set; }
             public NewClient.MsgTypes MessageType { get; set; }
             public int SubType { get; set; }
             public string Message { get; set; }

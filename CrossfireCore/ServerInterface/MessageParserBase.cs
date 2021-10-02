@@ -66,7 +66,8 @@ namespace CrossfireCore.ServerInterface
 
         protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
 
-        protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message);
+        protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.NewDrawInfo Flags, 
+            NewClient.MsgTypes MessageType, int SubType, string Message);
 
         /// <summary>
         /// Clear everything at the given x/y co-ords
@@ -635,12 +636,16 @@ namespace CrossfireCore.ServerInterface
 
 
                 case "drawextinfo":
-                    var colour = (NewClient.NewDrawInfo)BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var newdrawinfo = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
                     var message_type = (NewClient.MsgTypes)BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
                     var sub_type = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
                     var message = BufferTokenizer.GetRemainingBytesAsString(e.Packet, ref offset);
 
-                    HandleDrawExtInfo(colour, message_type, sub_type, message);
+                    //Split flags from colour to make handling easier
+                    var colour = (NewClient.NewDrawInfo)(newdrawinfo & NewClient.NewDrawInfoColorMask);
+                    var flags = (NewClient.NewDrawInfo)(newdrawinfo & NewClient.NewDrawInfoFlagMask);
+
+                    HandleDrawExtInfo(colour, flags, message_type, sub_type, message);
                     break;
 
                 case "replyinfo":

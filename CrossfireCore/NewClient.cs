@@ -41,6 +41,9 @@ namespace CrossfireCore
             Client = 20,
         }
 
+		public const int NewDrawInfoColorMask = 0x00ff;
+		public const int NewDrawInfoFlagMask = 0xff00;
+
         public enum MsgTypeAdmin
         {
             Rules = 1,

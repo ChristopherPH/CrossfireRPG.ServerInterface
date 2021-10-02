@@ -113,11 +113,13 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.MsgTypes MessageType, int SubType, string Message)
+        protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.NewDrawInfo Flags, 
+            NewClient.MsgTypes MessageType, int SubType, string Message)
         {
             DrawExtInfo?.Invoke(this, new DrawExtInfoEventArgs()
             {
                 Colour = Colour,
+                Flags = Flags,
                 MessageType = MessageType,
                 SubType = SubType,
                 Message = Message
