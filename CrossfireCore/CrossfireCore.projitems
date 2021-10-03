@@ -19,8 +19,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParserEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\ReplyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\EnumExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\HexDump.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\StringExtensions.cs" />
   </ItemGroup>
 </Project>
