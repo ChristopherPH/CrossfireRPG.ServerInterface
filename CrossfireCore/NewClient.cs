@@ -34,15 +34,32 @@ namespace CrossfireCore
                                 //though quest is processed before.
         }
 
-        public enum MsgTypes
-        {
-            MOTD = 7,
-            Admin = 8,
-            Client = 20,
-        }
-
 		public const int NewDrawInfoColorMask = 0x00ff;
 		public const int NewDrawInfoFlagMask = 0xff00;
+
+        public enum MsgTypes
+        {
+			Book = 1,
+			Card = 2,
+			Paper = 3,
+			Sign = 4,
+			Monument = 5,
+			Dialog = 6, //NPCs, magic mouths, and altars
+			MOTD = 7,
+            Admin = 8,
+			Shop = 9,
+			Command = 10,
+			Attribute = 11,
+			Skill = 12,
+			Apply = 13,
+			Attack = 14,
+			Communication = 15,
+			Spell = 16,
+			Item = 17,
+			Misc = 18,
+			Victim = 19,
+            Client = 20,
+        }
 
         public enum MsgTypeAdmin
         {
@@ -117,10 +134,10 @@ namespace CrossfireCore
 			AppliedDex = 49,		/* Dex Changes From Gear Or Skills. */
 			AppliedCon = 50,		/* Con Changes From Gear Or Skills. */
 			AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
-			AppliedPow = 52,		/* Pow Changes From Gear Or Skills. */
+			AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
 
-			GolemHp = 53,			/* Golem's Current Hp = 0, If No Golem. */
-			GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
+			[Description("Golem Health")]		GolemHp = 53,         /* Golem's Current Hp = 0, If No Golem. */
+			[Description("Golem Max Health")]	GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
 
 			[Description("Resist Physical")]	ResPhys = 100,
 			[Description("Resist Magic")]		ResMag = 101,

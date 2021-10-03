@@ -29,9 +29,9 @@ namespace CrossfireCore.ServerInterface
         public string News { get; private set; }
         public string Rules { get; private set; }
 
-        public Dictionary<int, (string Name, uint Face)> Skills { get; } = new Dictionary<int, (string Name, uint Face)>();
-        public List<(uint Path, string Name)> SpellPaths { get; } = new List<(uint Path, string Name)>();
-        public List<(string Type, string Name, Int32 Face, int Attempt)> Knowledges { get; } = new List<(string Type, string Name, Int32 Face, int Attempt)>();
+        public Dictionary<int, Skill> Skills { get; } = new Dictionary<int, Skill>();
+        public List<SpellPath> SpellPaths { get; } = new List<SpellPath>();
+        public List<Knowledge> Knowledges { get; } = new List<Knowledge>();
         public UInt64[] ExperienceTable { get; private set; }
 
         public Dictionary<string, RaceClassInfo> Races { get; } = new Dictionary<string, RaceClassInfo>();
@@ -39,6 +39,25 @@ namespace CrossfireCore.ServerInterface
         public List<StartingMap> StartingMaps { get; } = new List<StartingMap>();
 
         public NewCharInfo NewCharacterInfo { get; private set; } = new NewCharInfo();
+
+        public class Knowledge
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public int Face { get; set; }
+            public int CanAttempt { get; set; }
+        }
+        public class Skill
+        {
+            public string Name { get; set; }
+            public uint Face { get; set; }
+        }
+
+        public class SpellPath
+        {
+            public uint Path { get; set; }
+            public string Name { get; set; }
+        }
 
         public class RaceClassChoice
         {
@@ -206,8 +225,8 @@ namespace CrossfireCore.ServerInterface
                         var SkillID = int.Parse(SkillSet[0]);
                         switch (SkillSet.Length)
                         {
-                            case 2: Skills[SkillID] = (SkillSet[1].ToTitleCase(), 0); break;
-                            case 3: Skills[SkillID] = (SkillSet[1].ToTitleCase(), UInt32.Parse(SkillSet[2])); break;
+                            case 2: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = 0 }; break;
+                            case 3: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = UInt32.Parse(SkillSet[2]) }; break;
                             default: throw new Exception();
                         }
                     }
@@ -230,7 +249,7 @@ namespace CrossfireCore.ServerInterface
                         var SpellPathID = uint.Parse(SpellPathData[0]);
                         var SpellPathName = SpellPathData[1].ToTitleCase();
 
-                        SpellPaths.Add((SpellPathID, SpellPathName));
+                        SpellPaths.Add(new SpellPath() { Path = SpellPathID, Name = SpellPathName });
                     }
                     break;
 
@@ -245,7 +264,13 @@ namespace CrossfireCore.ServerInterface
                         var knowledge_face = int.Parse(knowledge_info[2]);
                         var knowledge_can_attempt = int.Parse(knowledge_info[3]);
 
-                        Knowledges.Add((knowledge_type, knowledge_name, knowledge_face, knowledge_can_attempt));
+                        Knowledges.Add(new Knowledge()
+                        {
+                            Type = knowledge_type,
+                            Name = knowledge_name,
+                            Face = knowledge_face,
+                            CanAttempt = knowledge_can_attempt,
+                        });
                     }
                     break;
 
