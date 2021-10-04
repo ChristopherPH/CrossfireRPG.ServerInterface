@@ -147,6 +147,11 @@ namespace Crossfire.Managers
         {
             SendUserCommand("knowledge show {0}", KnowledgeID);
         }
+
+        public void SendKnowledgeSearch(string Text)
+        {
+            SendUserCommand("knowledge search {0}", Text);
+        }
     }
 
     public class UserCommandEventArgs : System.ComponentModel.CancelEventArgs
