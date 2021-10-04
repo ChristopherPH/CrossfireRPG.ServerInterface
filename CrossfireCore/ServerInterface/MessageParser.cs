@@ -17,10 +17,16 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<EventArgs> Goodbye;
         public event EventHandler<Image2EventArgs> Image2;
         public event EventHandler<Item2EventArgs> Item2;
+        public event EventHandler<EventArgs> BeginItem2;
+        public event EventHandler<EventArgs> EndItem2;
         public event EventHandler<EventArgs> NewMap;
         public event EventHandler<PlayerEventArgs> Player;
         public event EventHandler<UpdateItemEventArgs> UpdateItem;
+        public event EventHandler<EventArgs> BeginUpdateItem;
+        public event EventHandler<EventArgs> EndUpdateItem;
         public event EventHandler<DeleteItemEventArgs> DeleteItem;
+        public event EventHandler<EventArgs> BeginDeleteItem;
+        public event EventHandler<EventArgs> EndDeleteItem;
         public event EventHandler<DeleteInventoryEventArgs> DeleteInventory;
         public event EventHandler<StatEventArgs> Stats;
         public event EventHandler<SkillEventArgs> Skills;
@@ -113,6 +119,16 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
+        protected override void HandleBeginDeleteItem()
+        {
+            BeginDeleteItem?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleEndDeleteItem()
+        {
+            EndDeleteItem?.Invoke(this, EventArgs.Empty);
+        }
+
         protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.NewDrawInfo Flags, 
             NewClient.MsgTypes MessageType, int SubType, string Message)
         {
@@ -168,6 +184,16 @@ namespace CrossfireCore.ServerInterface
                 item_nrof = item_nrof,
                 item_type = item_type,
             });
+        }
+
+        protected override void HandleBeginItem2()
+        {
+            BeginItem2?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleEndItem2()
+        {
+            EndItem2?.Invoke(this, EventArgs.Empty);
         }
 
 
@@ -353,6 +379,16 @@ namespace CrossfireCore.ServerInterface
                 UpdateType = UpdateType,
                 UpdateString = UpdateValue
             });
+        }
+
+        protected override void HandleBeginUpdateItem()
+        {
+            BeginUpdateItem?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleEndUpdateItem()
+        {
+            EndUpdateItem?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void HandleVersion(int csval, int scval, string verstring)

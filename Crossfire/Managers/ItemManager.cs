@@ -22,6 +22,12 @@ namespace Crossfire.Managers
             _Parser.DeleteItem += _Parser_DeleteItem;
             _Parser.DeleteInventory += _Parser_DeleteInventory;
             _Parser.Player += _Parser_Player;
+            _Parser.BeginItem2 += _Parser_BeginItem2;
+            _Parser.EndItem2 += _Parser_EndItem2;
+            _Parser.BeginDeleteItem += _Parser_BeginDeleteItem;
+            _Parser.EndDeleteItem += _Parser_EndDeleteItem;
+            _Parser.BeginUpdateItem += _Parser_BeginUpdateItem;
+            _Parser.EndUpdateItem += _Parser_EndUpdateItem;
         }
 
         private SocketConnection _Connection;
@@ -195,6 +201,9 @@ namespace Crossfire.Managers
             var items = Items.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
             {
+                OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
+                    0, null, -1);
+
                 foreach (var item in items)
                 {
                     _Logger.Debug("Deleted item {0} from {1}", item, location);
@@ -212,6 +221,9 @@ namespace Crossfire.Managers
 
                     Items.Remove(item);
                 }
+
+                OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
+                    0, null, -1);
             }
         }
 
@@ -331,6 +343,56 @@ namespace Crossfire.Managers
             }
         }
 
+        private void _Parser_BeginItem2(object sender, EventArgs e)
+        {
+            _Logger.Debug("Begin add items");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
+               0, null, -1);
+        }
+
+        private void _Parser_EndItem2(object sender, EventArgs e)
+        {
+            _Logger.Debug("End add items");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
+                0, null, -1);
+        }
+
+        private void _Parser_BeginUpdateItem(object sender, EventArgs e)
+        {
+            _Logger.Debug("Begin update item");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
+                0, null, -1);
+        }
+
+
+        private void _Parser_EndUpdateItem(object sender, EventArgs e)
+        {
+            _Logger.Debug("End update item");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
+                0, null, -1);
+        }
+
+
+        private void _Parser_BeginDeleteItem(object sender, EventArgs e)
+        {
+            _Logger.Debug("Begin delete items");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
+                0, null, -1);
+        }
+
+        private void _Parser_EndDeleteItem(object sender, EventArgs e)
+        {
+            _Logger.Debug("End delete items");
+
+            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
+                0, null, -1);
+        }
+
         private ItemLocations GetLocation(UInt32 locationTag, out bool inContainer)
         {
             inContainer = false;
@@ -438,6 +500,8 @@ namespace Crossfire.Managers
             Added,
             Removed,
             Updated,
+            BatchStart,
+            BatchEnd
         }
 
         public ModificationTypes Modification { get; set; }

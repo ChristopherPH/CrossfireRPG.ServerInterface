@@ -44,6 +44,8 @@ namespace CrossfireCore.ServerInterface
         /// <param name="Tag"></param>
         protected abstract void HandleDeleteInventory(int ObjectTag);
         protected abstract void HandleDeleteItem(UInt32 ObjectTag);
+        protected abstract void HandleBeginDeleteItem();
+        protected abstract void HandleEndDeleteItem();
         protected abstract void HandleQuery(int Flags, string QueryText);
 
         protected abstract void HandleStat(NewClient.CharacterStats Stat, Int64 Value);
@@ -60,10 +62,11 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleAnimation(UInt16 AnimationNumber, UInt16 AnimationFlags, 
             UInt16[] AnimationFaces);
 
+        protected abstract void HandleBeginItem2();
         protected abstract void HandleItem2(UInt32 item_location, UInt32 item_tag, UInt32 item_flags, 
             UInt32 item_weight, UInt32 item_face, string item_name, string item_name_plural, UInt16 item_anim, byte item_animspeed, 
             UInt32 item_nrof, UInt16 item_type);
-
+        protected abstract void HandleEndItem2();
         protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
 
         protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.NewDrawInfo Flags, 
@@ -96,6 +99,8 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleCompletedCommand(UInt16 comc_packet, UInt32 comc_time);
         protected abstract void HandleReplyInfo(string request, byte[] reply);
 
+        protected abstract void HandleBeginUpdateItem();
+        protected abstract void HandleEndUpdateItem();
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
 
@@ -384,6 +389,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "item2":
+                    HandleBeginItem2();
                     var item_location = BufferTokenizer.GetUInt32(e.Packet, ref offset);
                     while (offset < e.Packet.Length)
                     {
@@ -417,11 +423,14 @@ namespace CrossfireCore.ServerInterface
                         HandleItem2(item_location, item_tag, item_flags, item_weight, item_face, 
                             item_name, item_name_plural, item_anim, item_animspeed, item_nrof, item_type);
                     }
+                    HandleEndItem2();
                     break;
 
                 case "upditem":
                     var update_item_type = (NewClient.UpdateTypes)BufferTokenizer.GetByte(e.Packet, ref offset);
                     var update_item_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
+
+                    HandleBeginUpdateItem();
 
                     while (offset < e.Packet.Length)
                     {
@@ -492,14 +501,18 @@ namespace CrossfireCore.ServerInterface
                         }
                     }
 
+                    HandleEndUpdateItem();
+
                     break;
 
                 case "delitem":
+                    HandleBeginDeleteItem();
                     while (offset < e.Packet.Length)
                     {
                         var del_item_tag = BufferTokenizer.GetUInt32(e.Packet, ref offset);
                         HandleDeleteItem(del_item_tag);
                     }
+                    HandleEndDeleteItem();
                     break;
 
                 case "image2":
