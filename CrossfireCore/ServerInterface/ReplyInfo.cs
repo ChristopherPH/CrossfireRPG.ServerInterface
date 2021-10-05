@@ -30,7 +30,7 @@ namespace CrossfireCore.ServerInterface
 
         public Dictionary<int, Skill> Skills { get; } = new Dictionary<int, Skill>();
         public List<SpellPath> SpellPaths { get; } = new List<SpellPath>();
-        public List<Knowledge> Knowledges { get; } = new List<Knowledge>();
+        public List<KnowledgeInfo> KnowledgeInfos { get; } = new List<KnowledgeInfo>();
         public UInt64[] ExperienceTable { get; private set; }
 
         public Dictionary<string, RaceClassInfo> Races { get; } = new Dictionary<string, RaceClassInfo>();
@@ -39,7 +39,7 @@ namespace CrossfireCore.ServerInterface
 
         public NewCharInfo NewCharacterInfo { get; private set; } = new NewCharInfo();
 
-        public class Knowledge
+        public class KnowledgeInfo
         {
             public string Type { get; set; }
             public string Name { get; set; }
@@ -190,7 +190,7 @@ namespace CrossfireCore.ServerInterface
             Rules = string.Empty;
             Skills.Clear();
             SpellPaths.Clear();
-            Knowledges.Clear();
+            KnowledgeInfos.Clear();
             ExperienceTable = null;
             Races.Clear();
             Classes.Clear();
@@ -253,7 +253,7 @@ namespace CrossfireCore.ServerInterface
                     break;
 
                 case "knowledge_info":
-                    Knowledges.Clear();
+                    KnowledgeInfos.Clear();
                     while (offset < e.Reply.Length)
                     {
                         var knowledge_info = BufferTokenizer.GetString(e.Reply, ref offset, new byte[] { 0x0A }).Split(':');
@@ -263,7 +263,7 @@ namespace CrossfireCore.ServerInterface
                         var knowledge_face = int.Parse(knowledge_info[2]);
                         var knowledge_can_attempt = int.Parse(knowledge_info[3]);
 
-                        Knowledges.Add(new Knowledge()
+                        KnowledgeInfos.Add(new KnowledgeInfo()
                         {
                             Type = knowledge_type,
                             Name = knowledge_name,
