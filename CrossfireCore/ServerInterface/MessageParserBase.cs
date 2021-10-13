@@ -217,7 +217,7 @@ namespace CrossfireCore.ServerInterface
                     var num_characters = BufferTokenizer.GetByte(e.Packet, ref offset);
                     var character_count = 1;
 
-                    //TODO: remove this hack to empty the player list
+                    //TODO: change this to a beginplayer / endplayer event
                     HandleAccountPlayer(num_characters, 0, 0, 0,  "", "", "", "", "", ""); 
 
                     UInt16 account_player_level = 0;
