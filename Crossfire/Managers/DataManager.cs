@@ -17,12 +17,19 @@ namespace Crossfire.Managers
             this.Builder = Builder;
             this.Parser = Parser;
 
-            Connection.OnStatusChanged += Connection_OnStatusChanged;
+            if (ClearDataOnConnectionDisconnect)
+                Connection.OnStatusChanged += Connection_OnStatusChanged;
+
+            if (ClearDataOnNewPlayer)
+                Parser.Player += Parser_Player;
         }
 
         protected SocketConnection Connection { get; private set; }
         protected MessageBuilder Builder { get; private set; }
         protected MessageParser Parser { get; private set; }
+
+        protected abstract bool ClearDataOnConnectionDisconnect { get; }
+        protected abstract bool ClearDataOnNewPlayer { get; }
 
         public event EventHandler<DataUpdatedEventArgs> DataChanged;
 
@@ -48,6 +55,12 @@ namespace Crossfire.Managers
         private void Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
             if (e.Status == ConnectionStatuses.Disconnected)
+                ClearData();
+        }
+
+        private void Parser_Player(object sender, MessageParserBase.PlayerEventArgs e)
+        {
+            if (e.tag == 0)
                 ClearData();
         }
 

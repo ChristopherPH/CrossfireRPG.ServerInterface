@@ -15,6 +15,9 @@ namespace Crossfire.Managers
             Parser.Skills += Parser_Skills;
         }
 
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => true;
+
         private void Parser_Skills(object sender, MessageParserBase.SkillEventArgs e)
         {
             if (!Contains(x => x.SkillID == e.Skill))

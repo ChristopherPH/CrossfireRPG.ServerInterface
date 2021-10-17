@@ -17,6 +17,9 @@ namespace Crossfire.Managers
             Parser.DeleteSpell += Parser_DeleteSpell;
         }
 
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => true;
+
         private void Parser_AddSpell(object sender, MessageParserBase.AddSpellEventArgs e)
         {
             AddData(new Spell()
