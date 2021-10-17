@@ -82,5 +82,10 @@ namespace Crossfire.Managers
         public string Description { get; set; }
         public byte Usage { get; set; }
         public string Requirements { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
