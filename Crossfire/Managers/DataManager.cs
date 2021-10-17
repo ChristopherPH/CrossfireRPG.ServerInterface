@@ -51,6 +51,11 @@ namespace Crossfire.Managers
                 ClearData();
         }
 
+        public bool Contains(Predicate<T> Match)
+        {
+            return Datas.FindIndex(Match) == -1 ? false : true;
+        }
+
         public T GetData(int index)
         {
             if ((index < 0) || (index >= Count))
