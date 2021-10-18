@@ -6,24 +6,17 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public abstract class DataManager<T>
+    public abstract class DataManager<T> : Manager
     {
         public DataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+            : base(Connection, Builder, Parser)
         {
-            this.Connection = Connection;
-            this.Builder = Builder;
-            this.Parser = Parser;
-
             if (ClearDataOnConnectionDisconnect)
                 Connection.OnStatusChanged += Connection_OnStatusChanged;
 
             if (ClearDataOnNewPlayer)
                 Parser.Player += Parser_Player;
         }
-
-        protected SocketConnection Connection { get; private set; }
-        protected MessageBuilder Builder { get; private set; }
-        protected MessageParser Parser { get; private set; }
 
         protected abstract bool ClearDataOnConnectionDisconnect { get; }
         protected abstract bool ClearDataOnNewPlayer { get; }

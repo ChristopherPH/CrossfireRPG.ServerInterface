@@ -129,12 +129,11 @@ namespace CrossfireCore.ServerInterface
             EndDeleteItem?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Colour, NewClient.NewDrawInfo Flags, 
+        protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Flags, 
             NewClient.MsgTypes MessageType, int SubType, string Message)
         {
             DrawExtInfo?.Invoke(this, new DrawExtInfoEventArgs()
             {
-                Colour = Colour,
                 Flags = Flags,
                 MessageType = MessageType,
                 SubType = SubType,
