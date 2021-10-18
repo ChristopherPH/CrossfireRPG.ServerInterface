@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class SpellManager : DataManager<Spell>
+    public class SpellDataManager : DataListManager<Spell>
     {
-        public SpellManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+        public SpellDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
             : base(Connection, Builder, Parser)
         {
             Parser.AddSpell += Parser_AddSpell;
@@ -19,6 +19,8 @@ namespace Crossfire.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
+        public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
+            ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed;
 
         private void Parser_AddSpell(object sender, MessageParserBase.AddSpellEventArgs e)
         {
@@ -48,20 +50,20 @@ namespace Crossfire.Managers
                 {
                     case CrossfireCore.NewClient.UpdateSpellTypes.Mana:
                         data.Mana = (short)e.UpdateValue;
-                        return true;
+                        return new string[] { nameof(Spell.Mana) };
 
                     case CrossfireCore.NewClient.UpdateSpellTypes.Grace:
                         data.Grace = (short)e.UpdateValue;
-                        return true;
+                        return new string[] { nameof(Spell.Grace) };
 
                     case CrossfireCore.NewClient.UpdateSpellTypes.Damage:
                         data.Damage = (short)e.UpdateValue;
-                        return true;
+                        return new string[] { nameof(Spell.Damage) };
 
                     default:
-                        return false;
+                        return null;
                 }
-            }, e.UpdateType);
+            });
         }
 
         private void Parser_DeleteSpell(object sender, MessageParserBase.DeleteSpellEventArgs e)

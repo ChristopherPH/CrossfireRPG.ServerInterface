@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class QuestManager : DataManager<Quest>
+    public class QuestDataManager : DataListManager<Quest>
     {
-        public QuestManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+        public QuestDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
             : base(Connection, Builder, Parser)
         {
             Parser.AddQuest += Parser_AddQuest;
@@ -18,6 +18,8 @@ namespace Crossfire.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
+        public override ModificationTypes SupportedModificationTypes =>
+            base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated;
 
         private void Parser_AddQuest(object sender, MessageParserBase.AddQuestEventArgs e)
         {
@@ -39,7 +41,7 @@ namespace Crossfire.Managers
             {
                 data.Step = e.Step;
                 data.End = e.End;
-                return true;
+                return new string[] { nameof(Quest.Step), nameof(Quest.End) };
             });
         }
     }

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class KnowledgeManager : DataManager<Knowledge>
+    public class KnowledgeDataManager : DataListManager<Knowledge>
     {
-        public KnowledgeManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+        public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
             : base(Connection, Builder, Parser)
         {
             Parser.AddKnowledge += Parser_AddKnowledge;
@@ -17,6 +17,8 @@ namespace Crossfire.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
+        public override ModificationTypes SupportedModificationTypes =>
+            base.SupportedModificationTypes | ModificationTypes.Added;
 
         private void Parser_AddKnowledge(object sender, MessageParserBase.AddKnowledgeEventArgs e)
         {

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class SkillManager : DataManager<Skill>
+    public class SkillDataManager : DataListManager<Skill>
     {
-        public SkillManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+        public SkillDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
             : base(Connection, Builder, Parser)
         {
             Parser.Skills += Parser_Skills;
@@ -17,6 +17,8 @@ namespace Crossfire.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
+        public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
+            ModificationTypes.Added | ModificationTypes.Updated;
 
         private void Parser_Skills(object sender, MessageParserBase.SkillEventArgs e)
         {
@@ -35,7 +37,7 @@ namespace Crossfire.Managers
                 {
                     data.Level = e.Level;
                     data.Value = e.Value;
-                    return true;
+                    return new string[] { nameof(Skill.Level), nameof(Skill.Value) };
                 });
             }
         }
