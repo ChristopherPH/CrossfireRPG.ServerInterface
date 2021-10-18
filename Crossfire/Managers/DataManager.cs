@@ -61,6 +61,11 @@ namespace Crossfire.Managers
             DataChanged?.Invoke(this, dataUpdatedEventArgs);
         }
 
+        protected virtual void OnPropertyChanged(T Data, string UpdatedProperty)
+        {
+            OnDataChanged(ModificationTypes.Updated, Data, new string[] { UpdatedProperty });
+        }
+
 
         [Flags]
         public enum ModificationTypes

@@ -324,9 +324,9 @@ namespace CrossfireCore.ServerInterface
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_32f / FLOAT_MULTF);
                                 break;
 
-                            case NewClient.CharacterStats.WeightLim:
+                            case NewClient.CharacterStats.WeightLim: //technically a float, stat_32 / 1000
                                 var stat_32 = BufferTokenizer.GetUInt32(e.Packet, ref offset);
-                                HandleStat((NewClient.CharacterStats)stat_number, (float)stat_32 / 1000);
+                                HandleStat((NewClient.CharacterStats)stat_number, stat_32);
                                 break;
 
                             case NewClient.CharacterStats.Exp64:
