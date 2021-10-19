@@ -82,31 +82,43 @@ namespace Crossfire.Managers
             switch (MessageType)
             {
                 case NewClient.MsgTypes.Book:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeBook), SubType))
                         return ((NewClient.MsgSubTypeBook)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Card:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeCard), SubType))
                         return ((NewClient.MsgSubTypeCard)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Paper:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypePaper), SubType))
                         return ((NewClient.MsgSubTypePaper)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Sign:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeSign), SubType))
                         return ((NewClient.MsgSubTypeSign)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Monument:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeMonument), SubType))
                         return ((NewClient.MsgSubTypeMonument)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Dialog:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeDialog), SubType))
                         return ((NewClient.MsgSubTypeDialog)SubType).GetDescription();
                     break;
@@ -117,51 +129,71 @@ namespace Crossfire.Managers
                     break;
 
                 case NewClient.MsgTypes.Admin:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeAdmin), SubType))
                         return ((NewClient.MsgSubTypeAdmin)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Shop:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeShop), SubType))
                         return ((NewClient.MsgSubTypeShop)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Command:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeCommand), SubType))
                         return ((NewClient.MsgSubTypeCommand)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Attribute:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeAttribute), SubType))
                         return ((NewClient.MsgSubTypeAttribute)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Skill:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeSkill), SubType))
                         return ((NewClient.MsgSubTypeSkill)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Apply:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeApply), SubType))
                         return ((NewClient.MsgSubTypeApply)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Attack:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeAttack), SubType))
                         return ((NewClient.MsgSubTypeAttack)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Communication:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeCommunication), SubType))
                         return ((NewClient.MsgSubTypeCommunication)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Spell:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeSpell), SubType))
                         return ((NewClient.MsgSubTypeSpell)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Item:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeItem), SubType))
                         return ((NewClient.MsgSubTypeItem)SubType).GetDescription();
                     break;
@@ -172,11 +204,15 @@ namespace Crossfire.Managers
                     break;
 
                 case NewClient.MsgTypes.Victim:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeVictim), SubType))
                         return ((NewClient.MsgSubTypeVictim)SubType).GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Client:
+                    if (SubType == NewClient.SubTypeNone)
+                        return "None";
                     if (Enum.IsDefined(typeof(NewClient.MsgSubTypeClient), SubType))
                         return ((NewClient.MsgSubTypeClient)SubType).GetDescription();
                     break;
