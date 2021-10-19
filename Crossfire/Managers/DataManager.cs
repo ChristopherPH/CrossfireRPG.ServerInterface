@@ -78,7 +78,16 @@ namespace Crossfire.Managers
         {
             public ModificationTypes Modification { get; set; }
             public T Data { get; set; } = default;
+
+            /// <summary>
+            /// List of properties that were updated, null indicates all/unknown properties, so best to update everything
+            /// </summary>
             public string[] UpdatedProperties { get; set; } = null;
+
+            public bool WasUpdated(string Property)
+            {
+                return (UpdatedProperties == null) || UpdatedProperties.Contains(Property);
+            }
 
             public override string ToString()
             {
