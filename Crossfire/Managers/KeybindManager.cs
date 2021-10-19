@@ -251,7 +251,7 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.OemQuotes, KeyBind.Modifiers.None, "", true) },
             { new KeyBind(KeyBind.GameKeys.OemQuotes, KeyBind.Modifiers.Fire, "say", true) },
 
-            { new KeyBind(KeyBind.GameKeys.Return, KeyBind.Modifiers.None, "chat", true) },
+            { new KeyBind(KeyBind.GameKeys.Enter, KeyBind.Modifiers.None, "chat", true) },
 
             { new KeyBind(KeyBind.GameKeys.OemQuestion, KeyBind.Modifiers.Fire, "help") },
 
