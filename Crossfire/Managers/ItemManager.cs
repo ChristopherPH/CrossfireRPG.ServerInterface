@@ -129,7 +129,7 @@ namespace Crossfire.Managers
                     NewClient.UpdateTypes.All, item, ix);
             }
 
-            _Logger.Debug("Added item {0}", item);
+            _Logger.Info("Added {0}", item);
 
             if (item.IsOpen)
             {
@@ -166,7 +166,7 @@ namespace Crossfire.Managers
                 OpenContainer = null;
             }
 
-            _Logger.Debug("Deleted item {0}", item);
+            _Logger.Info("Deleted {0}", item);
 
             //trigger event before actually removing item, so listeners can view item data
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Removed, 
@@ -181,22 +181,22 @@ namespace Crossfire.Managers
 
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
             {
-                location = "player";
+                location = string.Format("player ({0})", e.ObjectTag);
             }
             else if (e.ObjectTag == 0)
             {
-                location = "ground";
+                location = string.Format("ground ({0})", e.ObjectTag);
             }
             else
             {
                 var item = GetItemByTag((UInt32)e.ObjectTag);
                 if (item == null)
-                    location = "missing object: " + e.ObjectTag;
+                    location = string.Format("missing item ({0})", e.ObjectTag);
                 else
                     location = item.ToString();
             }
 
-            _Logger.Debug("Deleting inventory of item {0}", location);
+            _Logger.Info("Deleting inventory of {0}", location);
 
             var items = Items.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
@@ -206,7 +206,7 @@ namespace Crossfire.Managers
 
                 foreach (var item in items)
                 {
-                    _Logger.Debug("Deleted item {0} from {1}", item, location);
+                    _Logger.Debug("Deleted {0} from {1}", item, location);
 
                     if (item == OpenContainer)
                     {
@@ -241,7 +241,7 @@ namespace Crossfire.Managers
 
             var item = Items[ix];
 
-            _Logger.Debug("Update {0} of item {1} to {2}/{3}", 
+            _Logger.Info("Update {0} of {1} to {2}/{3}",
                 e.UpdateType, item, e.UpdateValue, e.UpdateString);
 
             switch (e.UpdateType)
@@ -596,7 +596,7 @@ namespace Crossfire.Managers
 
         public override string ToString()
         {
-            return string.Format("Item: {0} ({1})", Name, Tag);
+            return string.Format("Item: {0} (Tag={1} Face={2} Flags={3})", Name, Tag, Face, Flags);
         }
     }
 }
