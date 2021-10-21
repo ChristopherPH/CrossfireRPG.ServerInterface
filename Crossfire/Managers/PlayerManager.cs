@@ -1,4 +1,5 @@
-﻿using CrossfireCore.ServerInterface;
+﻿using Common;
+using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Crossfire.Managers
             Parser.Stats += Parser_Stats;
         }
 
+        static Logger _Logger = new Logger(nameof(PlayerManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
         public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated;
@@ -25,37 +27,49 @@ namespace Crossfire.Managers
 
         protected override void ClearData()
         {
-            if (Player.ValidPlayer)
-            {
-                Player = new Player();
-                OnDataChanged(ModificationTypes.Updated, Player, null);
-            }
+            Player = new Player();
+            OnDataChanged(ModificationTypes.Updated, Player, null);
         }
 
         private void Parser_Player(object sender, MessageParserBase.PlayerEventArgs e)
         {
-            ClearData();
+            _Logger.Info("New Player: Tag={0} Name='{1}' Face={2} Weight={3}", e.tag, e.PlayerName, e.face, e.weight);
 
-            //Tag of 0 indicates no player
-            if (e.tag == 0)
-                return;
+            //Technically the 'Player' command creates a new player or clears an existing player.
+            //However, the server maintains the player properties and stats for the life of the connection,
+            //and only sends updates if the data changes, so we can't clear data on a new player, only update it
+            if (Player.PlayerTag != e.tag)
+            {
+                Player.PlayerTag = e.tag;
+                base.OnPropertyChanged(Player, nameof(Managers.Player.PlayerTag));
+            }
 
-            //create new player
-            Player.PlayerTag = e.tag;
-            Player.Name = e.PlayerName;
-            Player.Face = e.face;
-            Player.RawWeight = e.weight;
+            if (Player.Name != e.PlayerName)
+            {
+                Player.Name = e.PlayerName;
+                base.OnPropertyChanged(Player, nameof(Managers.Player.Name));
+            }
 
-            base.OnDataChanged(ModificationTypes.Updated, Player, new string[] {
-                nameof(Managers.Player.PlayerTag), nameof(Managers.Player.Name), nameof(Managers.Player.Face),
-                nameof(Managers.Player.Weight)});
+            if (Player.Face != e.face)
+            {
+                Player.Face = e.face;
+                base.OnPropertyChanged(Player, nameof(Managers.Player.Face));
+            }
+
+            if (Player.RawWeight != e.weight)
+            {
+                Player.RawWeight = e.weight;
+                base.OnPropertyChanged(Player, nameof(Managers.Player.Weight));
+            }
         }
 
         private void Parser_UpdateItem(object sender, MessageParserBase.UpdateItemEventArgs e)
         {
-            //UpdateItem will be called with the playertag to update certain properties
+            //UpdateItem will be called with the PlayerTag as the ObjectTag to update certain properties
             if (!Player.ValidPlayer || (e.ObjectTag != Player.PlayerTag))
                 return;
+
+            _Logger.Info("Update Player: {0} => {1}{2}", e.UpdateType, e.UpdateValue, e.UpdateString);
 
             switch (e.UpdateType)
             {
@@ -90,8 +104,10 @@ namespace Crossfire.Managers
 
         private void Parser_Stats(object sender, MessageParserBase.StatEventArgs e)
         {
-            if (!Player.ValidPlayer)
-                return;
+            //Technically the 'Player' command creates a new player or clears an existing player.
+            //However, the server maintains the player properties and stats for the life of the connection,
+            //and only sends updates if the data changes, so we can't clear data on a new player, only update it
+            _Logger.Info("Player Stats: {0} => {1}", e.Stat, e.Value);
 
             UInt32 u32;
             UInt64 u64;
@@ -172,17 +188,25 @@ namespace Crossfire.Managers
                     break;
 
                 case CrossfireCore.NewClient.CharacterStats.Title:
-                    if (Player.Title != e.Value)
+                    var tmpTitle = e.Value;
+                    if (tmpTitle.StartsWith("Player: "))
+                        tmpTitle = tmpTitle.Remove(0, "Player: ".Length);
+
+                    if (Player.Title != tmpTitle)
                     {
-                        Player.Title = e.Value;
+                        Player.Title = tmpTitle;
                         base.OnPropertyChanged(Player, nameof(Managers.Player.Title));
                     }
                     break;
 
                 case CrossfireCore.NewClient.CharacterStats.Range:
-                    if (Player.Range != e.Value)
+                    var tmpRange = e.Value;
+                    if (tmpRange.StartsWith("Range: "))
+                        tmpRange = tmpRange.Remove(0, "Range: ".Length);
+
+                    if (Player.Range != tmpRange)
                     {
-                        Player.Range = e.Value;
+                        Player.Range = tmpRange;
                         base.OnPropertyChanged(Player, nameof(Managers.Player.Range));
                     }
                     break;
@@ -209,6 +233,9 @@ namespace Crossfire.Managers
 
     public class Player
     {
+        /// <summary>
+        /// Tag of 0 indicates no active player
+        /// </summary>
         public UInt32 PlayerTag { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
         public UInt32 Face { get; set; } = 0;
