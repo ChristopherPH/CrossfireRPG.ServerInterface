@@ -64,6 +64,10 @@ namespace Crossfire.Managers
                 {
                     _MissingFaces.Add(Face);
 
+                    //NOTE: the server has a bug where if you connect and don't pick
+                    //      a character, the next time you connect faces won't be
+                    //      sent, so we see missing knowledge and character portraits
+                    //      during testing
                     _Logger.Warning("Missing face {0}, requesting face", Face);
                     _Builder.SendAskFace((int)Face);
                 }
