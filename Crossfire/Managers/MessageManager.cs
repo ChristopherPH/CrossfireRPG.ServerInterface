@@ -201,6 +201,9 @@ namespace Crossfire.Managers
                 case NewClient.MsgTypes.Misc:
                     if (SubType == NewClient.SubTypeNone)
                         return "None";
+                    //HACK: knowledge_give() sends out Misc messages wtih a MSG_TYPE_CLIENT_NOTICE
+                    if ((NewClient.MsgSubTypeClient)SubType == NewClient.MsgSubTypeClient.Notice)
+                        return NewClient.MsgSubTypeClient.Notice.GetDescription();
                     break;
 
                 case NewClient.MsgTypes.Victim:
