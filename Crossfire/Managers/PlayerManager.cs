@@ -203,6 +203,8 @@ namespace Crossfire.Managers
                     var tmpRange = e.Value;
                     if (tmpRange.StartsWith("Range: "))
                         tmpRange = tmpRange.Remove(0, "Range: ".Length);
+                    if (tmpRange.StartsWith("Skill: "))
+                        tmpRange = tmpRange.Remove(0, "Skill: ".Length);
 
                     if (Player.Range != tmpRange)
                     {
