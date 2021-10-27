@@ -207,5 +207,12 @@ namespace CrossfireCore
             Grace = 0x02,
             Damage = 0x04,
         }
+
+        [Flags]
+        public enum StatFlags : uint
+        {
+            Firing = 0x01,
+            Running = 0x02,
+        }
     }
 }
