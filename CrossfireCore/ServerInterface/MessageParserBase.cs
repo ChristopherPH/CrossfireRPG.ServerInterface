@@ -312,6 +312,7 @@ namespace CrossfireCore.ServerInterface
                         {
                             case NewClient.CharacterStats.Range:
                             case NewClient.CharacterStats.Title:
+                            case NewClient.CharacterStats.GodName:
                                 var stat_len = BufferTokenizer.GetByte(e.Packet, ref offset);
                                 var stat_text = BufferTokenizer.GetBytesAsString(e.Packet, ref offset, stat_len);
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_text);
@@ -319,6 +320,7 @@ namespace CrossfireCore.ServerInterface
 
                             case NewClient.CharacterStats.Speed:
                             case NewClient.CharacterStats.WeapSp:
+                            case NewClient.CharacterStats.Overload:
                                 var stat_32f = BufferTokenizer.GetUInt32(e.Packet, ref offset);
 
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_32f / FLOAT_MULTF);
@@ -342,6 +344,7 @@ namespace CrossfireCore.ServerInterface
                             case NewClient.CharacterStats.SpellAttune:
                             case NewClient.CharacterStats.SpellRepel:
                             case NewClient.CharacterStats.SpellDeny:
+                            case NewClient.CharacterStats.CharacterFlags:
                                 var stat_sp32 = BufferTokenizer.GetUInt32(e.Packet, ref offset);
                                 HandleStat((NewClient.CharacterStats)stat_number, stat_sp32);
                                 break;

@@ -101,6 +101,11 @@ namespace CrossfireCore
             [Description("Golem Health")]		GolemHp = 53,         /* Golem's Current Hp = 0, If No Golem. */
             [Description("Golem Max Health")]	GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
 
+            [Description("Character Flags")]    CharacterFlags = 55,
+            [Description("God Name")]           GodName = 56,
+            [Description("Overload")]           Overload = 57,
+            [Description("Item Power")]         ItemPower = 58,
+
             [Description("Resist Physical")]	ResPhys = 100,
             [Description("Resist Magic")]		ResMag = 101,
             [Description("Resist Fire")]		ResFire = 102,
@@ -213,6 +218,62 @@ namespace CrossfireCore
         {
             Firing = 0x01,
             Running = 0x02,
+        }
+
+        [Flags]
+        public enum CharacterFlags : uint
+        {
+            /// <summary>
+            /// Confused by a spell or an item
+            /// </summary>
+            Confused = 0x01,
+
+            /// <summary>
+            /// Poisoned
+            /// </summary>
+            Poison = 0x02,
+
+            /// <summary>
+            /// Blind
+            /// </summary>
+            Blind = 0x04,
+
+            /// <summary>
+            /// Has X-ray
+            /// </summary>
+            [Description("X-Ray")]
+            XRay = 0x80,
+
+            /// <summary>
+            /// Has at least one disease
+            /// </summary>
+            Diseased = 0x10,
+
+            /// <summary>
+            /// Can drink some improvement potions
+            /// </summary>
+            [Description("Not Perfect")]
+            NotPerfect = 0x20,
+
+            /// <summary>
+            /// 'hostile' flag is set
+            /// </summary>
+            Hostile = 0x40,
+
+            /// <summary>
+            /// Player is stealthy
+            /// </summary>
+            Stealthy = 0x80,
+
+            /// <summary>
+            /// Player is paralyzed
+            /// </summary>
+            Paralyzed = 0x100,
+
+            /// <summary>
+            /// Player is DM
+            /// </summary>
+            Wizard = 0x0200
         }
     }
 }
