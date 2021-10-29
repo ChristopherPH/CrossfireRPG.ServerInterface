@@ -74,29 +74,29 @@ namespace CrossfireCore
             [Description("Spell Repel")]	SpellRepel = 30,
             [Description("Spell Deny")]		SpellDeny = 31,
 
-            RaceStr = 32,
-            RaceInt = 33,
-            RaceWis = 34,
-            RaceDex = 35,
-            RaceCon = 36,
-            RaceCha = 37,
-            RacePow = 38,
+            [Description("Race Strength")]      RaceStr = 32,
+            [Description("Race Intelligence")]  RaceInt = 33,
+            [Description("Race Wisdom")]        RaceWis = 34,
+            [Description("Race Dexterity")]     RaceDex = 35,
+            [Description("Race Constitution")]  RaceCon = 36,
+            [Description("Race Charisma")]      RaceCha = 37,
+            [Description("Race Power")]         RacePow = 38,
 
-            BaseStr = 39,
-            BaseInt = 40,
-            BaseWis = 41,
-            BaseDex = 42,
-            BaseCon = 43,
-            BaseCha = 44,
-            BasePow = 45,
+            [Description("Base Strength")]      BaseStr = 39,
+            [Description("Base Intelligence")]  BaseInt = 40,
+            [Description("Base Wisdom")]        BaseWis = 41,
+            [Description("Base Dexterity")]     BaseDex = 42,
+            [Description("Base Constitution")]  BaseCon = 43,
+            [Description("Base Charisma")]      BaseCha = 44,
+            [Description("Base Power")]         BasePow = 45,
 
-            AppliedStr = 46,		/* Str Changes From Gear Or Skills. */
-            AppliedInt = 47,		/* Int Changes From Gear Or Skills. */
-            AppliedWis = 48,		/* Wis Changes From Gear Or Skills. */
-            AppliedDex = 49,		/* Dex Changes From Gear Or Skills. */
-            AppliedCon = 50,		/* Con Changes From Gear Or Skills. */
-            AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
-            AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
+            [Description("Applied Strength")]       AppliedStr = 46,		/* Str Changes From Gear Or Skills. */
+            [Description("Applied Intelligence")]   AppliedInt = 47,		/* Int Changes From Gear Or Skills. */
+            [Description("Applied Wisdom")]         AppliedWis = 48,		/* Wis Changes From Gear Or Skills. */
+            [Description("Applied Dexterity")]      AppliedDex = 49,		/* Dex Changes From Gear Or Skills. */
+            [Description("Applied Constitution")]   AppliedCon = 50,		/* Con Changes From Gear Or Skills. */
+            [Description("Applied Charisma")]       AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
+            [Description("Applied Power")]          AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
 
             [Description("Golem Health")]		GolemHp = 53,         /* Golem's Current Hp = 0, If No Golem. */
             [Description("Golem Max Health")]	GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
