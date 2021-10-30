@@ -166,6 +166,7 @@ namespace CrossfireCore.ServerInterface
             public NewClient.UpdateTypes UpdateType { get; set; }
             public Int64 UpdateValue { get; set; }
             public string UpdateString { get; set; }
+            public string UpdateStringPlural { get; set; }
         }
 
 

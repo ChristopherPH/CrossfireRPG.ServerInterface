@@ -241,8 +241,8 @@ namespace Crossfire.Managers
 
             var item = Items[ix];
 
-            _Logger.Info("Update {0} of {1} to {2}/{3}",
-                e.UpdateType, item, e.UpdateValue, e.UpdateString);
+            _Logger.Info("Update {0} of {1} to {2}/{3} {4}",
+                e.UpdateType, item, e.UpdateValue, e.UpdateString, e.UpdateStringPlural);
 
             switch (e.UpdateType)
             {
@@ -270,6 +270,7 @@ namespace Crossfire.Managers
 
                 case NewClient.UpdateTypes.Name:
                     item.Name = e.UpdateString;
+                    item.NamePlural = e.UpdateStringPlural;
                     break;
 
                 case NewClient.UpdateTypes.Animation:
@@ -596,7 +597,8 @@ namespace Crossfire.Managers
 
         public override string ToString()
         {
-            return string.Format("Item: {0} (Tag={1} Face={2} Flags={3})", Name, Tag, Face, Flags);
+            return string.Format("Item: {0} (Tag={1} Face={2} Flags={3} Location={4} Number={5})",
+                Name, Tag, Face, Flags, LocationTag, NumberOf);
         }
     }
 }

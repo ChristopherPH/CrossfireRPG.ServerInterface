@@ -370,13 +370,15 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue)
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType,
+            string UpdateValue, string UpdateValuePlural)
         {
             UpdateItem?.Invoke(this, new UpdateItemEventArgs()
             {
                 ObjectTag = ObjectTag,
                 UpdateType = UpdateType,
-                UpdateString = UpdateValue
+                UpdateString = UpdateValue,
+                UpdateStringPlural = UpdateValuePlural,
             });
         }
 

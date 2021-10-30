@@ -102,7 +102,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleBeginUpdateItem();
         protected abstract void HandleEndUpdateItem();
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
-        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue, string UpdateValuePlural);
 
         protected abstract void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime, Int16 Mana, Int16 Grace,
             Int16 Damage, byte Skill, UInt32 Path, Int32 Face, string Name, string Description, byte Usage, 
@@ -481,8 +481,7 @@ namespace CrossfireCore.ServerInterface
                                 update_item_name_plural = update_item_name;
                             }
 
-                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Name, update_item_name);
-                            //TODO:HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Name, update_item_name_plural);
+                            HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Name, update_item_name, update_item_name_plural);
                         }
 
                         if (update_item_type.HasFlag(NewClient.UpdateTypes.Animation))
