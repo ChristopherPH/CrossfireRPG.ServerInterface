@@ -266,6 +266,9 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.K, KeyBind.Modifiers.Alt, "togglewindow GameWindowKeybinds") },
             { new KeyBind(KeyBind.GameKeys.C, KeyBind.Modifiers.Alt, "hidewindow GameWindowContainer") },
             { new KeyBind(KeyBind.GameKeys.I, KeyBind.Modifiers.Alt, "showwindow GameWindowInventory") },
+
+            { new KeyBind(KeyBind.GameKeys.PageUp, KeyBind.Modifiers.None, "mapzoomin") },
+            { new KeyBind(KeyBind.GameKeys.PageDown, KeyBind.Modifiers.None, "mapzoomout") },
         };
     }
 
