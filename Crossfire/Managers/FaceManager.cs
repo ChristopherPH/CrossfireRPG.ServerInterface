@@ -142,7 +142,8 @@ namespace Crossfire.Managers
                     Face = e.ImageFace
                 });
 
-                foreach (var faceAction in _FaceAvailableActions.Where(x => x.Key == e.ImageFace))
+                //HACK: use ToList() to stop enumerable from being able to be changed while iterating
+                foreach (var faceAction in _FaceAvailableActions.Where(x => x.Key == e.ImageFace).ToList())
                     faceAction.Value(image);
                 _FaceAvailableActions.RemoveAll(x => x.Key == e.ImageFace);
             }
