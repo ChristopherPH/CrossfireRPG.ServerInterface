@@ -199,6 +199,26 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        public void SendSetup(string SetupParameter, int SetupValue)
+        {
+            using (var ba = new BufferAssembler("setup"))
+            {
+                ba.AddString("{0} {1}", SetupParameter, SetupValue);
+
+                SendMessage(ba);
+            }
+        }
+
+        public void SendSetup(string SetupParameter, bool SetupValue)
+        {
+            using (var ba = new BufferAssembler("setup"))
+            {
+                ba.AddString("{0} {1}", SetupParameter, SetupValue ? 1 : 0);
+
+                SendMessage(ba);
+            }
+        }
+
         public void SendRequestInfo(string Request)
         {
             using (var ba = new BufferAssembler("requestinfo"))
