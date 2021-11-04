@@ -36,6 +36,11 @@ namespace CrossfireCore
 
         public const int NewDrawInfoColorMask = 0xff;
 
+        //Magic Map constants
+        public const int FaceFloor = 0x80;
+        public const int FaceWall = 0x40;
+        public const int FaceColourMask = 0xf;
+
         public enum CharacterStats
         {
             [Description("Health")]			Hp = 1,

@@ -252,5 +252,14 @@ namespace CrossfireCore.ServerInterface
         {
             public UInt32 TickCount { get; set; }
         }
+
+        public class MagicMapEventArgs : EventArgs
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int PlayerX { get; set; }
+            public int PlayerY { get; set; }
+            public byte[] MapData { get; set; }
+        }
     }
 }

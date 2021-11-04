@@ -55,6 +55,7 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<PickupEventArgs> Pickup;
         public event EventHandler<TickEventArgs> Tick;
         public event EventHandler<CompletedCommandEventArgs> CompletedCommand;
+        public event EventHandler<MagicMapEventArgs> MagicMap;
 
         protected override void HandleAccountPlayer(int PlayerCount, int PlayerNumber, UInt16 Level, 
             UInt16 FaceNumber, string Name, string Class, string Race, string Face, string Party, string Map)
@@ -491,6 +492,18 @@ namespace CrossfireCore.ServerInterface
             Tick?.Invoke(this, new TickEventArgs()
             {
                 TickCount = TickCount,
+            });
+        }
+
+        protected override void HandleMagicMap(int Width, int Height, int PlayerX, int PlayerY, byte[] MapData)
+        {
+            MagicMap?.Invoke(this, new MagicMapEventArgs()
+            {
+                Width = Width,
+                Height = Height,
+                PlayerX = PlayerX,
+                PlayerY = PlayerY,
+                MapData = MapData
             });
         }
     }

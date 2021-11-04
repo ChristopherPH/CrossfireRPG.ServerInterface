@@ -118,6 +118,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face);
         protected abstract void HandlePickup(UInt32 PickupFlags);
         protected abstract void HandleTick(UInt32 TickCount);
+        protected abstract void HandleMagicMap(int Width, int Height, int PlayerX, int PlayerY, byte[] MapData);
 
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {
@@ -777,6 +778,17 @@ namespace CrossfireCore.ServerInterface
 
                         HandleAddKnowledge(knowledge_id, knowledge_type, knowledge_title, knowledge_face);
                     }
+                    break;
+
+                case "magicmap":
+                    var mm_width = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var mm_height = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var mm_px = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
+                    var mm_py = BufferTokenizer.GetStringAsInt(e.Packet, ref offset);
+
+                    var mm_data = BufferTokenizer.GetBytes(e.Packet, ref offset, mm_width * mm_height);
+
+                    HandleMagicMap(mm_width, mm_height, mm_px, mm_py, mm_data);
                     break;
 
                 default:
