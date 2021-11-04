@@ -176,8 +176,11 @@ namespace Crossfire.Managers
 
         protected override void ClearData()
         {
-            Datas.Clear();
-            OnDataChanged(ModificationTypes.Cleared, default, -1);
+            if (Datas.Count > 0)
+            {
+                Datas.Clear();
+                OnDataChanged(ModificationTypes.Cleared, default, -1);
+            }
         }
 
         protected void StartBatch()
