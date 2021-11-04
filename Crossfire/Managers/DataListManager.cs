@@ -65,7 +65,20 @@ namespace Crossfire.Managers
             return Datas[Index];
         }
 
-        public int GetData(Predicate<T> Match, out T Data)
+        public int GetIndex(T Data)
+        {
+            if (Data == null)
+                return default;
+
+            return Datas.IndexOf(Data);
+        }
+
+        public int GetIndex(Predicate<T> Match)
+        {
+            return Datas.FindIndex(Match);
+        }
+
+        public int GetIndex(Predicate<T> Match, out T Data)
         {
             var index = Datas.FindIndex(Match);
             Data = index == -1 ? default : Datas[index];
@@ -83,11 +96,17 @@ namespace Crossfire.Managers
             return index;
         }
 
+        /// <summary>
+        /// Updates Properties of Data given a match
+        /// </summary>
         protected bool UpdateData(Predicate<T> Match, Func<T, string[]> UpdateAction)
         {
             return UpdateData(Datas.FindIndex(Match), UpdateAction);
         }
 
+        /// <summary>
+        /// Updates Properties of Data at a given index
+        /// </summary>
         protected bool UpdateData(int index, Func<T, string[]> UpdateAction)
         {
             if ((index < 0) || (index >= Count))
@@ -108,9 +127,37 @@ namespace Crossfire.Managers
             return true;
         }
 
+        /// <summary>
+        /// Replaces Data at a given index with a new Data
+        /// </summary>
+        protected bool UpdateData(int index, T Data)
+        {
+            if ((index < 0) || (index >= Count))
+                return false;
+
+            if (Data == null)
+                return false;
+
+            Datas[index] = Data;
+
+            OnDataChanged(ModificationTypes.Updated,
+                Data, index);
+
+            return true;
+        }
+
         protected bool RemoveData(Predicate<T> Match)
         {
             return RemoveData(Datas.FindIndex(Match));
+        }
+
+        protected bool RemoveData(T Data)
+        {
+            var index = Datas.IndexOf(Data);
+            if (index == -1)
+                return false;
+
+            return RemoveData(index);
         }
 
         protected bool RemoveData(int index)
