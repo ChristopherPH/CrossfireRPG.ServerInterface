@@ -20,7 +20,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes =>
             base.SupportedModificationTypes | ModificationTypes.Added;
 
-        private void Parser_AddKnowledge(object sender, MessageParserBase.AddKnowledgeEventArgs e)
+        private void Parser_AddKnowledge(object sender, MessageParser.AddKnowledgeEventArgs e)
         {
             AddData(new Knowledge()
             {

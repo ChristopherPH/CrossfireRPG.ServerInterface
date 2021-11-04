@@ -42,14 +42,14 @@ namespace Crossfire.Managers
             AddClientMessage(s, NewClient.MsgSubTypeClient.Debug);
         }
 
-        private void Parser_Failure(object sender, MessageParserBase.FailureEventArgs e)
+        private void Parser_Failure(object sender, MessageParser.FailureEventArgs e)
         {
             var s = string.Format("Failure: {0} {1}", e.ProtocolCommand, e.FailureString);
 
             AddClientMessage(s, NewClient.MsgSubTypeClient.Error);
         }
 
-        private void Parser_DrawExtInfo(object sender, MessageParserBase.DrawExtInfoEventArgs e)
+        private void Parser_DrawExtInfo(object sender, MessageParser.DrawExtInfoEventArgs e)
         {
             //Split flags from colour to make handling easier
             var colour = (NewClient.NewDrawInfo)((int)e.Flags & NewClient.NewDrawInfoColorMask);

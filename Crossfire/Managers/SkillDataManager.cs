@@ -20,7 +20,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
             ModificationTypes.Added | ModificationTypes.Updated;
 
-        private void Parser_Skills(object sender, MessageParserBase.SkillEventArgs e)
+        private void Parser_Skills(object sender, MessageParser.SkillEventArgs e)
         {
             if (!Contains(x => x.SkillID == e.Skill))
             {

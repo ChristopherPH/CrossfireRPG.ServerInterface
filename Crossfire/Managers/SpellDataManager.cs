@@ -22,7 +22,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
             ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed;
 
-        private void Parser_AddSpell(object sender, MessageParserBase.AddSpellEventArgs e)
+        private void Parser_AddSpell(object sender, MessageParser.AddSpellEventArgs e)
         {
             AddData(new Spell()
             {
@@ -42,7 +42,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_UpdateSpell(object sender, MessageParserBase.UpdateSpellEventArgs e)
+        private void Parser_UpdateSpell(object sender, MessageParser.UpdateSpellEventArgs e)
         {
             UpdateData(x => x.SpellTag == e.SpellTag, (data) =>
             {
@@ -66,7 +66,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_DeleteSpell(object sender, MessageParserBase.DeleteSpellEventArgs e)
+        private void Parser_DeleteSpell(object sender, MessageParser.DeleteSpellEventArgs e)
         {
             RemoveData(x => x.SpellTag == e.SpellTag);
         }

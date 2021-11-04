@@ -30,7 +30,7 @@ namespace Crossfire.Managers
                 ClearData();
         }
 
-        private void Parser_Player(object sender, MessageParserBase.PlayerEventArgs e)
+        private void Parser_Player(object sender, MessageParser.PlayerEventArgs e)
         {
             if (e.tag == 0)
                 ClearData();

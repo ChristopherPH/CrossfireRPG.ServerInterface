@@ -21,7 +21,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes =>
             base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated;
 
-        private void Parser_AddQuest(object sender, MessageParserBase.AddQuestEventArgs e)
+        private void Parser_AddQuest(object sender, MessageParser.AddQuestEventArgs e)
         {
             AddData(new Quest()
             {
@@ -35,7 +35,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_UpdateQuest(object sender, MessageParserBase.UpdateQuestEventArgs e)
+        private void Parser_UpdateQuest(object sender, MessageParser.UpdateQuestEventArgs e)
         {
             UpdateData(x => x.QuestID == e.Code, (data) =>
             {

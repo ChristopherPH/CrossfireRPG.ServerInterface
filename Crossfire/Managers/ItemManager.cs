@@ -91,7 +91,7 @@ namespace Crossfire.Managers
             Items.Clear();
         }
 
-        private void _Parser_Item2(object sender, MessageParserBase.Item2EventArgs e)
+        private void _Parser_Item2(object sender, MessageParser.Item2EventArgs e)
         {
             var item = new Item()
             {
@@ -147,7 +147,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_DeleteItem(object sender, MessageParserBase.DeleteItemEventArgs e)
+        private void _Parser_DeleteItem(object sender, MessageParser.DeleteItemEventArgs e)
         {
             var ix = Items.FindIndex(x => x.Tag == e.ObjectTag);
             if (ix == -1)
@@ -175,7 +175,7 @@ namespace Crossfire.Managers
             Items.RemoveAt(ix);
         }
 
-        private void _Parser_DeleteInventory(object sender, MessageParserBase.DeleteInventoryEventArgs e)
+        private void _Parser_DeleteInventory(object sender, MessageParser.DeleteInventoryEventArgs e)
         {
             var location = string.Empty;
 
@@ -227,7 +227,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_UpdateItem(object sender, MessageParserBase.UpdateItemEventArgs e)
+        private void _Parser_UpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
         {
            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -316,7 +316,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_Player(object sender, MessageParserBase.PlayerEventArgs e)
+        private void _Parser_Player(object sender, MessageParser.PlayerEventArgs e)
         {
             _PlayerTag = e.tag;
 

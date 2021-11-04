@@ -108,7 +108,7 @@ namespace Crossfire.Managers
             _FaceAvailableActions.Clear();
         }
 
-        private void _Parser_Image2(object sender, MessageParserBase.Image2EventArgs e)
+        private void _Parser_Image2(object sender, MessageParser.Image2EventArgs e)
         {
             _Logger.Info("Received Face {0}:{1}", e.ImageFace, e.ImageFaceSet);
 
