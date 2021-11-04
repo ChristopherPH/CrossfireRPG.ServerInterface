@@ -19,19 +19,37 @@ namespace Crossfire.Managers
 
         public T this[int index]
         {
-            get => Datas[index];
+            get
+            {
+                lock (_Lock)
+                {
+                    return Datas[index];
+                }
+            }
         }
 
         public int Count => Datas.Count;
 
+        private object _Lock = new object();
+
         public IEnumerator<T> GetEnumerator()
         {
-            return Datas.GetEnumerator();
+            lock (_Lock)
+            {
+                //HACK: return a copy of the list so we don't get "Collection was modified;
+                //      enumeration operation may not execute"
+                return Datas.ToList().GetEnumerator();
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            lock (_Lock)
+            {
+                //HACK: return a copy of the list so we don't get "Collection was modified;
+                //      enumeration operation may not execute"
+                return this.ToList().GetEnumerator();
+            }
         }
 
         public bool Contains(Predicate<T> Match)
@@ -44,7 +62,10 @@ namespace Crossfire.Managers
             if ((index < 0) || (index >= Count))
                 return default;
 
-            return Datas[index];
+            lock (_Lock)
+            {
+                return Datas[index];
+            }
         }
 
         public T GetData(Predicate<T> Match)
@@ -53,7 +74,10 @@ namespace Crossfire.Managers
             if (index == -1)
                 return default;
 
-            return Datas[index];
+            lock (_Lock)
+            {
+                return Datas[index];
+            }
         }
 
         public T GetData(Predicate<T> Match, out int Index)
@@ -62,7 +86,10 @@ namespace Crossfire.Managers
             if (Index == -1)
                 return default;
 
-            return Datas[Index];
+            lock (_Lock)
+            {
+                return Datas[Index];
+            }
         }
 
         public int GetIndex(T Data)
@@ -70,7 +97,10 @@ namespace Crossfire.Managers
             if (Data == null)
                 return default;
 
-            return Datas.IndexOf(Data);
+            lock (_Lock)
+            {
+                return Datas.IndexOf(Data);
+            }
         }
 
         public int GetIndex(Predicate<T> Match)
@@ -81,14 +111,30 @@ namespace Crossfire.Managers
         public int GetIndex(Predicate<T> Match, out T Data)
         {
             var index = Datas.FindIndex(Match);
-            Data = index == -1 ? default : Datas[index];
+
+            if (index == -1)
+            {
+                Data = default;
+            }
+            else
+            {
+                lock (_Lock)
+                {
+                    Data = Datas[index];
+                }
+            }
+
             return index;
         }
 
         protected int AddData(T Data)
         {
             var index = Datas.Count;
-            Datas.Add(Data);
+
+            lock (_Lock)
+            {
+                Datas.Add(Data);
+            }
 
             OnDataChanged(ModificationTypes.Added,
                 Data, index);
@@ -115,7 +161,11 @@ namespace Crossfire.Managers
             if (UpdateAction == null)
                 return false;
 
-            var data = Datas[index];
+            T data;
+            lock (_Lock)
+            {
+                data = Datas[index];
+            }
 
             var UpdatedProperties = UpdateAction(data);
             if (UpdatedProperties == null)
@@ -138,7 +188,10 @@ namespace Crossfire.Managers
             if (Data == null)
                 return false;
 
-            Datas[index] = Data;
+            lock (_Lock)
+            {
+                Datas[index] = Data;
+            }
 
             OnDataChanged(ModificationTypes.Updated,
                 Data, index);
@@ -153,7 +206,7 @@ namespace Crossfire.Managers
 
         protected bool RemoveData(T Data)
         {
-            var index = Datas.IndexOf(Data);
+            var index = GetIndex(Data);
             if (index == -1)
                 return false;
 
@@ -165,12 +218,20 @@ namespace Crossfire.Managers
             if ((index < 0) || (index >= Count))
                 return false;
 
-            var data = Datas[index];
+            T data;
+
+            lock (_Lock)
+            {
+                data = Datas[index];
+            }
 
             OnDataChanged(ModificationTypes.Removed,
                 data, index);
 
-            Datas.RemoveAt(index);
+            lock (_Lock)
+            {
+                Datas.RemoveAt(index);
+            }
             return true;
         }
 
@@ -178,7 +239,11 @@ namespace Crossfire.Managers
         {
             if (Datas.Count > 0)
             {
-                Datas.Clear();
+                lock (_Lock)
+                {
+                    Datas.Clear();
+                }
+
                 OnDataChanged(ModificationTypes.Cleared, default, -1);
             }
         }
