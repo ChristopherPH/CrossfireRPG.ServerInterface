@@ -13,7 +13,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageEvents_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageEvents_Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageParser_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageParser_Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageEvents_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageParser_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Items\MessageEvents_Item.cs" />
@@ -42,5 +44,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\ReplyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\SingleCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Parsers\Audio\" />
   </ItemGroup>
 </Project>

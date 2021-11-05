@@ -19,6 +19,7 @@ namespace CrossfireCore.ServerInterface
             _Connection.OnPacket += ParsePacket;
 
             AddAccountParsers();
+            AddAudioParsers();
             AddCommandParsers();
             AddGraphicsParsers();
             AddItemParsers();
