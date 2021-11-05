@@ -36,6 +36,8 @@ namespace CrossfireCore.ServerInterface
 
         protected abstract void HandleSmooth(UInt16 face, UInt16 smooth);
 
+        const int MAP2_COORD_OFFSET = 15;
+
         private void AddMapParsers()
         {
             AddCommandHandler("newmap", Parse_newmap);

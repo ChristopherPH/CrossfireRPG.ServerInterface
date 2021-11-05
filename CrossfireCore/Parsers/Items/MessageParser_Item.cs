@@ -26,6 +26,8 @@ namespace CrossfireCore.ServerInterface
         /// <param name="Tag"></param>
         protected abstract void HandleDeleteInventory(int ObjectTag);
 
+        const float FLOAT_MULTF = 100000.0f;
+
         private void AddItemParsers()
         {
             AddCommandHandler("item2", Parse_item2);

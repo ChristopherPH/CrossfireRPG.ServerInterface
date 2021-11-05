@@ -33,12 +33,6 @@ namespace CrossfireCore.ServerInterface
 
         private SocketConnection _Connection;
 
-        //Save the spellmon value for the parser
-        private int ParserOption_SpellMon = 0;
-
-        const int MAP2_COORD_OFFSET = 15;
-        const float FLOAT_MULTF = 100000.0f;
-
         protected delegate bool ParseCommand(byte[] packet, ref int offset);
         private Dictionary<string, ParseCommand> _CommandHandler = new Dictionary<string, ParseCommand>();
 
@@ -53,8 +47,6 @@ namespace CrossfireCore.ServerInterface
             _CommandHandler[command] = parseCommand;
             return true;
         }
-
-
 
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
         {

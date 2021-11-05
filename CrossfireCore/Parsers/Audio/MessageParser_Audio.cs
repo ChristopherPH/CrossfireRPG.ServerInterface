@@ -16,7 +16,6 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("sound2", Parse_sound2);
         }
 
-
         private bool Parse_music(byte[] packet, ref int offset)
         {
             var song = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);

@@ -13,6 +13,9 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleDeleteSpell(UInt32 SpellTag);
 
+        //Save the spellmon value for the parser
+        private int ParserOption_SpellMon = 0;
+
         private void AddSpellParsers()
         {
             AddCommandHandler("addspell", Parse_addspell);
