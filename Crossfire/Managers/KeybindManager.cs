@@ -241,8 +241,12 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.NumPad2, KeyBind.Modifiers.Run, "south r") },
             { new KeyBind(KeyBind.GameKeys.NumPad3, KeyBind.Modifiers.Run, "southeast r") },
 
-            { new KeyBind(KeyBind.GameKeys.Add,  KeyBind.Modifiers.Any, "rotateshoottype") },
-            { new KeyBind(KeyBind.GameKeys.Subtract,  KeyBind.Modifiers.Any, "rotateshoottype -") },
+            { new KeyBind(KeyBind.GameKeys.Add,  KeyBind.Modifiers.None, "rotateshoottype") },
+            { new KeyBind(KeyBind.GameKeys.Subtract,  KeyBind.Modifiers.None, "rotateshoottype -") },
+            { new KeyBind(KeyBind.GameKeys.Add,  KeyBind.Modifiers.Fire, "rotateshoottype") },
+            { new KeyBind(KeyBind.GameKeys.Subtract,  KeyBind.Modifiers.Fire, "rotateshoottype -") },
+            { new KeyBind(KeyBind.GameKeys.Add,  KeyBind.Modifiers.Run, "rotateshoottype") },
+            { new KeyBind(KeyBind.GameKeys.Subtract,  KeyBind.Modifiers.Run, "rotateshoottype -") },
 
             { new KeyBind(KeyBind.GameKeys.OemPeriod, KeyBind.Modifiers.None, "stay fire") },
 
@@ -267,8 +271,8 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.C, KeyBind.Modifiers.Alt, "hidewindow GameWindowContainer") },
             { new KeyBind(KeyBind.GameKeys.I, KeyBind.Modifiers.Alt, "showwindow GameWindowInventory") },
 
-            { new KeyBind(KeyBind.GameKeys.PageUp, KeyBind.Modifiers.None, "mapzoomin") },
-            { new KeyBind(KeyBind.GameKeys.PageDown, KeyBind.Modifiers.None, "mapzoomout") },
+            { new KeyBind(KeyBind.GameKeys.Add, KeyBind.Modifiers.Alt, "mapzoomin") },
+            { new KeyBind(KeyBind.GameKeys.Subtract, KeyBind.Modifiers.Alt, "mapzoomout") },
         };
     }
 
