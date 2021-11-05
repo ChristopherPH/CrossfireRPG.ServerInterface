@@ -330,5 +330,13 @@ namespace CrossfireCore.ServerInterface
                 SendMessage(ba);
             }
         }
+
+        public void SendHeartbeat()
+        {
+            using (var ba = new BufferAssembler("beat", false))
+            {
+                SendMessage(ba);
+            }
+        }
     }
 }
