@@ -338,5 +338,17 @@ namespace CrossfireCore.ServerInterface
                 SendMessage(ba);
             }
         }
+
+        public void SendInscribe(UInt32 SpellTag, UInt32 ScrollTag)
+        {
+            using (var ba = new BufferAssembler("inscribe"))
+            {
+                ba.AddByte(0);  //inscribe version, only 0 available
+                ba.AddUInt32(SpellTag);
+                ba.AddUInt32(ScrollTag);
+
+                SendMessage(ba);
+            }
+        }
     }
 }

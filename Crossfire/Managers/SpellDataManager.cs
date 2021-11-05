@@ -85,7 +85,19 @@ namespace Crossfire.Managers
         public Int32 Face { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public byte Usage { get; set; }
+
+        /// <summary>
+        /// 0: spell needs no argument.
+        /// 1: spell needs the name of another spell.
+        /// 2: spell can use a freeform string argument.
+        /// 3: spell requires a freeform string argument.
+        /// </summary>
+        public byte Usage { get; set; } = 0;
+
+        /// <summary>
+        /// Comma-separated list of items required to cast spell,
+        /// potential number of items, singular names
+        /// </summary>
         public string Requirements { get; set; }
 
         public override string ToString()

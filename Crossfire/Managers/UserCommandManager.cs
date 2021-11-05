@@ -123,6 +123,11 @@ namespace Crossfire.Managers
             SendUserCommand("cast {0}", Spell);
         }
 
+        public void SendCastSpell(UInt32 Spell, string SpellArgs)
+        {
+            SendUserCommand("cast {0} {1}", Spell, SpellArgs);
+        }
+
         public void SendInvokeSpell(string Spell)
         {
             SendUserCommand("invoke {0}", Spell);
@@ -131,6 +136,11 @@ namespace Crossfire.Managers
         public void SendInvokeSpell(UInt32 Spell)
         {
             SendUserCommand("invoke {0}", Spell);
+        }
+
+        public void SendInvokeSpell(UInt32 Spell, string SpellArgs)
+        {
+            SendUserCommand("invoke {0} {1}", Spell, SpellArgs);
         }
 
         public void SendPickup(UInt32 PickupFlags)
