@@ -8,6 +8,7 @@ namespace CrossfireCore.ServerInterface
     {
         public event EventHandler<AnimationEventArgs> Animation;
         public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
+        public event EventHandler<Face2EventArgs> Face2;
         public event EventHandler<Image2EventArgs> Image2;
         public event EventHandler<MagicMapEventArgs> MagicMap;
 
@@ -30,6 +31,17 @@ namespace CrossfireCore.ServerInterface
                 MessageType = MessageType,
                 SubType = SubType,
                 Message = Message
+            });
+        }
+
+        protected override void HandleFace2(UInt16 face, byte faceset, UInt32 checksum, string filename)
+        {
+            Face2?.Invoke(this, new Face2EventArgs()
+            {
+                Face = face,
+                FaceSet = faceset,
+                Checksum = checksum,
+                FileName = filename,
             });
         }
 
@@ -68,6 +80,14 @@ namespace CrossfireCore.ServerInterface
             public NewClient.MsgTypes MessageType { get; set; }
             public int SubType { get; set; }
             public string Message { get; set; }
+        }
+
+        public class Face2EventArgs : SingleCommandEventArgs
+        {
+            public UInt16 Face { get; set; }
+            public byte FaceSet { get; set; }
+            public UInt32 Checksum { get; set; }
+            public string FileName { get; set; }
         }
 
         public class Image2EventArgs : SingleCommandEventArgs

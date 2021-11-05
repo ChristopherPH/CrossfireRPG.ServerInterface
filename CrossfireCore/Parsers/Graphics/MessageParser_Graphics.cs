@@ -10,6 +10,7 @@ namespace CrossfireCore.ServerInterface
             UInt16[] AnimationFaces);
         protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Flags,
             NewClient.MsgTypes MessageType, int SubType, string Message);
+        protected abstract void HandleFace2(UInt16 face, byte faceset, UInt32 checksum, string filename);
         protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
         protected abstract void HandleMagicMap(int Width, int Height, int PlayerX, int PlayerY, byte[] MapData);
 
@@ -17,6 +18,7 @@ namespace CrossfireCore.ServerInterface
         {
             AddCommandHandler("anim", Parse_anim);
             AddCommandHandler("drawextinfo", Parse_drawextinfo);
+            AddCommandHandler("face2", Parse_face2);
             AddCommandHandler("image2", Parse_image2);
             AddCommandHandler("magicmap", Parse_magicmap);
         }
@@ -44,6 +46,18 @@ namespace CrossfireCore.ServerInterface
             var message = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);
 
             HandleDrawExtInfo(flags, message_type, sub_type, message);
+
+            return true;
+        }
+
+        private bool Parse_face2(byte[] packet, ref int offset)
+        {
+            var face = BufferTokenizer.GetUInt16(packet, ref offset);
+            var face_faceset = BufferTokenizer.GetByte(packet, ref offset);
+            var checksum = BufferTokenizer.GetUInt32(packet, ref offset);
+            var filename = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);
+
+            HandleFace2(face, face_faceset, checksum, filename);
 
             return true;
         }
