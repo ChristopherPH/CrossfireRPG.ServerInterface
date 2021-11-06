@@ -14,8 +14,8 @@ namespace CrossfireCore.ServerInterface
 
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue, string UpdateValuePlural);
-        protected abstract void HandleBeginUpdateItem();
-        protected abstract void HandleEndUpdateItem();
+        protected abstract void HandleBeginUpdateItem(UInt32 ObjectTag);
+        protected abstract void HandleEndUpdateItem(UInt32 ObjectTag);
         protected abstract void HandleDeleteItem(UInt32 ObjectTag);
         protected abstract void HandleBeginDeleteItem();
         protected abstract void HandleEndDeleteItem();
@@ -84,7 +84,7 @@ namespace CrossfireCore.ServerInterface
             var update_item_type = (NewClient.UpdateTypes)BufferTokenizer.GetByte(packet, ref offset);
             var update_item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
 
-            HandleBeginUpdateItem();
+            HandleBeginUpdateItem(update_item_tag);
 
             while (offset < packet.Length)
             {
@@ -154,7 +154,7 @@ namespace CrossfireCore.ServerInterface
                 }
             }
 
-            HandleEndUpdateItem();
+            HandleEndUpdateItem(update_item_tag);
 
             return true;
         }

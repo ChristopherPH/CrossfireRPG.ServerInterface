@@ -10,8 +10,8 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<EventArgs> BeginItem2;
         public event EventHandler<EventArgs> EndItem2;
         public event EventHandler<UpdateItemEventArgs> UpdateItem;
-        public event EventHandler<EventArgs> BeginUpdateItem;
-        public event EventHandler<EventArgs> EndUpdateItem;
+        public event EventHandler<UpdateItemEventArgs> BeginUpdateItem;
+        public event EventHandler<UpdateItemEventArgs> EndUpdateItem;
         public event EventHandler<DeleteItemEventArgs> DeleteItem;
         public event EventHandler<EventArgs> BeginDeleteItem;
         public event EventHandler<EventArgs> EndDeleteItem;
@@ -69,14 +69,20 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleBeginUpdateItem()
+        protected override void HandleBeginUpdateItem(uint ObjectTag)
         {
-            BeginUpdateItem?.Invoke(this, EventArgs.Empty);
+            BeginUpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            {
+                ObjectTag = ObjectTag,
+            });
         }
 
-        protected override void HandleEndUpdateItem()
+        protected override void HandleEndUpdateItem(uint ObjectTag)
         {
-            EndUpdateItem?.Invoke(this, EventArgs.Empty);
+            EndUpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            {
+                ObjectTag = ObjectTag,
+            });
         }
 
         protected override void HandleDeleteItem(uint ObjectTag)

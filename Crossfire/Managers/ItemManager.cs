@@ -360,8 +360,11 @@ namespace Crossfire.Managers
                 0, null, -1);
         }
 
-        private void _Parser_BeginUpdateItem(object sender, EventArgs e)
+        private void _Parser_BeginUpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
         {
+            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
+                return;
+
             _Logger.Debug("Begin update item");
 
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
@@ -369,8 +372,11 @@ namespace Crossfire.Managers
         }
 
 
-        private void _Parser_EndUpdateItem(object sender, EventArgs e)
+        private void _Parser_EndUpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
         {
+            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
+                return;
+
             _Logger.Debug("End update item");
 
             OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
