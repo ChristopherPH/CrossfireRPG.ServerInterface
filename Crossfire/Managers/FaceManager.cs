@@ -10,23 +10,16 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class FaceManager
+    public class FaceManager : Manager
     {
         public FaceManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+            : base(Connection, Builder, Parser)
         {
-            _Connection = Connection;
-            _Builder = Builder;
-            _Parser = Parser;
-
-            _Connection.OnStatusChanged += _Connection_OnStatusChanged;
-            _Parser.Image2 += _Parser_Image2;
+            Connection.OnStatusChanged += _Connection_OnStatusChanged;
+            Parser.Image2 += _Parser_Image2;
         }
 
-        private SocketConnection _Connection;
-        private MessageBuilder _Builder;
-        private MessageParser _Parser;
         static Logger _Logger = new Logger(nameof(FaceManager));
-
         private Dictionary<UInt32, FaceInfo> _Faces { get; } = new Dictionary<UInt32, FaceInfo>();
         private List<UInt32> _MissingFaces = new List<UInt32>();
         private List<KeyValuePair<UInt32, Action<Image>>> _FaceAvailableActions = new List<KeyValuePair<uint, Action<Image>>>();
@@ -58,7 +51,7 @@ namespace Crossfire.Managers
 
             if (!_Faces.TryGetValue(Face, out var faceInfo))
             {
-                if ((_Connection.ConnectionStatus == ConnectionStatuses.Connected) &&
+                if ((Connection.ConnectionStatus == ConnectionStatuses.Connected) &&
                     RequestIfMissing &&
                     !_MissingFaces.Contains(Face))
                 {
@@ -69,7 +62,7 @@ namespace Crossfire.Managers
                     //      sent, so we see missing knowledge and character portraits
                     //      during testing
                     _Logger.Warning("Missing face {0}, requesting face", Face);
-                    _Builder.SendAskFace((int)Face);
+                    Builder.SendAskFace((int)Face);
                 }
 
                 if (FaceAvailable != null)
