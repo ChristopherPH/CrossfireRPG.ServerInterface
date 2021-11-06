@@ -114,7 +114,32 @@ namespace Crossfire.Managers
             var ix = Items.FindIndex(x => x.Tag == e.item_tag);
             if (ix != -1)
             {
-                _Logger.Warning("Trying to add existing object {0}, updating instead", e.item_tag);
+                var existingItem = Items[ix];
+                var UpdatedProperties = new List<string>();
+
+                if (item.LocationTag != existingItem.LocationTag)
+                    UpdatedProperties.Add(nameof(Item.LocationTag)); //LocationTag changes when picking up an item
+                if (item.Flags != existingItem.Flags)
+                    UpdatedProperties.Add(nameof(Item.Flags));
+                if (item.Weight != existingItem.Weight)
+                    UpdatedProperties.Add(nameof(Item.Weight));
+                if (item.Face != existingItem.Face)
+                    UpdatedProperties.Add(nameof(Item.Face));
+                if (item.Name != existingItem.Name)
+                    UpdatedProperties.Add(nameof(Item.Name));
+                if (item.NamePlural != existingItem.NamePlural)
+                    UpdatedProperties.Add(nameof(Item.NamePlural));
+                if (item.Animation != existingItem.Animation)
+                    UpdatedProperties.Add(nameof(Item.Animation));
+                if (item.AnimationSpeed != existingItem.AnimationSpeed)
+                    UpdatedProperties.Add(nameof(Item.AnimationSpeed));
+                if (item.NumberOf != existingItem.NumberOf)
+                    UpdatedProperties.Add(nameof(Item.NumberOf));
+                if (item.ClientType != existingItem.ClientType)
+                    UpdatedProperties.Add(nameof(Item.ClientType));
+
+                _Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
+                    string.Join(", ", UpdatedProperties));
 
                 Items[ix] = item;
                 OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Updated, 
@@ -201,6 +226,7 @@ namespace Crossfire.Managers
             var items = Items.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
             {
+                _Logger.Debug("Begin delete inventory");
                 OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchStart,
                     0, null, -1);
 
@@ -224,6 +250,7 @@ namespace Crossfire.Managers
 
                 OnItemChanged(ItemModifiedEventArgs.ModificationTypes.BatchEnd,
                     0, null, -1);
+                _Logger.Debug("End delete inventory");
             }
         }
 
