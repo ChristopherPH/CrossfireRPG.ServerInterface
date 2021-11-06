@@ -10,14 +10,11 @@ using System.Windows.Forms;
 
 namespace Crossfire.Keybinding
 {
-    public class KeybindManager
+    public class KeybindManager : Managers.Manager
     {
         public KeybindManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+            : base(Connection, Builder, Parser)
         {
-            _Connection = Connection;
-            _Builder = Builder;
-            _Parser = Parser;
-
             foreach (KeybindLocations location in Enum.GetValues(typeof(KeybindLocations)))
             {
                 BindingStore[location] = new Bindings();
@@ -28,9 +25,6 @@ namespace Crossfire.Keybinding
             LoadBindings(KeybindLocations.Global, true);
         }
 
-        private SocketConnection _Connection;
-        private MessageBuilder _Builder;
-        private MessageParser _Parser;
         private string _PlayerName = string.Empty;
         static Logger _Logger = new Logger(nameof(KeybindManager));
 
@@ -99,7 +93,7 @@ namespace Crossfire.Keybinding
                     if (_PlayerName == string.Empty)
                         return string.Empty;
 
-                    return string.Format("{0}.{1}.keys", _Connection?.Host ?? "unknown", _PlayerName);
+                    return string.Format("{0}.{1}.keys", Connection?.Host ?? "unknown", _PlayerName);
 
                 default:
                     return string.Empty;
