@@ -8,20 +8,14 @@ using System.Threading.Tasks;
 
 namespace Crossfire.Managers
 {
-    public class UserCommandManager
+    public class UserCommandManager : Manager
     {
         public UserCommandManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+            : base(Connection, Builder, Parser)
         {
-            _Connection = Connection;
-            _Builder = Builder;
-            _Parser = Parser;
-
             Parser.CompletedCommand += Parser_CompletedCommand;
         }
 
-        private SocketConnection _Connection;
-        private MessageBuilder _Builder;
-        private MessageParser _Parser;
         private List<UInt16> _WaitingIDs = new List<UInt16>();
         static Logger _Logger = new Logger(nameof(UserCommandManager));
 
@@ -75,7 +69,7 @@ namespace Crossfire.Managers
                 if (string.IsNullOrWhiteSpace(args.Command))
                     continue;
 
-                commandID = _Builder.SendNewCommand(args.Command.Trim(), args.Repeat);
+                commandID = Builder.SendNewCommand(args.Command.Trim(), args.Repeat);
                 if (commandID == 0)
                     continue;
 
