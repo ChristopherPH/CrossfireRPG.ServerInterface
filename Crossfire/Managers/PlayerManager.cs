@@ -243,9 +243,9 @@ namespace Crossfire.Managers
         public UInt32 Face { get; set; } = 0;
 
         public UInt32 RawWeight { get; set; } = 0;
-        public float Weight => RawWeight / 1000;
+        public float Weight => RawWeight / 1000; //TODO: use constant
         public UInt32 RawWeightLimit { get; set; } = 0;
-        public float WeightLimit => RawWeightLimit / 1000;
+        public float WeightLimit => RawWeightLimit / 1000; //TODO: use constant
 
         public UInt32 Health { get; set; } = 0;
         public UInt32 MaxHealth { get; set; } = 0;
