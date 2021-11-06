@@ -98,7 +98,7 @@ namespace Crossfire.Managers
                 LocationTag = e.item_location,
                 Tag = e.item_tag,
                 Flags = (NewClient.ItemFlags)e.item_flags,
-                Weight = e.item_weight == uint.MaxValue ? float.NaN : (float)e.item_weight / 1000,
+                RawWeight = e.item_weight,
                 Face = e.item_face,
                 Name = e.item_name,
                 NamePlural = e.item_name_plural,
@@ -244,49 +244,85 @@ namespace Crossfire.Managers
             _Logger.Info("Update {0} of {1} to {2}/{3} {4}",
                 e.UpdateType, item, e.UpdateValue, e.UpdateString, e.UpdateStringPlural);
 
+            string[] UpdatedProperties = null;
+
             switch (e.UpdateType)
             {
                 case NewClient.UpdateTypes.Location:
-                    item.LocationTag = (UInt32)e.UpdateValue;
+                    if (item.LocationTag != (UInt32)e.UpdateValue)
+                    {
+                        item.LocationTag = (UInt32)e.UpdateValue;
 
-                    item.Location = GetLocation(item.LocationTag, out var inContainer);
-                    item.IsInContainer = inContainer;
+                        item.Location = GetLocation(item.LocationTag, out var inContainer);
+                        item.IsInContainer = inContainer;
+                        UpdatedProperties = new string[] { nameof(Item.LocationTag),
+                            nameof(Item.Location), nameof(Item.IsInContainer) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.Flags:
-                    item.Flags = (NewClient.ItemFlags)e.UpdateValue;
+                    if (item.Flags != (NewClient.ItemFlags)e.UpdateValue)
+                    {
+                        item.Flags = (NewClient.ItemFlags)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.Flags) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.Weight:
-                    if (e.UpdateValue == uint.MaxValue)
-                        item.Weight = float.NaN;
-                    else
-                        item.Weight = (float)e.UpdateValue / 1000;
+                    if (item.RawWeight != e.UpdateValue)
+                    {
+                        item.RawWeight = (UInt32)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.RawWeight), nameof(Item.Weight) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.Face:
-                    item.Face = (UInt32)e.UpdateValue;
+                    if (item.Face != (UInt32)e.UpdateValue)
+                    {
+                        item.Face = (UInt32)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.Face) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.Name:
-                    item.Name = e.UpdateString;
-                    item.NamePlural = e.UpdateStringPlural;
+                    if ((item.Name != e.UpdateString) || (item.NamePlural != e.UpdateStringPlural))
+                    {
+                        item.Name = e.UpdateString;
+                        item.NamePlural = e.UpdateStringPlural;
+                        UpdatedProperties = new string[] { nameof(Item.Name), nameof(Item.NamePlural) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.Animation:
-                    item.Animation = (UInt16)e.UpdateValue;
+                    if (item.Animation != (UInt16)e.UpdateValue)
+                    {
+                        item.Animation = (UInt16)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.Animation) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.AnimationSpeed:
-                    item.AnimationSpeed = (byte)e.UpdateValue;
+                    if (item.AnimationSpeed != (byte)e.UpdateValue)
+                    {
+                        item.AnimationSpeed = (byte)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.AnimationSpeed) };
+                    }
                     break;
 
                 case NewClient.UpdateTypes.NumberOf:
-                    item.NumberOf = (UInt32)e.UpdateValue;
+                    if (item.NumberOf != (UInt32)e.UpdateValue)
+                    {
+                        item.NumberOf = (UInt32)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.NumberOf) };
+                    }
                     break;
             }
 
-            OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Updated, e.UpdateType, item, ix);
+            if (UpdatedProperties != null)
+                OnItemChanged(ItemModifiedEventArgs.ModificationTypes.Updated, e.UpdateType, item, ix);
+            else
+                _Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
+
 
             //handle container opened/closed 
             if (e.UpdateType == NewClient.UpdateTypes.Flags)
@@ -562,10 +598,12 @@ namespace Crossfire.Managers
         public UInt32 LocationTag { get; set; }
         public NewClient.ItemFlags Flags { get; set; }
 
+        public UInt32 RawWeight { get; set; } = 0;
+
         /// <summary>
         /// Item weight in kg
         /// </summary>
-        public float Weight { get; set; }
+        public float Weight => (RawWeight == uint.MaxValue) ? float.NaN : RawWeight / 1000; //TODO: use constant
 
         public UInt32 Face { get; set; }
         public string Name { get; set; }
