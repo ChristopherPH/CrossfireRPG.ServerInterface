@@ -23,6 +23,9 @@ namespace Crossfire.Managers
         private Dictionary<UInt32, FaceInfo> _Faces { get; } = new Dictionary<UInt32, FaceInfo>();
         private List<UInt32> _MissingFaces = new List<UInt32>();
         private List<KeyValuePair<UInt32, Action<Image>>> _FaceAvailableActions = new List<KeyValuePair<uint, Action<Image>>>();
+        private object _FaceLock = new object();
+        private object _MissingLock = new object();
+        private object _ActionLock = new object();
 
         public event EventHandler<FaceAvailableEventArgs> FaceAvailable;
 
@@ -49,25 +52,45 @@ namespace Crossfire.Managers
             if (Face == 0)
                 return null;
 
-            if (!_Faces.TryGetValue(Face, out var faceInfo))
+            bool hasFace;
+            FaceInfo faceInfo;
+
+            lock (_FaceLock)
+            {
+                hasFace = _Faces.TryGetValue(Face, out faceInfo);
+            }
+
+            if (!hasFace)
             {
                 if ((Connection.ConnectionStatus == ConnectionStatuses.Connected) &&
-                    RequestIfMissing &&
-                    !_MissingFaces.Contains(Face))
+                    RequestIfMissing)
                 {
-                    _MissingFaces.Add(Face);
+                    bool requestedFace = false;
 
-                    //NOTE: the server has a bug where if you connect and don't pick
-                    //      a character, the next time you connect faces won't be
-                    //      sent, so we see missing knowledge and character portraits
-                    //      during testing
-                    _Logger.Warning("Missing face {0}, requesting face", Face);
-                    Builder.SendAskFace((int)Face);
+                    lock (_MissingLock)
+                    {
+                        requestedFace = _MissingFaces.Contains(Face);
+                        if (!requestedFace)
+                            _MissingFaces.Add(Face);
+                    }
+
+                    if (!requestedFace)
+                    {
+                        //NOTE: the server has a bug where if you connect and don't pick
+                        //      a character, the next time you connect faces won't be
+                        //      sent, so we see missing knowledge and character portraits
+                        //      during testing
+                        _Logger.Warning("Missing face {0}, requesting face", Face);
+                        Builder.SendAskFace((int)Face);
+                    }
                 }
 
                 if (FaceAvailable != null)
                 {
-                    _FaceAvailableActions.Add(new KeyValuePair<uint, Action<Image>>(Face, FaceAvailable));
+                    lock (_ActionLock)
+                    {
+                        _FaceAvailableActions.Add(new KeyValuePair<uint, Action<Image>>(Face, FaceAvailable));
+                    }
                 }
 
                 return null;
@@ -96,18 +119,32 @@ namespace Crossfire.Managers
 
         private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
-            _Faces.Clear();
-            _MissingFaces.Clear();
-            _FaceAvailableActions.Clear();
+            lock (_FaceLock)
+            {
+                _Faces.Clear();
+            }
+
+            lock (_MissingLock)
+            {
+                _MissingFaces.Clear();
+            }
+
+            lock (_ActionLock)
+            {
+                _FaceAvailableActions.Clear();
+            }
         }
 
         private void _Parser_Image2(object sender, MessageParser.Image2EventArgs e)
         {
             _Logger.Info("Received Face {0}:{1}", e.ImageFace, e.ImageFaceSet);
 
-            var ix = _MissingFaces.IndexOf(e.ImageFace);
-            if (ix != -1)
-                _MissingFaces.RemoveAt(ix);
+            lock (_MissingLock)
+            {
+                var ix = _MissingFaces.IndexOf(e.ImageFace);
+                if (ix != -1)
+                    _MissingFaces.RemoveAt(ix);
+            }
 
             using (var ms = new MemoryStream(e.ImageData))
             {
@@ -119,26 +156,31 @@ namespace Crossfire.Managers
                     return;
                 }
 
-                if (_Faces.ContainsKey(e.ImageFace))
+                lock (_FaceLock)
                 {
-                    _Logger.Error("Face already exists " + e.ImageFace);
-                }
+                    if (_Faces.ContainsKey(e.ImageFace))
+                    {
+                        _Logger.Error("Face already exists " + e.ImageFace);
+                    }
 
-                _Faces[e.ImageFace] = new FaceInfo()
-                {
-                    Image = image,
-                    FaceSet = e.ImageFaceSet
-                };
+                    _Faces[e.ImageFace] = new FaceInfo()
+                    {
+                        Image = image,
+                        FaceSet = e.ImageFaceSet
+                    };
+                }
 
                 FaceAvailable?.Invoke(this, new FaceAvailableEventArgs()
                 {
                     Face = e.ImageFace
                 });
 
-                //HACK: use ToList() to stop enumerable from being able to be changed while iterating
-                foreach (var faceAction in _FaceAvailableActions.Where(x => x.Key == e.ImageFace).ToList())
-                    faceAction.Value(image);
-                _FaceAvailableActions.RemoveAll(x => x.Key == e.ImageFace);
+                lock (_ActionLock)
+                {
+                    foreach (var faceAction in _FaceAvailableActions.Where(x => x.Key == e.ImageFace))
+                        faceAction.Value(image);
+                    _FaceAvailableActions.RemoveAll(x => x.Key == e.ImageFace);
+                }
             }
         }
 
