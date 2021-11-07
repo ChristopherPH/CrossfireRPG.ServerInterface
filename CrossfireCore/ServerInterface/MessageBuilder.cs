@@ -229,10 +229,74 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        /// <summary>
+        /// Applies an object (Ready/Wield/Wear/Activate/Open/Close/Read/Eat/Use/...)
+        /// </summary>
+        /// <param name="tag"></param>
         public void SendApply(string tag)
         {
             using (var ba = new BufferAssembler("apply"))
             {
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
+        }
+
+        /// <summary>
+        /// Always apply an object and never unapply it when already applied.
+        /// </summary>
+        public void SendApplyOnly(string tag)
+        {
+            using (var ba = new BufferAssembler("apply"))
+            {
+                ba.AddString("-a");
+                ba.AddSpace();
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
+        }
+
+        /// <summary>
+        /// Always unapply an object and never apply it when already unapplied.
+        /// </summary>
+        public void SendApplyUnapply(string tag)
+        {
+            using (var ba = new BufferAssembler("apply"))
+            {
+                ba.AddString("-u");
+                ba.AddSpace();
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
+        }
+
+        /// <summary>
+        /// Always open a container regardless of previous state.
+        /// </summary>
+        public void SendApplyOpen(string tag)
+        {
+            using (var ba = new BufferAssembler("apply"))
+            {
+                ba.AddString("-o");
+                ba.AddSpace();
+                ba.AddString(tag);
+
+                SendMessage(ba);
+            }
+        }
+
+        /// <summary>
+        /// Apply an item on the ground or in the active container, but not one in the characters main inventory.
+        /// </summary>
+        public void SendApplyGroundContainer(string tag)
+        {
+            using (var ba = new BufferAssembler("apply"))
+            {
+                ba.AddString("-b");
+                ba.AddSpace();
                 ba.AddString(tag);
 
                 SendMessage(ba);
