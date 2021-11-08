@@ -1,4 +1,5 @@
 ﻿using Common;
+using Common.Utility;
 using CrossfireCore;
 using CrossfireCore.ServerInterface;
 using System;
@@ -89,7 +90,7 @@ namespace Crossfire.Managers
                 NamePlural = e.item_name_plural,
                 Animation = e.item_anim,
                 AnimationSpeed = e.item_animspeed,
-                NumberOf = e.item_nrof,
+                RawNumberOf = e.item_nrof,
                 ClientType = e.item_type,
             };
 
@@ -102,11 +103,19 @@ namespace Crossfire.Managers
                 var UpdatedProperties = new List<string>();
 
                 if (item.LocationTag != existingItem.LocationTag)
+                {
                     UpdatedProperties.Add(nameof(Item.LocationTag)); //LocationTag changes when picking up an item
+                    UpdatedProperties.Add(nameof(Item.Location));
+                }
+                if (item.IsInContainer != existingItem.IsInContainer)
+                    UpdatedProperties.Add(nameof(Item.IsInContainer));
                 if (item.Flags != existingItem.Flags)
                     UpdatedProperties.Add(nameof(Item.Flags));
                 if (item.Weight != existingItem.Weight)
+                {
+                    UpdatedProperties.Add(nameof(Item.RawWeight));
                     UpdatedProperties.Add(nameof(Item.Weight));
+                }
                 if (item.Face != existingItem.Face)
                     UpdatedProperties.Add(nameof(Item.Face));
                 if (item.Name != existingItem.Name)
@@ -117,8 +126,11 @@ namespace Crossfire.Managers
                     UpdatedProperties.Add(nameof(Item.Animation));
                 if (item.AnimationSpeed != existingItem.AnimationSpeed)
                     UpdatedProperties.Add(nameof(Item.AnimationSpeed));
-                if (item.NumberOf != existingItem.NumberOf)
+                if (item.RawNumberOf != existingItem.RawNumberOf)
+                {
+                    UpdatedProperties.Add(nameof(Item.RawNumberOf));
                     UpdatedProperties.Add(nameof(Item.NumberOf));
+                }
                 if (item.ClientType != existingItem.ClientType)
                     UpdatedProperties.Add(nameof(Item.ClientType));
 
@@ -300,10 +312,10 @@ namespace Crossfire.Managers
                     break;
 
                 case NewClient.UpdateTypes.NumberOf:
-                    if (item.NumberOf != (UInt32)e.UpdateValue)
+                    if (item.RawNumberOf != (UInt32)e.UpdateValue)
                     {
-                        item.NumberOf = (UInt32)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.NumberOf) };
+                        item.RawNumberOf = (UInt32)e.UpdateValue;
+                        UpdatedProperties = new string[] { nameof(Item.RawNumberOf) };
                     }
                     break;
             }
@@ -564,10 +576,19 @@ namespace Crossfire.Managers
 
         public UInt32 Face { get; set; }
         public string Name { get; set; }
+        public string NameCase => Name.ToTitleCase();
         public string NamePlural { get; set; }
+        public string NamePluralCase => NamePlural.ToTitleCase();
         public UInt16 Animation { get; set; }
         public byte AnimationSpeed { get; set; }
-        public UInt32 NumberOf { get; set; }
+
+        public UInt32 RawNumberOf { get; set; }
+
+        /// <summary>
+        /// Actual number of items, 1 or more
+        /// </summary>
+        public UInt32 NumberOf => RawNumberOf < 1 ? 1 : RawNumberOf;
+
         public UInt16 ClientType { get; set; }
 
         /* From here, are new item properties and helper functions */
@@ -575,7 +596,7 @@ namespace Crossfire.Managers
         /// <summary>
         /// Item weight in kg multiplied by NumberOf
         /// </summary>
-        public float TotalWeight => !HasWeight ? float.NaN : Weight * (NumberOf < 1 ? 1 : NumberOf);
+        public float TotalWeight => !HasWeight ? float.NaN : Weight * NumberOf;
 
         public ItemLocations Location { get; set; }
         public bool IsInContainer { get; set; }
@@ -599,7 +620,7 @@ namespace Crossfire.Managers
         public override string ToString()
         {
             return string.Format("Item: {0} (Tag={1} Face={2} Flags={3} Location={4} Number={5})",
-                Name, Tag, Face, Flags, LocationTag, NumberOf);
+                Name, Tag, Face, Flags, LocationTag, RawNumberOf);
         }
     }
 }
