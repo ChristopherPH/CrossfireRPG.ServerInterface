@@ -589,6 +589,24 @@ namespace Crossfire.Managers
         /// </summary>
         public UInt32 NumberOf => RawNumberOf < 1 ? 1 : RawNumberOf;
 
+        /// <summary>
+        /// NumberOf in Words
+        /// </summary>
+        public string NumberOfInWords => NumberOf < _NumberWords.Length ? _NumberWords[NumberOf] : NumberOf.ToString();
+
+        /// <summary>
+        /// NumberOf, but a blank instead of "1"
+        /// </summary>
+        public string NumberOfWithout1 => NumberOf > 1 ? NumberOf.ToString() : "";
+
+        /// <summary>
+        /// NumberOf, but a blank instead of "One"
+        /// </summary>
+        public string NumberOfInWordsWithout1 => NumberOf > 1 ? NumberOfInWords : "";
+
+        static string[] _NumberWords = new string[] { "None", "One", "Two", "Three", "Four", "Five",
+            "Six", "Seven", "Eight", "Nine", "Ten" };
+
         public UInt16 ClientType { get; set; }
 
         /* From here, are new item properties and helper functions */
@@ -622,5 +640,25 @@ namespace Crossfire.Managers
             return string.Format("Item: {0} (Tag={1} Face={2} Flags={3} Location={4} Number={5})",
                 Name, Tag, Face, Flags, LocationTag, RawNumberOf);
         }
+
+        public object[] FormatArgs => new object[]
+        {
+            NameCase,
+            NamePluralCase,
+            NumberOf,
+            NumberOfInWords,
+            NumberOfWithout1,
+            NumberOfInWordsWithout1,
+            Weight,
+            TotalWeight,
+            Tag,
+            LocationTag,
+            Flags,
+            ClientTypes.GetClientTypeInfo(ClientType, out var clientGroup),
+        };
+
+        public const string FormatHelp = "{0}=Name {1}=PluralName {2}=NumberOf {3}=NumberOfInWords " +
+            "{4}=NumberOfWithout1 {5}=NumberOfInWordsWithout1 {6}=Weight {7}=TotalWeight {8}=Tag " +
+            "{9}=Location {10}=Flags {11}=ClientType";
     }
 }
