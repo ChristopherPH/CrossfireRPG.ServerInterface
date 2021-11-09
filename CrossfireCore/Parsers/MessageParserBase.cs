@@ -32,13 +32,11 @@ namespace CrossfireCore.ServerInterface
         }
 
         private SocketConnection _Connection;
-
-        protected delegate bool ParseCommand(byte[] packet, ref int offset);
         private Dictionary<string, ParseCommand> _CommandHandler = new Dictionary<string, ParseCommand>();
 
         protected bool AddCommandHandler(string command, ParseCommand parseCommand)
         {
-            if (string.IsNullOrWhiteSpace(command) || (parseCommand == null))
+            if (string.IsNullOrWhiteSpace(command) || (parseCommand == null) || (parseCommand.Parser == null))
                 return false;
 
             if (_CommandHandler.ContainsKey(command))
@@ -59,23 +57,21 @@ namespace CrossfireCore.ServerInterface
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
 
-            //Log commands, but at different levels based on the command
-            switch (cmd)
-            {
-                case "tick":
-                    _Logger.Debug("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
-                    break;
-
-                default:
-                    _Logger.Info("S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
-                    break;
-            }
-
             //run command parser
-            if (_CommandHandler.TryGetValue(cmd, out var parser))
+            if (_CommandHandler.TryGetValue(cmd, out var parseCommand))
             {
-                if (!parser(e.Packet, ref offset))
-                    _Logger.Error("Failed to parse command: {0}", cmd);
+                _Logger.Log(parseCommand.Level, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+
+                try
+                {
+                    if (!parseCommand.Parser(e.Packet, ref offset))
+                        _Logger.Error("Failed to parse command: {0}", cmd);
+                }
+                catch (Exception ex)
+                {
+                    _Logger.Error("Failed to parse command: {0}: {1}",
+                        cmd, ex.Message);
+                }
             }
             else
             {
@@ -88,6 +84,27 @@ namespace CrossfireCore.ServerInterface
                 _Logger.Warning("Excess Data for cmd {0}:\n{1}",
                     cmd, HexDump.Utils.HexDump(e.Packet, offset));
             }
+        }
+
+        public class ParseCommand
+        {
+            public delegate bool ParseCommandCallback(byte[] packet, ref int offset);
+
+            public ParseCommand() { }
+
+            public ParseCommand(ParseCommandCallback Parser)
+            {
+                this.Parser = Parser;
+            }
+
+            public ParseCommand(ParseCommandCallback Parser, Logger.Levels Level)
+            {
+                this.Parser = Parser;
+                this.Level = Level;
+            }
+
+            public ParseCommandCallback Parser { get; set; }
+            public Logger.Levels Level { get; set; } = Logger.Levels.Info;
         }
     }
 }

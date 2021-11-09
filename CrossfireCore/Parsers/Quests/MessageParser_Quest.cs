@@ -13,9 +13,9 @@ namespace CrossfireCore.ServerInterface
 
         private void AddQuestParsers()
         {
-            AddCommandHandler("addknowledge", Parse_addknowledge);
-            AddCommandHandler("addquest", Parse_addquest);
-            AddCommandHandler("updquest", Parse_updquest);
+            AddCommandHandler("addknowledge", new ParseCommand(Parse_addknowledge));
+            AddCommandHandler("addquest", new ParseCommand(Parse_addquest));
+            AddCommandHandler("updquest", new ParseCommand(Parse_updquest));
         }
 
         private bool Parse_addknowledge(byte[] packet, ref int offset)

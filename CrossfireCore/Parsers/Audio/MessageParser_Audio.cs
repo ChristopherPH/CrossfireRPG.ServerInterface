@@ -12,8 +12,8 @@ namespace CrossfireCore.ServerInterface
 
         private void AddAudioParsers()
         {
-            AddCommandHandler("music", Parse_music);
-            AddCommandHandler("sound2", Parse_sound2);
+            AddCommandHandler("music", new ParseCommand(Parse_music));
+            AddCommandHandler("sound2", new ParseCommand(Parse_sound2));
         }
 
         private bool Parse_music(byte[] packet, ref int offset)

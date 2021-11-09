@@ -11,8 +11,8 @@ namespace CrossfireCore.ServerInterface
 
         private void AddCommandParsers()
         {
-            AddCommandHandler("comc", Parse_comc);
-            AddCommandHandler("query", Parse_query);
+            AddCommandHandler("comc", new ParseCommand(Parse_comc));
+            AddCommandHandler("query", new ParseCommand(Parse_query));
         }
 
         private bool Parse_comc(byte[] packet, ref int offset)

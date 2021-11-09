@@ -40,9 +40,9 @@ namespace CrossfireCore.ServerInterface
 
         private void AddMapParsers()
         {
-            AddCommandHandler("newmap", Parse_newmap);
-            AddCommandHandler("map2", Parse_map2);
-            AddCommandHandler("smooth", Parse_smooth);
+            AddCommandHandler("newmap", new ParseCommand(Parse_newmap));
+            AddCommandHandler("map2", new ParseCommand(Parse_map2));
+            AddCommandHandler("smooth", new ParseCommand(Parse_smooth));
         }
 
         private bool Parse_newmap(byte[] packet, ref int offset)

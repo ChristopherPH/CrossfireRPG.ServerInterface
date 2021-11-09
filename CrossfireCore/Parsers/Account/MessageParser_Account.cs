@@ -12,7 +12,7 @@ namespace CrossfireCore.ServerInterface
 
         private void AddAccountParsers()
         {
-            AddCommandHandler("accountplayers", Parse_accountplayers);
+            AddCommandHandler("accountplayers", new ParseCommand(Parse_accountplayers));
         }
 
         private bool Parse_accountplayers(byte[] packet, ref int offset)

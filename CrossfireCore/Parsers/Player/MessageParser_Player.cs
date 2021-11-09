@@ -14,8 +14,8 @@ namespace CrossfireCore.ServerInterface
 
         private void AddPlayerParsers()
         {
-            AddCommandHandler("player", Parse_player);
-            AddCommandHandler("stats", Parse_stats);
+            AddCommandHandler("player", new ParseCommand(Parse_player));
+            AddCommandHandler("stats", new ParseCommand(Parse_stats));
         }
 
         private bool Parse_player(byte[] packet, ref int offset)

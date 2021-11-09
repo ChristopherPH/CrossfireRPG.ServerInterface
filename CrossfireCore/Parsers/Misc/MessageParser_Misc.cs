@@ -12,9 +12,9 @@ namespace CrossfireCore.ServerInterface
 
         private void AddMiscParsers()
         {
-            AddCommandHandler("pickup", Parse_pickup);
-            AddCommandHandler("replyinfo", Parse_replyinfo);
-            AddCommandHandler("tick", Parse_tick);
+            AddCommandHandler("pickup", new ParseCommand(Parse_pickup));
+            AddCommandHandler("replyinfo", new ParseCommand(Parse_replyinfo));
+            AddCommandHandler("tick", new ParseCommand(Parse_tick, Common.Logger.Levels.Debug));
         }
 
         private bool Parse_pickup(byte[] packet, ref int offset)
