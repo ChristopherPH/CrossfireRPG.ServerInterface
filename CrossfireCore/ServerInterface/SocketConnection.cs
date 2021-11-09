@@ -60,7 +60,7 @@ namespace CrossfireCore.ServerInterface
                         System.Diagnostics.Debug.Assert(_stream.CanWrite);
 
                         //start waiting for data
-                        WaitForHeader(new StateObject(client, _stream));
+                        WaitForBytes(new StateObject(client, _stream));
 
                         this.Host = Host;
                         this.Port = Port;
@@ -155,7 +155,7 @@ namespace CrossfireCore.ServerInterface
             System.Diagnostics.Debug.Assert(_stream.CanWrite);
 
             //start waiting for data
-            WaitForHeader(new StateObject(client, _stream));
+            WaitForBytes(new StateObject(client, _stream));
 
             //notify connected
             _Logger.Info("Connected");
@@ -186,7 +186,7 @@ namespace CrossfireCore.ServerInterface
 
         public void Disconnect()
         {
-            if ((_client != null) && (_client.Connected))
+            if ((_client != null) && _client.Connected)
             {
                 _client.Close();
             }
@@ -249,9 +249,7 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        const int HeaderSize = 2;
-
-        private void WaitForHeader(StateObject so)
+        private void WaitForBytes(StateObject so)
         {
             System.Diagnostics.Debug.Assert(so.client == _client);
 
@@ -261,37 +259,7 @@ namespace CrossfireCore.ServerInterface
                 return;
 
             //setup state
-            so.waitingForHeader = true;
-            so.wantLen = HeaderSize;
-            so.bufferLen = 0;
-
-            try
-            {
-                var asyncResult = so.stream.BeginRead(so.buffer, 0, so.wantLen, BeginReadCallback, so);
-            }
-            catch (Exception ex)
-            {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
-
-                Disconnect();
-            }
-        }
-
-        private void WaitForMessage(StateObject so, int MessageLength)
-        {
-            System.Diagnostics.Debug.Assert(so.client == _client);
-
-            //stream has been shut down
-            //TODO: cleanup/disconnect here?
-            if (!so.stream.CanRead)
-                return;
-
-            //setup state
-            so.waitingForHeader = false;
-            so.wantLen = MessageLength;
+            so.wantLen = StateObject.BufferSize;
             so.bufferLen = 0;
 
             try
@@ -345,60 +313,19 @@ namespace CrossfireCore.ServerInterface
                 return;
             }
 
-            _Logger.Debug("Read {0} bytes\n{1}", bytesRead, 
+            _Logger.Debug("Read {0} bytes\n{1}", bytesRead,
                 HexDump.Utils.HexDump(so.buffer, so.bufferLen, bytesRead));
 
             //collect buffer data
             so.bufferLen += bytesRead;
-            if (so.bufferLen < so.wantLen)
-            {
-                _Logger.Debug("Partial Packet: Read:{0} Want:{1} Have:{2}",
-                    bytesRead, so.wantLen, so.bufferLen);
 
-                try
-                {
-                    var asyncResult = so.stream.BeginRead(so.buffer, so.bufferLen, so.wantLen - so.bufferLen, BeginReadCallback, so);
-                }
-                catch (Exception ex)
-                {
-                    OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                    {
-                        ErrorMessage = ex.Message
-                    });
+            var args = new ConnectionPacketEventArgs();
+            args.Packet = new byte[bytesRead];
+            Array.Copy(so.buffer, args.Packet, bytesRead);
 
-                    Disconnect();
-                }
-                return;
-            }
+            OnPacket?.Invoke(this, args);
 
-            //We have received the amount of data we have expected: 
-            //If waiting for length, then parse it and wait for that amount of data
-            //Otherwise, we have a message from the server to handle
-            if (so.waitingForHeader)
-            {
-                var messageLen = (so.buffer[0] * 256) + so.buffer[1];
-                
-                //var messageLen = BitConverter.ToUInt16(new byte[] { so.buffer[1], so.buffer[0] }, 0);
-                //TODO: ...
-                //BitConverter.IsLittleEndian
-                //messageLen = System.Net.IPAddress.NetworkToHostOrder(BitConverter.ToUInt16(so.buffer, 0));
-
-
-                if (messageLen > StateObject.BufferSize)
-                    throw new Exception("Internal Data Mismatch");
-
-                WaitForMessage(so, messageLen);
-            }
-            else
-            {
-                var args = new ConnectionPacketEventArgs();
-                args.Packet = new byte[so.wantLen];
-                Array.Copy(so.buffer, args.Packet, so.wantLen);
-
-                OnPacket?.Invoke(this, args);
-
-                WaitForHeader(so);
-            }
+            WaitForBytes(so);
         }
 
 

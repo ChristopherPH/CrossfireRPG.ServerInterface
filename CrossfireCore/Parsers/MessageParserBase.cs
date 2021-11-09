@@ -16,7 +16,7 @@ namespace CrossfireCore.ServerInterface
         public MessageParserBase(SocketConnection Connection)
         {
             _Connection = Connection;
-            _Connection.OnPacket += ParsePacket;
+            _Connection.OnPacket += ParseBuffer;
 
             AddAccountParsers();
             AddAudioParsers();
@@ -44,6 +44,64 @@ namespace CrossfireCore.ServerInterface
 
             _CommandHandler[command] = parseCommand;
             return true;
+        }
+
+        byte[] _SavedPacket = null;
+
+        protected virtual void ParseBuffer(object sender, ConnectionPacketEventArgs e)
+        {
+            byte[] workingPacket;
+
+            if (_SavedPacket == null)
+            {
+                workingPacket = e.Packet;
+            }
+            else //combine buffers
+            {
+                workingPacket = new byte[_SavedPacket.Length + e.Packet.Length];
+                Array.Copy(_SavedPacket, 0, workingPacket, 0,  _SavedPacket.Length);
+                Array.Copy(e.Packet, 0, workingPacket, _SavedPacket.Length, e.Packet.Length);
+
+                _SavedPacket = null;
+            }
+
+            if (workingPacket.Length <= 2)
+            {
+                _SavedPacket = workingPacket;
+                return;
+            }
+
+            int offset = 0;
+
+            while (offset < workingPacket.Length)
+            {
+                if (offset + 2 >= workingPacket.Length)
+                {
+                    if (offset < workingPacket.Length)
+                    {
+                        _SavedPacket = new byte[workingPacket.Length - offset];
+                        Array.Copy(_SavedPacket, 0, workingPacket, offset, _SavedPacket.Length);
+                    }
+
+                    break;
+                }
+
+                var messageLen = (workingPacket[offset] * 256) + workingPacket[offset + 1];
+
+                if (messageLen < 0)
+                    throw new Exception("Internal Data Mismatch");
+
+                offset += 2;
+
+                if (messageLen > 0)
+                {
+                    var tmpPacket = new byte[messageLen];
+                    Array.Copy(workingPacket, offset, tmpPacket, 0, messageLen);
+                    offset += messageLen;
+
+                    ParsePacket(this, new ConnectionPacketEventArgs() { Packet = tmpPacket });
+                }
+            }
         }
 
         protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
