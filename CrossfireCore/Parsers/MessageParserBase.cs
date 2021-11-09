@@ -71,36 +71,59 @@ namespace CrossfireCore.ServerInterface
                 return;
             }
 
+            const int MessageLengthSize = 2;
             int offset = 0;
 
+            //get messages out of packet
             while (offset < workingPacket.Length)
             {
-                if (offset + 2 >= workingPacket.Length)
+                //ensure enough data to retrieve message size
+                if (offset + MessageLengthSize > workingPacket.Length)
                 {
+                    //save any extra bytes for next call to ParseBuffer
                     if (offset < workingPacket.Length)
                     {
                         _SavedPacket = new byte[workingPacket.Length - offset];
-                        Array.Copy(_SavedPacket, 0, workingPacket, offset, _SavedPacket.Length);
+                        Array.Copy(workingPacket, offset, _SavedPacket, 0, _SavedPacket.Length);
                     }
 
                     break;
                 }
 
+                //read message length
                 var messageLen = (workingPacket[offset] * 256) + workingPacket[offset + 1];
 
-                if (messageLen < 0)
-                    throw new Exception("Internal Data Mismatch");
+                if (messageLen <= 0)
+                    throw new Exception("Invalid message length");
 
-                offset += 2;
-
-                if (messageLen > 0)
+                //ensure enough data to retrieve message
+                if (offset + MessageLengthSize + messageLen > workingPacket.Length)
                 {
-                    var tmpPacket = new byte[messageLen];
-                    Array.Copy(workingPacket, offset, tmpPacket, 0, messageLen);
-                    offset += messageLen;
+                    //save any extra bytes, including the message length, for next call to ParseBuffer
+                    if (offset < workingPacket.Length)
+                    {
+                        _SavedPacket = new byte[workingPacket.Length - offset];
+                        Array.Copy(workingPacket, offset, _SavedPacket, 0, _SavedPacket.Length);
+                    }
 
-                    ParsePacket(this, new ConnectionPacketEventArgs() { Packet = tmpPacket });
+                    break;
                 }
+
+                //point to start of message
+                offset += MessageLengthSize;
+
+                //TODO: this can be reworked, instead of copying out the message, parse packet
+                //      can take in the offset and message length, although it would need to 
+                //      check for buffer overruns or underruns, but it would save a new[] and
+                //      copy
+
+                //copy out message
+                var message = new byte[messageLen];
+                Array.Copy(workingPacket, offset, message, 0, messageLen);
+                offset += messageLen;
+
+                //process message
+                ParsePacket(this, new ConnectionPacketEventArgs() { Packet = message });
             }
         }
 
