@@ -80,8 +80,8 @@ namespace Crossfire.Managers
             Removed = 0x04,
             Cleared = 0x08,
 
-            BatchStart = 0x10,
-            BatchEnd = 0x20
+            MultiCommandStart = 0x10,
+            MultiCommandEnd = 0x20
         }
 
         public class DataUpdatedEventArgs : EventArgs

@@ -31,7 +31,7 @@ namespace Crossfire.Managers
         protected override bool ClearDataOnNewPlayer => true;
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes |
             ModificationTypes.Added | ModificationTypes.Updated | DataManager<Item>.ModificationTypes.Removed |
-            DataManager<Item>.ModificationTypes.BatchStart | DataManager<Item>.ModificationTypes.BatchEnd;
+            DataManager<Item>.ModificationTypes.MultiCommandStart | DataManager<Item>.ModificationTypes.MultiCommandEnd;
 
         private UInt32 _PlayerTag = 0;
         static Logger _Logger = new Logger(nameof(ItemManager));
@@ -210,7 +210,7 @@ namespace Crossfire.Managers
             if (items.Count > 0)
             {
                 _Logger.Debug("Begin delete inventory");
-                this.StartBatch();
+                this.StartMultiCommand();
 
                 foreach (var item in items)
                 {
@@ -227,7 +227,7 @@ namespace Crossfire.Managers
                 }
 
                 _Logger.Debug("End delete inventory");
-                this.EndBatch();
+                this.EndMultiCommand();
             }
         }
 
@@ -382,14 +382,14 @@ namespace Crossfire.Managers
         {
             _Logger.Debug("Begin add items");
 
-            StartBatch();
+            StartMultiCommand();
         }
 
         private void _Parser_EndItem2(object sender, EventArgs e)
         {
             _Logger.Debug("End add items");
 
-            EndBatch();
+            EndMultiCommand();
         }
 
         private void _Parser_BeginUpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
@@ -399,7 +399,7 @@ namespace Crossfire.Managers
 
             _Logger.Debug("Begin update item");
 
-            StartBatch();
+            StartMultiCommand();
         }
 
 
@@ -410,7 +410,7 @@ namespace Crossfire.Managers
 
             _Logger.Debug("End update item");
 
-            EndBatch();
+            EndMultiCommand();
         }
 
 
@@ -418,14 +418,14 @@ namespace Crossfire.Managers
         {
             _Logger.Debug("Begin delete items");
 
-            StartBatch();
+            StartMultiCommand();
         }
 
         private void _Parser_EndDeleteItem(object sender, EventArgs e)
         {
             _Logger.Debug("End delete items");
 
-            EndBatch();
+            EndMultiCommand();
         }
 
         private ItemLocations GetLocation(UInt32 locationTag, out bool inContainer)
