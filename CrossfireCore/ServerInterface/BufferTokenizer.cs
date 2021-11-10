@@ -12,24 +12,26 @@ namespace CrossfireCore.ServerInterface
         public static byte[] NewlineSeperator = new byte[] { 0x0A };
         public static byte[] SpaceNewlineSeperator = new byte[] { 0x20, 0x0A };
 
-        public static string GetString(byte[] buffer, ref int offset)
+        public static string GetString(byte[] buffer, ref int offset, int end)
         {
-            return GetString(buffer, ref offset, SpaceSeperator);
+            return GetString(buffer, ref offset, end, SpaceSeperator);
         }
 
-        public static string GetString(byte[] buffer, ref int offset, byte[] separators)
+        public static string GetString(byte[] buffer, ref int offset, int end, byte[] separators)
         {
             System.Diagnostics.Debug.Assert(buffer != null);
             System.Diagnostics.Debug.Assert(buffer.Length > 0);
+            System.Diagnostics.Debug.Assert(end >= 0);
+            System.Diagnostics.Debug.Assert(end <= buffer.Length);
             System.Diagnostics.Debug.Assert(offset >= 0);
-            System.Diagnostics.Debug.Assert(offset < buffer.Length);
+            System.Diagnostics.Debug.Assert(offset <= end);
             System.Diagnostics.Debug.Assert(separators != null);
             System.Diagnostics.Debug.Assert(separators.Length > 0);
 
             var start = offset;
 
             //read up to end of buffer, looking for a separator
-            for (; offset < buffer.Length; offset++) 
+            for (; offset < end; offset++) 
             {
                 if (separators.Contains(buffer[offset]))
                     break;
@@ -43,15 +45,15 @@ namespace CrossfireCore.ServerInterface
                 throw new Exception();
 
             //if we are not at the end of the buffer, it means we've found a separator, so skip over it
-            if (offset < buffer.Length)
+            if (offset < end)
                 offset++;
 
             return str;
         }
 
-        public static int GetStringAsInt(byte[] buffer, ref int offset)
+        public static int GetStringAsInt(byte[] buffer, ref int offset, int end)
         {
-            var str = GetString(buffer, ref offset);
+            var str = GetString(buffer, ref offset, end);
 
             if (!int.TryParse(str, out int val))
                 throw new Exception();
@@ -153,14 +155,14 @@ namespace CrossfireCore.ServerInterface
             return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, length));
         }
 
-        public static byte[] GetRemainingBytes(byte[] buffer, ref int offset)
+        public static byte[] GetRemainingBytes(byte[] buffer, ref int offset, int end)
         {
-            return GetBytes(buffer, ref offset, buffer.Length - offset);
+            return GetBytes(buffer, ref offset, end - offset);
         }
 
-        public static string GetRemainingBytesAsString(byte[] buffer, ref int offset)
+        public static string GetRemainingBytesAsString(byte[] buffer, ref int offset, int end)
         {
-            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, buffer.Length - offset));
+            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, end - offset));
         }
     }
 }

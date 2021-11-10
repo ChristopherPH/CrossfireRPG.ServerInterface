@@ -45,15 +45,15 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("smooth", new ParseCommand(Parse_smooth));
         }
 
-        private bool Parse_newmap(byte[] packet, ref int offset)
+        private bool Parse_newmap(byte[] packet, ref int offset, int end)
         {
             HandleNewMap();
             return true;
         }
 
-        private bool Parse_map2(byte[] packet, ref int offset)
+        private bool Parse_map2(byte[] packet, ref int offset, int end)
         {
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var map_coord = BufferTokenizer.GetUInt16(packet, ref offset);
 
@@ -76,7 +76,7 @@ namespace CrossfireCore.ServerInterface
                         HandleMap2ClearOld(map_coord_x, map_coord_y);
 #endif
 
-                while (offset < packet.Length)
+                while (offset < end)
                 {
                     var map_len_type = BufferTokenizer.GetByte(packet, ref offset);
 
@@ -177,7 +177,7 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_smooth(byte[] packet, ref int offset)
+        private bool Parse_smooth(byte[] packet, ref int offset, int end)
         {
             var face = BufferTokenizer.GetUInt16(packet, ref offset);
             var smoothpic = BufferTokenizer.GetUInt16(packet, ref offset);

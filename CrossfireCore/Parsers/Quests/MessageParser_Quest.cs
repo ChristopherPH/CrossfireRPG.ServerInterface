@@ -18,9 +18,9 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("updquest", new ParseCommand(Parse_updquest));
         }
 
-        private bool Parse_addknowledge(byte[] packet, ref int offset)
+        private bool Parse_addknowledge(byte[] packet, ref int offset, int end)
         {
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var knowledge_id = BufferTokenizer.GetUInt32(packet, ref offset);
                 var knowledge_type_len = BufferTokenizer.GetUInt16(packet, ref offset);
@@ -35,9 +35,9 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_addquest(byte[] packet, ref int offset)
+        private bool Parse_addquest(byte[] packet, ref int offset, int end)
         {
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var quest_code = BufferTokenizer.GetUInt32(packet, ref offset);
                 var quest_title_len = BufferTokenizer.GetUInt16(packet, ref offset);
@@ -56,7 +56,7 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_updquest(byte[] packet, ref int offset)
+        private bool Parse_updquest(byte[] packet, ref int offset, int end)
         {
             var update_quest_code = BufferTokenizer.GetUInt32(packet, ref offset);
             var update_quest_end = BufferTokenizer.GetByte(packet, ref offset);

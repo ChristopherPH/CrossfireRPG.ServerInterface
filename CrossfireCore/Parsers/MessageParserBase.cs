@@ -65,14 +65,14 @@ namespace CrossfireCore.ServerInterface
                 _SavedPacket = null;
             }
 
-            if (workingPacket.Length <= 2)
+            const int MessageLengthSize = 2;
+            int offset = 0;
+
+            if (workingPacket.Length <= MessageLengthSize)
             {
                 _SavedPacket = workingPacket;
                 return;
             }
-
-            const int MessageLengthSize = 2;
-            int offset = 0;
 
             //get messages out of packet
             while (offset < workingPacket.Length)
@@ -112,40 +112,33 @@ namespace CrossfireCore.ServerInterface
                 //point to start of message
                 offset += MessageLengthSize;
 
-                //TODO: this can be reworked, instead of copying out the message, parse packet
-                //      can take in the offset and message length, although it would need to 
-                //      check for buffer overruns or underruns, but it would save a new[] and
-                //      copy
-
-                //copy out message
-                var message = new byte[messageLen];
-                Array.Copy(workingPacket, offset, message, 0, messageLen);
-                offset += messageLen;
-
                 //process message
-                ParsePacket(this, new ConnectionPacketEventArgs() { Packet = message });
+                ParsePacket(workingPacket, offset, messageLen);
+
+                //point to start of next message
+                offset += messageLen;
             }
         }
 
-        protected virtual void ParsePacket(object sender, ConnectionPacketEventArgs e)
+        protected virtual void ParsePacket(byte[] Packet, int DataOffset, int DataLength)
         {
-            System.Diagnostics.Debug.Assert(e != null);
-            System.Diagnostics.Debug.Assert(e.Packet != null);
-            System.Diagnostics.Debug.Assert(e.Packet.Length > 0);
+            System.Diagnostics.Debug.Assert(Packet != null);
+            System.Diagnostics.Debug.Assert(Packet.Length > 0);
 
-            int offset = 0;
-            var cmd = BufferTokenizer.GetString(e.Packet, ref offset);
+            var offset = DataOffset;
+            var end = DataOffset + DataLength;
+            var cmd = BufferTokenizer.GetString(Packet, ref offset, end);
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
 
             //run command parser
             if (_CommandHandler.TryGetValue(cmd, out var parseCommand))
             {
-                _Logger.Log(parseCommand.Level, "S->C: cmd={0}, datalen={1}", cmd, e.Packet.Length - offset);
+                _Logger.Log(parseCommand.Level, "S->C: cmd={0}, datalen={1}", cmd, DataLength);
 
                 try
                 {
-                    if (!parseCommand.Parser(e.Packet, ref offset))
+                    if (!parseCommand.Parser(Packet, ref offset, end))
                         _Logger.Error("Failed to parse command: {0}", cmd);
                 }
                 catch (Exception ex)
@@ -160,16 +153,21 @@ namespace CrossfireCore.ServerInterface
             }
 
             //log excess data
-            if (offset < e.Packet.Length)
+            if (offset < end)
             {
                 _Logger.Warning("Excess Data for cmd {0}:\n{1}",
-                    cmd, HexDump.Utils.HexDump(e.Packet, offset));
+                    cmd, HexDump.Utils.HexDump(Packet, offset, end - offset));
+            }
+            else if (offset > end)
+            {
+                _Logger.Warning("Used too much data for cmd {0}",
+                    cmd, HexDump.Utils.HexDump(Packet, offset - end));
             }
         }
 
         public class ParseCommand
         {
-            public delegate bool ParseCommandCallback(byte[] packet, ref int offset);
+            public delegate bool ParseCommandCallback(byte[] packet, ref int offset, int end);
 
             public ParseCommand() { }
 

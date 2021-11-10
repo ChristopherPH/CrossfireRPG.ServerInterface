@@ -15,7 +15,7 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("query", new ParseCommand(Parse_query));
         }
 
-        private bool Parse_comc(byte[] packet, ref int offset)
+        private bool Parse_comc(byte[] packet, ref int offset, int end)
         {
             var comc_packet = BufferTokenizer.GetUInt16(packet, ref offset);
             var comc_time = BufferTokenizer.GetUInt32(packet, ref offset);
@@ -26,10 +26,10 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_query(byte[] packet, ref int offset)
+        private bool Parse_query(byte[] packet, ref int offset, int end)
         {
-            var query_flags = BufferTokenizer.GetStringAsInt(packet, ref offset);
-            var query_text = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);
+            var query_flags = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            var query_text = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
 
             HandleQuery(query_flags, query_text);
 

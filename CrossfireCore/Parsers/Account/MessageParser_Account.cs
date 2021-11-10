@@ -15,7 +15,7 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("accountplayers", new ParseCommand(Parse_accountplayers));
         }
 
-        private bool Parse_accountplayers(byte[] packet, ref int offset)
+        private bool Parse_accountplayers(byte[] packet, ref int offset, int end)
         {
             var num_characters = BufferTokenizer.GetByte(packet, ref offset);
             var character_count = 1;
@@ -32,7 +32,7 @@ namespace CrossfireCore.ServerInterface
             string account_player_party = "";
             string account_player_map = "";
 
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var char_data_len = BufferTokenizer.GetByte(packet, ref offset);
                 if (char_data_len == 0)

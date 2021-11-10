@@ -23,9 +23,9 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("delspell", new ParseCommand(Parse_delspell));
         }
 
-        private bool Parse_addspell(byte[] packet, ref int offset)
+        private bool Parse_addspell(byte[] packet, ref int offset, int end)
         {
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
                 var spell_level = BufferTokenizer.GetInt16(packet, ref offset);
@@ -59,12 +59,12 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_updspell(byte[] packet, ref int offset)
+        private bool Parse_updspell(byte[] packet, ref int offset, int end)
         {
             var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(packet, ref offset);
             var update_spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
 
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Mana))
                 {
@@ -88,7 +88,7 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delspell(byte[] packet, ref int offset)
+        private bool Parse_delspell(byte[] packet, ref int offset, int end)
         {
             var del_spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
 

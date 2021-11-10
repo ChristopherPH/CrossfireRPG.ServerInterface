@@ -20,7 +20,7 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("stats", new ParseCommand(Parse_stats));
         }
 
-        private bool Parse_player(byte[] packet, ref int offset)
+        private bool Parse_player(byte[] packet, ref int offset, int end)
         {
             var player_tag = BufferTokenizer.GetUInt32(packet, ref offset);
             var player_weight = BufferTokenizer.GetUInt32(packet, ref offset);
@@ -33,11 +33,11 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_stats(byte[] packet, ref int offset)
+        private bool Parse_stats(byte[] packet, ref int offset, int end)
         {
             HandleBeginStats();
 
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var stat_number = BufferTokenizer.GetByte(packet, ref offset);
 

@@ -17,7 +17,7 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("tick", new ParseCommand(Parse_tick, Common.Logger.Levels.Debug));
         }
 
-        private bool Parse_pickup(byte[] packet, ref int offset)
+        private bool Parse_pickup(byte[] packet, ref int offset, int end)
         {
             var pickup_mask = BufferTokenizer.GetUInt32(packet, ref offset);
 
@@ -26,10 +26,10 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_replyinfo(byte[] packet, ref int offset)
+        private bool Parse_replyinfo(byte[] packet, ref int offset, int end)
         {
-            var reply_info = BufferTokenizer.GetString(packet, ref offset, BufferTokenizer.SpaceNewlineSeperator);
-            var reply_bytes = BufferTokenizer.GetRemainingBytes(packet, ref offset);
+            var reply_info = BufferTokenizer.GetString(packet, ref offset, end, BufferTokenizer.SpaceNewlineSeperator);
+            var reply_bytes = BufferTokenizer.GetRemainingBytes(packet, ref offset, end);
             HandleReplyInfo(reply_info, reply_bytes);
 
             //TODO: bring in replyinfo object into this message parser
@@ -37,7 +37,7 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_tick(byte[] packet, ref int offset)
+        private bool Parse_tick(byte[] packet, ref int offset, int end)
         {
             var tick_count = BufferTokenizer.GetUInt32(packet, ref offset);
             HandleTick(tick_count);

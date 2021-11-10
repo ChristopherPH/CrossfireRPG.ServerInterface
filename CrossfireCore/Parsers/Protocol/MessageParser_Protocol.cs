@@ -23,24 +23,24 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("version", new ParseCommand(Parse_version));
         }
 
-        private bool Parse_addme_failed(byte[] packet, ref int offset)
+        private bool Parse_addme_failed(byte[] packet, ref int offset, int end)
         {
             HandleAddmeFailed();
 
             return true;
         }
 
-        private bool Parse_addme_success(byte[] packet, ref int offset)
+        private bool Parse_addme_success(byte[] packet, ref int offset, int end)
         {
             HandleAddmeSuccess();
 
             return true;
         }
 
-        private bool Parse_failure(byte[] packet, ref int offset)
+        private bool Parse_failure(byte[] packet, ref int offset, int end)
         {
-            var protocol_command = BufferTokenizer.GetString(packet, ref offset);
-            var failure_string = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);
+            var protocol_command = BufferTokenizer.GetString(packet, ref offset, end);
+            var failure_string = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
 
             HandleFailure(protocol_command, failure_string);
             _Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
@@ -48,19 +48,19 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_goodbye(byte[] packet, ref int offset)
+        private bool Parse_goodbye(byte[] packet, ref int offset, int end)
         {
             HandleGoodbye();
 
             return true;
         }
 
-        private bool Parse_setup(byte[] packet, ref int offset)
+        private bool Parse_setup(byte[] packet, ref int offset, int end)
         {
-            while (offset < packet.Length)
+            while (offset < end)
             {
-                var setup_command = BufferTokenizer.GetString(packet, ref offset);
-                var setup_value = BufferTokenizer.GetString(packet, ref offset);
+                var setup_command = BufferTokenizer.GetString(packet, ref offset, end);
+                var setup_value = BufferTokenizer.GetString(packet, ref offset, end);
 
                 HandleSetup(setup_command, setup_value);
 
@@ -74,11 +74,11 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_version(byte[] packet, ref int offset)
+        private bool Parse_version(byte[] packet, ref int offset, int end)
         {
-            var version_csval = BufferTokenizer.GetStringAsInt(packet, ref offset);
-            var version_scval = BufferTokenizer.GetStringAsInt(packet, ref offset);
-            var version_verstr = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset);
+            var version_csval = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            var version_scval = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            var version_verstr = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
 
             HandleVersion(version_csval, version_scval, version_verstr);
 

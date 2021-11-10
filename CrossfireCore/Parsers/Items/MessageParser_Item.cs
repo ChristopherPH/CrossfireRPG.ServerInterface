@@ -36,12 +36,12 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("delinv", new ParseCommand(Parse_delinv));
         }
 
-        private bool Parse_item2(byte[] packet, ref int offset)
+        private bool Parse_item2(byte[] packet, ref int offset, int end)
         {
             HandleBeginItem2();
 
             var item_location = BufferTokenizer.GetUInt32(packet, ref offset);
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
                 var item_flags = BufferTokenizer.GetUInt32(packet, ref offset);
@@ -79,14 +79,14 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_upditem(byte[] packet, ref int offset)
+        private bool Parse_upditem(byte[] packet, ref int offset, int end)
         {
             var update_item_type = (NewClient.UpdateTypes)BufferTokenizer.GetByte(packet, ref offset);
             var update_item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
 
             HandleBeginUpdateItem(update_item_tag);
 
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Location))
                 {
@@ -159,11 +159,11 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delitem(byte[] packet, ref int offset)
+        private bool Parse_delitem(byte[] packet, ref int offset, int end)
         {
             HandleBeginDeleteItem();
 
-            while (offset < packet.Length)
+            while (offset < end)
             {
                 var del_item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
                 HandleDeleteItem(del_item_tag);
@@ -174,9 +174,9 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delinv(byte[] packet, ref int offset)
+        private bool Parse_delinv(byte[] packet, ref int offset, int end)
         {
-            var del_inv_tag = BufferTokenizer.GetStringAsInt(packet, ref offset);
+            var del_inv_tag = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
 
             HandleDeleteInventory(del_inv_tag);
 
