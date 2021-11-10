@@ -50,78 +50,79 @@ namespace CrossfireCore.ServerInterface
 
         private void Connection_OnPacket(object sender, ConnectionPacketEventArgs e)
         {
-            ParseBuffer(ref _SavedBuffer, e.Packet);
+            ParseBuffer(ref _SavedBuffer, e.Packet, out var ByteCount, out var MessageCount);
         }
 
-        protected virtual int ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer)
+        protected virtual void ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer,
+            out int ByteCount, out int MessageCount)
         {
-            byte[] workingPacket;
+            byte[] workingBuffer;
 
             if (SavedBuffer == null)
             {
                 //no saved buffer, we can just use the passed in buffer as a working buffer
-                workingPacket = Buffer;
+                workingBuffer = Buffer;
             }
             else //combine saved buffer with new buffer
             {
-                workingPacket = new byte[SavedBuffer.Length + Buffer.Length];
+                workingBuffer = new byte[SavedBuffer.Length + Buffer.Length];
 
-                Array.Copy(SavedBuffer, 0, workingPacket, 0,  SavedBuffer.Length);
-                Array.Copy(Buffer, 0, workingPacket, SavedBuffer.Length, Buffer.Length);
+                Array.Copy(SavedBuffer, 0, workingBuffer, 0,  SavedBuffer.Length);
+                Array.Copy(Buffer, 0, workingBuffer, SavedBuffer.Length, Buffer.Length);
 
                 SavedBuffer = null;
             }
 
             const int MessageLengthSize = 2;
-            int offset = 0;
+            ByteCount = 0;
+            MessageCount = 0;
 
             //get messages out of packet
-            while (offset < workingPacket.Length)
+            while (ByteCount < workingBuffer.Length)
             {
                 //ensure enough data to retrieve message size
-                if (offset + MessageLengthSize > workingPacket.Length)
+                if (ByteCount + MessageLengthSize > workingBuffer.Length)
                 {
                     //save any extra bytes for next call to ParseBuffer
-                    if (offset < workingPacket.Length)
+                    if (ByteCount < workingBuffer.Length)
                     {
-                        SavedBuffer = new byte[workingPacket.Length - offset];
-                        Array.Copy(workingPacket, offset, SavedBuffer, 0, SavedBuffer.Length);
+                        SavedBuffer = new byte[workingBuffer.Length - ByteCount];
+                        Array.Copy(workingBuffer, ByteCount, SavedBuffer, 0, SavedBuffer.Length);
                     }
 
                     break;
                 }
 
                 //read message length
-                var messageLen = (workingPacket[offset] * 256) + workingPacket[offset + 1];
+                var messageLen = (workingBuffer[ByteCount] * 256) + workingBuffer[ByteCount + 1];
 
                 if (messageLen <= 0)
                     throw new Exception("Invalid message length");
 
                 //ensure enough data to retrieve message
-                if (offset + MessageLengthSize + messageLen > workingPacket.Length)
+                if (ByteCount + MessageLengthSize + messageLen > workingBuffer.Length)
                 {
                     //save any extra bytes, including the message length, for next call to ParseBuffer
-                    if (offset < workingPacket.Length)
+                    if (ByteCount < workingBuffer.Length)
                     {
-                        SavedBuffer = new byte[workingPacket.Length - offset];
-                        Array.Copy(workingPacket, offset, SavedBuffer, 0, SavedBuffer.Length);
+                        SavedBuffer = new byte[workingBuffer.Length - ByteCount];
+                        Array.Copy(workingBuffer, ByteCount, SavedBuffer, 0, SavedBuffer.Length);
                     }
 
                     break;
                 }
 
                 //point to start of message
-                offset += MessageLengthSize;
+                ByteCount += MessageLengthSize;
 
                 //process message
-                ParseMessage(workingPacket, offset, messageLen);
+                ParseMessage(workingBuffer, ByteCount, messageLen);
 
                 //point to start of next message
-                offset += messageLen;
-            }
+                ByteCount += messageLen;
 
-            //return number of bytes processed
-            return offset;
+                MessageCount++;
+            }
         }
 
         protected virtual void ParseMessage(byte[] Message, int DataOffset, int DataLength)
