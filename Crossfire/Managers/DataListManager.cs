@@ -11,9 +11,15 @@ namespace Crossfire.Managers
     public abstract class DataListManager<T> : DataManager<T>, IEnumerable<T>
     {
         public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser) { }
+            : base(Connection, Builder, Parser)
+        {
+            Parser.BeginParseBuffer += Parser_BeginParseBuffer;
+            Parser.EndParseBuffer += Parser_EndParseBuffer;
+        }
+
         public override ModificationTypes SupportedModificationTypes => 
-            base.SupportedModificationTypes | ModificationTypes.Cleared;
+            base.SupportedModificationTypes | ModificationTypes.Cleared |
+                ModificationTypes.GroupUpdateStart | ModificationTypes.GroupUpdateEnd;
 
         private List<T> Datas { get; } = new List<T>();
 
@@ -131,6 +137,8 @@ namespace Crossfire.Managers
         {
             var index = Datas.Count;
 
+            CheckGroupUpdate();
+
             lock (_Lock)
             {
                 Datas.Add(Data);
@@ -171,6 +179,8 @@ namespace Crossfire.Managers
             if (UpdatedProperties == null)
                 return false;
 
+            CheckGroupUpdate();
+
             OnDataChanged(ModificationTypes.Updated,
                 data, index, UpdatedProperties);
 
@@ -187,6 +197,8 @@ namespace Crossfire.Managers
 
             if (Data == null)
                 return false;
+
+            CheckGroupUpdate();
 
             lock (_Lock)
             {
@@ -218,6 +230,8 @@ namespace Crossfire.Managers
             if ((index < 0) || (index >= Count))
                 return false;
 
+            CheckGroupUpdate();
+
             T data;
 
             lock (_Lock)
@@ -239,6 +253,8 @@ namespace Crossfire.Managers
         {
             if (Datas.Count > 0)
             {
+                CheckGroupUpdate();
+
                 lock (_Lock)
                 {
                     Datas.Clear();
@@ -256,6 +272,97 @@ namespace Crossfire.Managers
         protected override void EndMultiCommand()
         {
             OnDataChanged(ModificationTypes.MultiCommandEnd, default, -1);
+        }
+
+        /* HACK: Group updates based on received socket data
+         *
+         * The server sends some commands as a multi command, and some as multiple
+         * single commands. Since the server generally processes similar commands
+         * one after another, when we receive a server packet containing multiple
+         * messages, count it as a 'group' of commands.
+         *
+         * We then count the number of updates done in the group, and when we reach
+         * a configured threshold, we notify the start of a 'group update'.
+         *
+         * This allows us to smartly call BeginUpdate()/EndUpdate() functions
+         * on list controls to have all the individual updates done as a single
+         * group.
+         *
+         * Alternatively, we could update the server to send the commands as
+         * multicommands but this should work.
+         */
+        private void Parser_BeginParseBuffer(object sender, MessageParser.ParseBufferEventArgs e)
+        {
+            StartGroupUpdate();
+        }
+
+        private void Parser_EndParseBuffer(object sender, MessageParser.ParseBufferEventArgs e)
+        {
+            EndGroupUpdate();
+        }
+
+        /// <summary>
+        /// Flag to indicate if we are currently in a group update
+        /// </summary>
+        public bool InGroupUpdate { get; private set; } = false;
+
+        private int GroupUpdateCounter = -1;
+
+        /// <summary>
+        /// Number of Updates before triggering GroupUpdateStart
+        /// </summary>
+        public virtual int GroupUpdateStartThreshold { get; set; } = 1;
+
+        /// <summary>
+        /// Number of Updates before forcibly triggering GroupUpdateEnd then GroupUpdateStart
+        /// </summary>
+        public virtual int GroupUpdateForceRestartThreshold { get; set; } = 0;
+
+        private void StartGroupUpdate()
+        {
+            EndGroupUpdate();
+
+            GroupUpdateCounter = 0; //mark as group possible
+        }
+
+        private void CheckGroupUpdate()
+        {
+            if (GroupUpdateCounter != -1) //if group is possible or counting group updates
+                GroupUpdateCounter++;
+
+            if (!InGroupUpdate)
+            {
+                //if we've passed the configured threshold, then start a group update
+                if (GroupUpdateCounter >= GroupUpdateStartThreshold)
+                {
+                    InGroupUpdate = true;
+
+                    OnDataChanged(ModificationTypes.GroupUpdateStart, default, -1);
+                }
+            }
+            else //in group update
+            {
+                //if we've passed the configured threshold, then end a group update and restart
+                //this allows an update or redraw to be forced
+                if ((GroupUpdateForceRestartThreshold > GroupUpdateStartThreshold) &&
+                    (GroupUpdateCounter >= GroupUpdateForceRestartThreshold))
+                {
+                    OnDataChanged(ModificationTypes.GroupUpdateEnd, default, -1);
+                    OnDataChanged(ModificationTypes.GroupUpdateStart, default, -1);
+                    GroupUpdateCounter = GroupUpdateStartThreshold;
+                }
+            }
+        }
+
+        private void EndGroupUpdate()
+        {
+            if (InGroupUpdate)
+            {
+                OnDataChanged(ModificationTypes.GroupUpdateEnd, default, -1);
+
+                InGroupUpdate = false;
+                GroupUpdateCounter = -1; //mark as no group possible
+            }
         }
 
         protected virtual void OnDataChanged(ModificationTypes ModificationType, 
