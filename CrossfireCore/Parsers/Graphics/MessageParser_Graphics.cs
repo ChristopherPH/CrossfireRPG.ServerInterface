@@ -23,65 +23,65 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("magicmap", new CommandParserDefinition(Parse_magicmap));
         }
 
-        private bool Parse_anim(byte[] packet, ref int offset, int end)
+        private bool Parse_anim(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var anim_num = BufferTokenizer.GetUInt16(packet, ref offset);
-            var anim_flags = BufferTokenizer.GetUInt16(packet, ref offset);
-            var anim_faces = new UInt16[(end - offset) / 2];
+            var anim_num = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+            var anim_flags = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+            var anim_faces = new UInt16[(DataEnd - DataOffset) / 2];
 
             int anim_offset = 0;
-            while (offset < end)
-                anim_faces[anim_offset++] = BufferTokenizer.GetUInt16(packet, ref offset);
+            while (DataOffset < DataEnd)
+                anim_faces[anim_offset++] = BufferTokenizer.GetUInt16(Message, ref DataOffset);
 
             HandleAnimation(anim_num, anim_flags, anim_faces);
 
             return true;
         }
 
-        private bool Parse_drawextinfo(byte[] packet, ref int offset, int end)
+        private bool Parse_drawextinfo(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var flags = (NewClient.NewDrawInfo)BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var message_type = (NewClient.MsgTypes)BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var sub_type = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var message = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
+            var flags = (NewClient.NewDrawInfo)BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var message_type = (NewClient.MsgTypes)BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var sub_type = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var message = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
 
             HandleDrawExtInfo(flags, message_type, sub_type, message);
 
             return true;
         }
 
-        private bool Parse_face2(byte[] packet, ref int offset, int end)
+        private bool Parse_face2(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var face = BufferTokenizer.GetUInt16(packet, ref offset);
-            var face_faceset = BufferTokenizer.GetByte(packet, ref offset);
-            var checksum = BufferTokenizer.GetUInt32(packet, ref offset);
-            var filename = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
+            var face = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+            var face_faceset = BufferTokenizer.GetByte(Message, ref DataOffset);
+            var checksum = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var filename = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
 
             HandleFace2(face, face_faceset, checksum, filename);
 
             return true;
         }
 
-        private bool Parse_image2(byte[] packet, ref int offset, int end)
+        private bool Parse_image2(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var image_face = BufferTokenizer.GetUInt32(packet, ref offset);
-            var image_faceset = BufferTokenizer.GetByte(packet, ref offset);
-            var image_len = BufferTokenizer.GetUInt32(packet, ref offset);
-            var image_png = BufferTokenizer.GetBytes(packet, ref offset, (int)image_len);
+            var image_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var image_faceset = BufferTokenizer.GetByte(Message, ref DataOffset);
+            var image_len = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var image_png = BufferTokenizer.GetBytes(Message, ref DataOffset, (int)image_len);
 
             HandleImage2(image_face, image_faceset, image_png);
 
             return true;
         }
 
-        private bool Parse_magicmap(byte[] packet, ref int offset, int end)
+        private bool Parse_magicmap(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var mm_width = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var mm_height = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var mm_px = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var mm_py = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            var mm_width = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var mm_height = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var mm_px = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var mm_py = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
 
-            var mm_data = BufferTokenizer.GetBytes(packet, ref offset, mm_width * mm_height);
+            var mm_data = BufferTokenizer.GetBytes(Message, ref DataOffset, mm_width * mm_height);
 
             HandleMagicMap(mm_width, mm_height, mm_px, mm_py, mm_data);
 

@@ -20,57 +20,57 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("stats", new CommandParserDefinition(Parse_stats));
         }
 
-        private bool Parse_player(byte[] packet, ref int offset, int end)
+        private bool Parse_player(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var player_tag = BufferTokenizer.GetUInt32(packet, ref offset);
-            var player_weight = BufferTokenizer.GetUInt32(packet, ref offset);
-            var player_face = BufferTokenizer.GetUInt32(packet, ref offset);
-            var player_name_len = BufferTokenizer.GetByte(packet, ref offset);
-            var player_name = BufferTokenizer.GetBytesAsString(packet, ref offset, player_name_len);
+            var player_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var player_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var player_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            var player_name_len = BufferTokenizer.GetByte(Message, ref DataOffset);
+            var player_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, player_name_len);
 
             HandlePlayer(player_tag, player_weight, player_face, player_name);
 
             return true;
         }
 
-        private bool Parse_stats(byte[] packet, ref int offset, int end)
+        private bool Parse_stats(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleBeginStats();
 
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var stat_number = BufferTokenizer.GetByte(packet, ref offset);
+                var stat_number = BufferTokenizer.GetByte(Message, ref DataOffset);
 
                 switch ((NewClient.CharacterStats)stat_number)
                 {
                     case NewClient.CharacterStats.Range:
                     case NewClient.CharacterStats.Title:
                     case NewClient.CharacterStats.GodName:
-                        var stat_len = BufferTokenizer.GetByte(packet, ref offset);
-                        var stat_text = BufferTokenizer.GetBytesAsString(packet, ref offset, stat_len);
+                        var stat_len = BufferTokenizer.GetByte(Message, ref DataOffset);
+                        var stat_text = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, stat_len);
                         HandleStat((NewClient.CharacterStats)stat_number, stat_text);
                         break;
 
                     case NewClient.CharacterStats.Speed:
                     case NewClient.CharacterStats.WeapSp:
                     case NewClient.CharacterStats.Overload:
-                        var stat_32f = BufferTokenizer.GetUInt32(packet, ref offset);
+                        var stat_32f = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
                         HandleStat((NewClient.CharacterStats)stat_number, stat_32f / FLOAT_MULTF);
                         break;
 
                     case NewClient.CharacterStats.WeightLim: //technically a float, stat_32 / 1000
-                        var stat_32 = BufferTokenizer.GetUInt32(packet, ref offset);
+                        var stat_32 = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                         HandleStat((NewClient.CharacterStats)stat_number, stat_32);
                         break;
 
                     case NewClient.CharacterStats.Exp64:
-                        var stat_64 = BufferTokenizer.GetUInt64(packet, ref offset);
+                        var stat_64 = BufferTokenizer.GetUInt64(Message, ref DataOffset);
                         HandleStat((NewClient.CharacterStats)stat_number, stat_64.ToString());
                         break;
 
                     case NewClient.CharacterStats.Hp:
-                        var stat_16 = BufferTokenizer.GetUInt16(packet, ref offset);
+                        var stat_16 = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                         HandleStat((NewClient.CharacterStats)stat_number, stat_16);
                         break;
 
@@ -78,7 +78,7 @@ namespace CrossfireCore.ServerInterface
                     case NewClient.CharacterStats.SpellRepel:
                     case NewClient.CharacterStats.SpellDeny:
                     case NewClient.CharacterStats.CharacterFlags:
-                        var stat_sp32 = BufferTokenizer.GetUInt32(packet, ref offset);
+                        var stat_sp32 = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                         HandleStat((NewClient.CharacterStats)stat_number, stat_sp32);
                         break;
 
@@ -86,13 +86,13 @@ namespace CrossfireCore.ServerInterface
                         if ((stat_number >= NewClient.CharacterStats_SkillInfo) &&
                             (stat_number < NewClient.CharacterStats_SkillInfo + NewClient.CharacterStats_NumSkills))
                         {
-                            var skill_level = BufferTokenizer.GetByte(packet, ref offset);
-                            var skill_value = BufferTokenizer.GetUInt64(packet, ref offset);
+                            var skill_level = BufferTokenizer.GetByte(Message, ref DataOffset);
+                            var skill_value = BufferTokenizer.GetUInt64(Message, ref DataOffset);
                             HandleSkill(stat_number, skill_level, skill_value);
                         }
                         else
                         {
-                            var stat_value = BufferTokenizer.GetInt16(packet, ref offset);
+                            var stat_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
                             HandleStat((NewClient.CharacterStats)stat_number, stat_value);
                         }
                         break;

@@ -15,9 +15,9 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("accountplayers", new CommandParserDefinition(Parse_accountplayers));
         }
 
-        private bool Parse_accountplayers(byte[] packet, ref int offset, int end)
+        private bool Parse_accountplayers(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var num_characters = BufferTokenizer.GetByte(packet, ref offset);
+            var num_characters = BufferTokenizer.GetByte(Message, ref DataOffset);
             var character_count = 1;
 
             //TODO: change this to a beginplayer / endplayer event
@@ -32,9 +32,9 @@ namespace CrossfireCore.ServerInterface
             string account_player_party = "";
             string account_player_map = "";
 
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var char_data_len = BufferTokenizer.GetByte(packet, ref offset);
+                var char_data_len = BufferTokenizer.GetByte(Message, ref DataOffset);
                 if (char_data_len == 0)
                 {
                     HandleAccountPlayer(num_characters, character_count,
@@ -55,45 +55,45 @@ namespace CrossfireCore.ServerInterface
                     continue;
                 }
 
-                var char_data_type = (NewClient.AccountCharacterLoginTypes)BufferTokenizer.GetByte(packet, ref offset);
+                var char_data_type = (NewClient.AccountCharacterLoginTypes)BufferTokenizer.GetByte(Message, ref DataOffset);
                 char_data_len--;
 
                 switch (char_data_type)
                 {
                     case NewClient.AccountCharacterLoginTypes.Level:
-                        account_player_level = BufferTokenizer.GetUInt16(packet, ref offset);
+                        account_player_level = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.FaceNum:
-                        account_player_facenum = BufferTokenizer.GetUInt16(packet, ref offset);
+                        account_player_facenum = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Name:
-                        account_player_name = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Class:
-                        account_player_class = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_class = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Race:
-                        account_player_race = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_race = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Face:
-                        account_player_face = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_face = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Party:
-                        account_player_party = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_party = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     case NewClient.AccountCharacterLoginTypes.Map:
-                        account_player_map = BufferTokenizer.GetBytesAsString(packet, ref offset, char_data_len);
+                        account_player_map = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, char_data_len);
                         break;
 
                     default:
-                        BufferTokenizer.GetBytes(packet, ref offset, char_data_len);
+                        BufferTokenizer.GetBytes(Message, ref DataOffset, char_data_len);
                         break;
                 }
             }

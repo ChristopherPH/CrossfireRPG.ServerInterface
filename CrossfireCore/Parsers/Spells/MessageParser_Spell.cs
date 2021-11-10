@@ -23,23 +23,23 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("delspell", new CommandParserDefinition(Parse_delspell));
         }
 
-        private bool Parse_addspell(byte[] packet, ref int offset, int end)
+        private bool Parse_addspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
-                var spell_level = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_cast_time = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_mana = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_grace = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_damage = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_skill = BufferTokenizer.GetByte(packet, ref offset);
-                var spell_path = BufferTokenizer.GetUInt32(packet, ref offset);
-                var spell_face = BufferTokenizer.GetInt32(packet, ref offset);
-                var spell_name_len = BufferTokenizer.GetByte(packet, ref offset);
-                var spell_name = BufferTokenizer.GetBytesAsString(packet, ref offset, spell_name_len);
-                var spell_desc_len = BufferTokenizer.GetInt16(packet, ref offset);
-                var spell_desc = BufferTokenizer.GetBytesAsString(packet, ref offset, spell_desc_len);
+                var spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var spell_level = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_cast_time = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_mana = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_grace = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_damage = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_skill = BufferTokenizer.GetByte(Message, ref DataOffset);
+                var spell_path = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var spell_face = BufferTokenizer.GetInt32(Message, ref DataOffset);
+                var spell_name_len = BufferTokenizer.GetByte(Message, ref DataOffset);
+                var spell_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_name_len);
+                var spell_desc_len = BufferTokenizer.GetInt16(Message, ref DataOffset);
+                var spell_desc = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_desc_len);
 
                 byte spell_usage = 0;
                 string spell_requirement = string.Empty;
@@ -47,9 +47,9 @@ namespace CrossfireCore.ServerInterface
                 //extra data for spellmon 2
                 if (ParserOption_SpellMon > 1)
                 {
-                    spell_usage = BufferTokenizer.GetByte(packet, ref offset);
-                    var spell_requirement_len = BufferTokenizer.GetByte(packet, ref offset);
-                    spell_requirement = BufferTokenizer.GetBytesAsString(packet, ref offset, spell_requirement_len);
+                    spell_usage = BufferTokenizer.GetByte(Message, ref DataOffset);
+                    var spell_requirement_len = BufferTokenizer.GetByte(Message, ref DataOffset);
+                    spell_requirement = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_requirement_len);
                 }
 
                 HandleAddSpell(spell_tag, spell_level, spell_cast_time, spell_mana, spell_grace, spell_damage, spell_skill,
@@ -59,28 +59,28 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_updspell(byte[] packet, ref int offset, int end)
+        private bool Parse_updspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(packet, ref offset);
-            var update_spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
+            var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(Message, ref DataOffset);
+            var update_spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
                 if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Mana))
                 {
-                    var update_spell_value = BufferTokenizer.GetInt16(packet, ref offset);
+                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
                     HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
                 }
 
                 if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Grace))
                 {
-                    var update_spell_value = BufferTokenizer.GetInt16(packet, ref offset);
+                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
                     HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
                 }
 
                 if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Damage))
                 {
-                    var update_spell_value = BufferTokenizer.GetInt16(packet, ref offset);
+                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
                     HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
                 }
             }
@@ -88,9 +88,9 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delspell(byte[] packet, ref int offset, int end)
+        private bool Parse_delspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var del_spell_tag = BufferTokenizer.GetUInt32(packet, ref offset);
+            var del_spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
             HandleDeleteSpell(del_spell_tag);
             

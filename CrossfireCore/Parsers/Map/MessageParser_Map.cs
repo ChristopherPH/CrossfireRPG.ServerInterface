@@ -45,17 +45,17 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("smooth", new CommandParserDefinition(Parse_smooth));
         }
 
-        private bool Parse_newmap(byte[] packet, ref int offset, int end)
+        private bool Parse_newmap(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleNewMap();
             return true;
         }
 
-        private bool Parse_map2(byte[] packet, ref int offset, int end)
+        private bool Parse_map2(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var map_coord = BufferTokenizer.GetUInt16(packet, ref offset);
+                var map_coord = BufferTokenizer.GetUInt16(Message, ref DataOffset);
 
                 var map_coord_x = (map_coord >> 10) & 0x3F;         //top 6 bits
                 var map_coord_y = (map_coord >> 4) & 0x3F;          //next 6 bits
@@ -76,9 +76,9 @@ namespace CrossfireCore.ServerInterface
                         HandleMap2ClearOld(map_coord_x, map_coord_y);
 #endif
 
-                while (offset < end)
+                while (DataOffset < DataEnd)
                 {
-                    var map_len_type = BufferTokenizer.GetByte(packet, ref offset);
+                    var map_len_type = BufferTokenizer.GetByte(Message, ref DataOffset);
 
                     //0xff means next co-ord
                     if (map_len_type == 0xFF)
@@ -90,7 +90,7 @@ namespace CrossfireCore.ServerInterface
                     //currently unused
                     if (map_data_len == 0x07)
                     {
-                        map_data_len += BufferTokenizer.GetByte(packet, ref offset);
+                        map_data_len += BufferTokenizer.GetByte(Message, ref DataOffset);
                         throw new Exception("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
                     }
 
@@ -107,7 +107,7 @@ namespace CrossfireCore.ServerInterface
                             if (map_data_len != 1)
                                 throw new Exception("Invalid map_data_len: must be 1");
 
-                            var darkness = BufferTokenizer.GetByte(packet, ref offset); //0=dark, 255=light
+                            var darkness = BufferTokenizer.GetByte(Message, ref DataOffset); //0=dark, 255=light
 
                             HandleMap2Darkness(map_coord_x, map_coord_y, darkness);
                             break;
@@ -124,7 +124,7 @@ namespace CrossfireCore.ServerInterface
                         case 0x19:    //highest layer
                             var layer = map_data_type - 0x10;
 
-                            var face_or_animation = BufferTokenizer.GetUInt16(packet, ref offset);
+                            var face_or_animation = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                             var is_animation = (face_or_animation >> 15) != 0; //high bit set
 
                             byte animspeed = 0;
@@ -137,14 +137,14 @@ namespace CrossfireCore.ServerInterface
 
                                 case 3:
                                     if (is_animation)
-                                        animspeed = BufferTokenizer.GetByte(packet, ref offset);
+                                        animspeed = BufferTokenizer.GetByte(Message, ref DataOffset);
                                     else
-                                        smooth = BufferTokenizer.GetByte(packet, ref offset);
+                                        smooth = BufferTokenizer.GetByte(Message, ref DataOffset);
                                     break;
 
                                 case 4:
-                                    animspeed = BufferTokenizer.GetByte(packet, ref offset);
-                                    smooth = BufferTokenizer.GetByte(packet, ref offset);
+                                    animspeed = BufferTokenizer.GetByte(Message, ref DataOffset);
+                                    smooth = BufferTokenizer.GetByte(Message, ref DataOffset);
                                     break;
 
                                 default:
@@ -177,10 +177,10 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_smooth(byte[] packet, ref int offset, int end)
+        private bool Parse_smooth(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var face = BufferTokenizer.GetUInt16(packet, ref offset);
-            var smoothpic = BufferTokenizer.GetUInt16(packet, ref offset);
+            var face = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+            var smoothpic = BufferTokenizer.GetUInt16(Message, ref DataOffset);
             HandleSmooth(face, smoothpic);
             
             return true;

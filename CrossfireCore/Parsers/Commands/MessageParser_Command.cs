@@ -15,10 +15,10 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("query", new CommandParserDefinition(Parse_query));
         }
 
-        private bool Parse_comc(byte[] packet, ref int offset, int end)
+        private bool Parse_comc(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var comc_packet = BufferTokenizer.GetUInt16(packet, ref offset);
-            var comc_time = BufferTokenizer.GetUInt32(packet, ref offset);
+            var comc_packet = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+            var comc_time = BufferTokenizer.GetUInt32(Message, ref DataOffset);
             //TODO: convert completed command time as it isn't quite correct
 
             HandleCompletedCommand(comc_packet, comc_time);
@@ -26,10 +26,10 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_query(byte[] packet, ref int offset, int end)
+        private bool Parse_query(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var query_flags = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var query_text = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
+            var query_flags = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
+            var query_text = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
 
             HandleQuery(query_flags, query_text);
 

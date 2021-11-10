@@ -23,24 +23,24 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("version", new CommandParserDefinition(Parse_version));
         }
 
-        private bool Parse_addme_failed(byte[] packet, ref int offset, int end)
+        private bool Parse_addme_failed(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleAddmeFailed();
 
             return true;
         }
 
-        private bool Parse_addme_success(byte[] packet, ref int offset, int end)
+        private bool Parse_addme_success(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleAddmeSuccess();
 
             return true;
         }
 
-        private bool Parse_failure(byte[] packet, ref int offset, int end)
+        private bool Parse_failure(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var protocol_command = BufferTokenizer.GetString(packet, ref offset, end);
-            var failure_string = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
+            var protocol_command = BufferTokenizer.GetString(Message, ref DataOffset, DataEnd);
+            var failure_string = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
 
             HandleFailure(protocol_command, failure_string);
             _Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
@@ -48,19 +48,19 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_goodbye(byte[] packet, ref int offset, int end)
+        private bool Parse_goodbye(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleGoodbye();
 
             return true;
         }
 
-        private bool Parse_setup(byte[] packet, ref int offset, int end)
+        private bool Parse_setup(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var setup_command = BufferTokenizer.GetString(packet, ref offset, end);
-                var setup_value = BufferTokenizer.GetString(packet, ref offset, end);
+                var setup_command = BufferTokenizer.GetString(Message, ref DataOffset, DataEnd);
+                var setup_value = BufferTokenizer.GetString(Message, ref DataOffset, DataEnd);
 
                 HandleSetup(setup_command, setup_value);
 

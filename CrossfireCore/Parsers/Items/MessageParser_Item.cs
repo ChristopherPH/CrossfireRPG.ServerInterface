@@ -36,19 +36,19 @@ namespace CrossfireCore.ServerInterface
             AddCommandHandler("delinv", new CommandParserDefinition(Parse_delinv));
         }
 
-        private bool Parse_item2(byte[] packet, ref int offset, int end)
+        private bool Parse_item2(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleBeginItem2();
 
-            var item_location = BufferTokenizer.GetUInt32(packet, ref offset);
-            while (offset < end)
+            var item_location = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+            while (DataOffset < DataEnd)
             {
-                var item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
-                var item_flags = BufferTokenizer.GetUInt32(packet, ref offset);
-                var item_weight = BufferTokenizer.GetUInt32(packet, ref offset);
-                var item_face = BufferTokenizer.GetUInt32(packet, ref offset);
-                var item_namelen = BufferTokenizer.GetByte(packet, ref offset);
-                var item_name_bytes = BufferTokenizer.GetBytes(packet, ref offset, item_namelen);
+                var item_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var item_flags = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var item_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var item_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var item_namelen = BufferTokenizer.GetByte(Message, ref DataOffset);
+                var item_name_bytes = BufferTokenizer.GetBytes(Message, ref DataOffset, item_namelen);
 
                 string item_name, item_name_plural;
                 int item_name_offset;
@@ -65,10 +65,10 @@ namespace CrossfireCore.ServerInterface
                     item_name_plural = item_name;
                 }
 
-                var item_anim = BufferTokenizer.GetUInt16(packet, ref offset);
-                var item_animspeed = BufferTokenizer.GetByte(packet, ref offset);
-                var item_nrof = BufferTokenizer.GetUInt32(packet, ref offset);
-                var item_type = BufferTokenizer.GetUInt16(packet, ref offset);
+                var item_anim = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+                var item_animspeed = BufferTokenizer.GetByte(Message, ref DataOffset);
+                var item_nrof = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var item_type = BufferTokenizer.GetUInt16(Message, ref DataOffset);
 
                 HandleItem2(item_location, item_tag, item_flags, item_weight, item_face,
                     item_name, item_name_plural, item_anim, item_animspeed, item_nrof, item_type);
@@ -79,43 +79,43 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_upditem(byte[] packet, ref int offset, int end)
+        private bool Parse_upditem(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var update_item_type = (NewClient.UpdateTypes)BufferTokenizer.GetByte(packet, ref offset);
-            var update_item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
+            var update_item_type = (NewClient.UpdateTypes)BufferTokenizer.GetByte(Message, ref DataOffset);
+            var update_item_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
             HandleBeginUpdateItem(update_item_tag);
 
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Location))
                 {
-                    var update_item_location = BufferTokenizer.GetUInt32(packet, ref offset);
+                    var update_item_location = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Location, update_item_location);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Flags))
                 {
-                    var update_item_flags = BufferTokenizer.GetUInt32(packet, ref offset);
+                    var update_item_flags = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Flags, update_item_flags);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Weight))
                 {
-                    var update_item_weight = BufferTokenizer.GetUInt32(packet, ref offset);
+                    var update_item_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Weight, update_item_weight);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Face))
                 {
-                    var update_item_face = BufferTokenizer.GetUInt32(packet, ref offset);
+                    var update_item_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Face, update_item_face);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Name))
                 {
-                    var update_item_namelen = BufferTokenizer.GetByte(packet, ref offset);
-                    var update_item_name_bytes = BufferTokenizer.GetBytes(packet, ref offset, update_item_namelen);
+                    var update_item_namelen = BufferTokenizer.GetByte(Message, ref DataOffset);
+                    var update_item_name_bytes = BufferTokenizer.GetBytes(Message, ref DataOffset, update_item_namelen);
 
                     string update_item_name, update_item_name_plural;
                     int update_item_name_offset;
@@ -137,19 +137,19 @@ namespace CrossfireCore.ServerInterface
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Animation))
                 {
-                    var update_item_anim = BufferTokenizer.GetUInt16(packet, ref offset);
+                    var update_item_anim = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Animation, update_item_anim);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.AnimationSpeed))
                 {
-                    var update_item_animspeed = BufferTokenizer.GetByte(packet, ref offset);
+                    var update_item_animspeed = BufferTokenizer.GetByte(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.AnimationSpeed, update_item_animspeed);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.NumberOf))
                 {
-                    var update_item_nrof = BufferTokenizer.GetUInt32(packet, ref offset);
+                    var update_item_nrof = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                     HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.NumberOf, update_item_nrof);
                 }
             }
@@ -159,13 +159,13 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delitem(byte[] packet, ref int offset, int end)
+        private bool Parse_delitem(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleBeginDeleteItem();
 
-            while (offset < end)
+            while (DataOffset < DataEnd)
             {
-                var del_item_tag = BufferTokenizer.GetUInt32(packet, ref offset);
+                var del_item_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 HandleDeleteItem(del_item_tag);
             }
 
@@ -174,9 +174,9 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        private bool Parse_delinv(byte[] packet, ref int offset, int end)
+        private bool Parse_delinv(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            var del_inv_tag = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            var del_inv_tag = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
 
             HandleDeleteInventory(del_inv_tag);
 
