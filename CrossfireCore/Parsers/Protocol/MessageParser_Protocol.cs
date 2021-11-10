@@ -15,12 +15,12 @@ namespace CrossfireCore.ServerInterface
 
         private void AddProtocolParsers()
         {
-            AddCommandHandler("addme_failed", new ParseCommand(Parse_addme_failed));
-            AddCommandHandler("addme_success", new ParseCommand(Parse_addme_success));
-            AddCommandHandler("failure", new ParseCommand(Parse_failure));
-            AddCommandHandler("goodbye", new ParseCommand(Parse_goodbye));
-            AddCommandHandler("setup", new ParseCommand(Parse_setup));
-            AddCommandHandler("version", new ParseCommand(Parse_version));
+            AddCommandHandler("addme_failed", new CommandParserDefinition(Parse_addme_failed));
+            AddCommandHandler("addme_success", new CommandParserDefinition(Parse_addme_success));
+            AddCommandHandler("failure", new CommandParserDefinition(Parse_failure));
+            AddCommandHandler("goodbye", new CommandParserDefinition(Parse_goodbye));
+            AddCommandHandler("setup", new CommandParserDefinition(Parse_setup));
+            AddCommandHandler("version", new CommandParserDefinition(Parse_version));
         }
 
         private bool Parse_addme_failed(byte[] packet, ref int offset, int end)

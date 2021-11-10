@@ -16,7 +16,7 @@ namespace CrossfireCore.ServerInterface
         public MessageParserBase(SocketConnection Connection)
         {
             _Connection = Connection;
-            _Connection.OnPacket += ParseBuffer;
+            _Connection.OnPacket += Connection_OnPacket;
 
             AddAccountParsers();
             AddAudioParsers();
@@ -32,9 +32,9 @@ namespace CrossfireCore.ServerInterface
         }
 
         private SocketConnection _Connection;
-        private Dictionary<string, ParseCommand> _CommandHandler = new Dictionary<string, ParseCommand>();
+        private Dictionary<string, CommandParserDefinition> _CommandHandler = new Dictionary<string, CommandParserDefinition>();
 
-        protected bool AddCommandHandler(string command, ParseCommand parseCommand)
+        protected bool AddCommandHandler(string command, CommandParserDefinition parseCommand)
         {
             if (string.IsNullOrWhiteSpace(command) || (parseCommand == null) || (parseCommand.Parser == null))
                 return false;
@@ -46,33 +46,34 @@ namespace CrossfireCore.ServerInterface
             return true;
         }
 
-        byte[] _SavedPacket = null;
+        byte[] _SavedBuffer = null;
 
-        protected virtual void ParseBuffer(object sender, ConnectionPacketEventArgs e)
+        private void Connection_OnPacket(object sender, ConnectionPacketEventArgs e)
+        {
+            ParseBuffer(ref _SavedBuffer, e.Packet);
+        }
+
+        protected virtual int ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer)
         {
             byte[] workingPacket;
 
-            if (_SavedPacket == null)
+            if (SavedBuffer == null)
             {
-                workingPacket = e.Packet;
+                //no saved buffer, we can just use the passed in buffer as a working buffer
+                workingPacket = Buffer;
             }
-            else //combine buffers
+            else //combine saved buffer with new buffer
             {
-                workingPacket = new byte[_SavedPacket.Length + e.Packet.Length];
-                Array.Copy(_SavedPacket, 0, workingPacket, 0,  _SavedPacket.Length);
-                Array.Copy(e.Packet, 0, workingPacket, _SavedPacket.Length, e.Packet.Length);
+                workingPacket = new byte[SavedBuffer.Length + Buffer.Length];
 
-                _SavedPacket = null;
+                Array.Copy(SavedBuffer, 0, workingPacket, 0,  SavedBuffer.Length);
+                Array.Copy(Buffer, 0, workingPacket, SavedBuffer.Length, Buffer.Length);
+
+                SavedBuffer = null;
             }
 
             const int MessageLengthSize = 2;
             int offset = 0;
-
-            if (workingPacket.Length <= MessageLengthSize)
-            {
-                _SavedPacket = workingPacket;
-                return;
-            }
 
             //get messages out of packet
             while (offset < workingPacket.Length)
@@ -83,8 +84,8 @@ namespace CrossfireCore.ServerInterface
                     //save any extra bytes for next call to ParseBuffer
                     if (offset < workingPacket.Length)
                     {
-                        _SavedPacket = new byte[workingPacket.Length - offset];
-                        Array.Copy(workingPacket, offset, _SavedPacket, 0, _SavedPacket.Length);
+                        SavedBuffer = new byte[workingPacket.Length - offset];
+                        Array.Copy(workingPacket, offset, SavedBuffer, 0, SavedBuffer.Length);
                     }
 
                     break;
@@ -102,8 +103,8 @@ namespace CrossfireCore.ServerInterface
                     //save any extra bytes, including the message length, for next call to ParseBuffer
                     if (offset < workingPacket.Length)
                     {
-                        _SavedPacket = new byte[workingPacket.Length - offset];
-                        Array.Copy(workingPacket, offset, _SavedPacket, 0, _SavedPacket.Length);
+                        SavedBuffer = new byte[workingPacket.Length - offset];
+                        Array.Copy(workingPacket, offset, SavedBuffer, 0, SavedBuffer.Length);
                     }
 
                     break;
@@ -113,77 +114,59 @@ namespace CrossfireCore.ServerInterface
                 offset += MessageLengthSize;
 
                 //process message
-                ParsePacket(workingPacket, offset, messageLen);
+                ParseMessage(workingPacket, offset, messageLen);
 
                 //point to start of next message
                 offset += messageLen;
             }
+
+            //return number of bytes processed
+            return offset;
         }
 
-        protected virtual void ParsePacket(byte[] Packet, int DataOffset, int DataLength)
+        protected virtual void ParseMessage(byte[] Message, int DataOffset, int DataLength)
         {
-            System.Diagnostics.Debug.Assert(Packet != null);
-            System.Diagnostics.Debug.Assert(Packet.Length > 0);
+            System.Diagnostics.Debug.Assert(Message != null);
+            System.Diagnostics.Debug.Assert(Message.Length > 0);
 
-            var offset = DataOffset;
-            var end = DataOffset + DataLength;
-            var cmd = BufferTokenizer.GetString(Packet, ref offset, end);
+            var curPos = DataOffset;
+            var dataEnd = DataOffset + DataLength;
+            var command = BufferTokenizer.GetString(Message, ref curPos, dataEnd);
 
-            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(cmd));
+            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(command));
 
             //run command parser
-            if (_CommandHandler.TryGetValue(cmd, out var parseCommand))
+            if (_CommandHandler.TryGetValue(command, out var parseCommand))
             {
-                _Logger.Log(parseCommand.Level, "S->C: cmd={0}, datalen={1}", cmd, DataLength);
+                _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1}", command, DataLength);
 
                 try
                 {
-                    if (!parseCommand.Parser(Packet, ref offset, end))
-                        _Logger.Error("Failed to parse command: {0}", cmd);
+                    if (!parseCommand.Parser(Message, ref curPos, dataEnd))
+                        _Logger.Error("Failed to parse command: {0}", command);
                 }
                 catch (Exception ex)
                 {
                     _Logger.Error("Failed to parse command: {0}: {1}",
-                        cmd, ex.Message);
+                        command, ex.Message);
                 }
             }
             else
             {
-                _Logger.Warning("Unhandled Command: {0}", cmd);
+                _Logger.Warning("Unhandled Command: {0}", command);
             }
 
             //log excess data
-            if (offset < end)
+            if (curPos < dataEnd)
             {
-                _Logger.Warning("Excess Data for cmd {0}:\n{1}",
-                    cmd, HexDump.Utils.HexDump(Packet, offset, end - offset));
+                _Logger.Warning("Excess data for command {0}:\n{1}",
+                    command, HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
             }
-            else if (offset > end)
+            else if (curPos > dataEnd)
             {
-                _Logger.Warning("Used too much data for cmd {0}",
-                    cmd, HexDump.Utils.HexDump(Packet, offset - end));
+                _Logger.Warning("Used too much data for command {0}: {1}",
+                    command, curPos - dataEnd);
             }
-        }
-
-        public class ParseCommand
-        {
-            public delegate bool ParseCommandCallback(byte[] packet, ref int offset, int end);
-
-            public ParseCommand() { }
-
-            public ParseCommand(ParseCommandCallback Parser)
-            {
-                this.Parser = Parser;
-            }
-
-            public ParseCommand(ParseCommandCallback Parser, Logger.Levels Level)
-            {
-                this.Parser = Parser;
-                this.Level = Level;
-            }
-
-            public ParseCommandCallback Parser { get; set; }
-            public Logger.Levels Level { get; set; } = Logger.Levels.Info;
         }
     }
 }

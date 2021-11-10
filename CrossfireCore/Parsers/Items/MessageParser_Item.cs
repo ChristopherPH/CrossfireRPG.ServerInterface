@@ -30,10 +30,10 @@ namespace CrossfireCore.ServerInterface
 
         private void AddItemParsers()
         {
-            AddCommandHandler("item2", new ParseCommand(Parse_item2));
-            AddCommandHandler("upditem", new ParseCommand(Parse_upditem));
-            AddCommandHandler("delitem", new ParseCommand(Parse_delitem));
-            AddCommandHandler("delinv", new ParseCommand(Parse_delinv));
+            AddCommandHandler("item2", new CommandParserDefinition(Parse_item2));
+            AddCommandHandler("upditem", new CommandParserDefinition(Parse_upditem));
+            AddCommandHandler("delitem", new CommandParserDefinition(Parse_delitem));
+            AddCommandHandler("delinv", new CommandParserDefinition(Parse_delinv));
         }
 
         private bool Parse_item2(byte[] packet, ref int offset, int end)

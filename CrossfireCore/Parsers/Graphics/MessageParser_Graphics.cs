@@ -16,11 +16,11 @@ namespace CrossfireCore.ServerInterface
 
         private void AddGraphicsParsers()
         {
-            AddCommandHandler("anim", new ParseCommand(Parse_anim));
-            AddCommandHandler("drawextinfo", new ParseCommand(Parse_drawextinfo));
-            AddCommandHandler("face2", new ParseCommand(Parse_face2));
-            AddCommandHandler("image2", new ParseCommand(Parse_image2));
-            AddCommandHandler("magicmap", new ParseCommand(Parse_magicmap));
+            AddCommandHandler("anim", new CommandParserDefinition(Parse_anim));
+            AddCommandHandler("drawextinfo", new CommandParserDefinition(Parse_drawextinfo));
+            AddCommandHandler("face2", new CommandParserDefinition(Parse_face2));
+            AddCommandHandler("image2", new CommandParserDefinition(Parse_image2));
+            AddCommandHandler("magicmap", new CommandParserDefinition(Parse_magicmap));
         }
 
         private bool Parse_anim(byte[] packet, ref int offset, int end)

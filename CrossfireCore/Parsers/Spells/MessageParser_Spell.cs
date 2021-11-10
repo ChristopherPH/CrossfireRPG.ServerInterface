@@ -18,9 +18,9 @@ namespace CrossfireCore.ServerInterface
 
         private void AddSpellParsers()
         {
-            AddCommandHandler("addspell", new ParseCommand(Parse_addspell));
-            AddCommandHandler("updspell", new ParseCommand(Parse_updspell));
-            AddCommandHandler("delspell", new ParseCommand(Parse_delspell));
+            AddCommandHandler("addspell", new CommandParserDefinition(Parse_addspell));
+            AddCommandHandler("updspell", new CommandParserDefinition(Parse_updspell));
+            AddCommandHandler("delspell", new CommandParserDefinition(Parse_delspell));
         }
 
         private bool Parse_addspell(byte[] packet, ref int offset, int end)

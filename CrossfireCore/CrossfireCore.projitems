@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ClientTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parsers\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageEvents_Account.cs" />
