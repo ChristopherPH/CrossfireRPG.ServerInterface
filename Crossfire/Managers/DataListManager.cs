@@ -248,12 +248,12 @@ namespace Crossfire.Managers
             }
         }
 
-        protected void StartBatch()
+        protected override void StartBatch()
         {
             OnDataChanged(ModificationTypes.BatchStart, default, -1);
         }
 
-        protected void EndBatch()
+        protected override void EndBatch()
         {
             OnDataChanged(ModificationTypes.BatchEnd, default, -1);
         }

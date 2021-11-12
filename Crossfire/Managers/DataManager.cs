@@ -59,6 +59,16 @@ namespace Crossfire.Managers
             OnDataChanged(ModificationTypes.Updated, Data, new string[] { UpdatedProperty });
         }
 
+        protected virtual void StartBatch()
+        {
+            OnDataChanged(ModificationTypes.BatchStart, default);
+        }
+
+        protected virtual void EndBatch()
+        {
+            OnDataChanged(ModificationTypes.BatchEnd, default);
+        }
+
 
         [Flags]
         public enum ModificationTypes

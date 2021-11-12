@@ -9,6 +9,8 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<PlayerEventArgs> Player;
         public event EventHandler<SkillEventArgs> Skills;
         public event EventHandler<StatEventArgs> Stats;
+        public event EventHandler<EventArgs> BeginStats;
+        public event EventHandler<EventArgs> EndStats;
 
         protected override void HandlePlayer(uint tag, uint weight, uint face, string Name)
         {
@@ -56,6 +58,16 @@ namespace CrossfireCore.ServerInterface
                 Stat = Stat,
                 Value = Value.ToString(),
             });
+        }
+
+        protected override void HandleBeginStats()
+        {
+            BeginStats?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleEndStats()
+        {
+            EndStats?.Invoke(this, EventArgs.Empty);
         }
 
         public class PlayerEventArgs : SingleCommandEventArgs

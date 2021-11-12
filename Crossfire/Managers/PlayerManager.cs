@@ -17,12 +17,15 @@ namespace Crossfire.Managers
             Parser.Player += Parser_Player;
             Parser.UpdateItem += Parser_UpdateItem;
             Parser.Stats += Parser_Stats;
+            Parser.BeginStats += Parser_BeginStats;
+            Parser.EndStats += Parser_EndStats;
         }
 
         static Logger _Logger = new Logger(nameof(PlayerManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
-        public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated;
+        public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated |
+            ModificationTypes.BatchStart | ModificationTypes.BatchEnd;
 
         public Player Player { get; private set; } = new Player();
 
@@ -246,7 +249,16 @@ namespace Crossfire.Managers
                     }
                     break;
             }
+        }
 
+        private void Parser_BeginStats(object sender, EventArgs e)
+        {
+            StartBatch();
+        }
+
+        private void Parser_EndStats(object sender, EventArgs e)
+        {
+            EndBatch();
         }
     }
 

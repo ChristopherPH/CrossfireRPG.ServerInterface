@@ -11,6 +11,8 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleStat(NewClient.CharacterStats Stat, Int64 Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, string Value);
         protected abstract void HandleStat(NewClient.CharacterStats Stat, float Value);
+        protected abstract void HandleBeginStats();
+        protected abstract void HandleEndStats();
 
         private void AddPlayerParsers()
         {
@@ -33,6 +35,8 @@ namespace CrossfireCore.ServerInterface
 
         private bool Parse_stats(byte[] packet, ref int offset)
         {
+            HandleBeginStats();
+
             while (offset < packet.Length)
             {
                 var stat_number = BufferTokenizer.GetByte(packet, ref offset);
@@ -94,6 +98,8 @@ namespace CrossfireCore.ServerInterface
                         break;
                 }
             }
+
+            HandleEndStats();
 
             return true;
         }
