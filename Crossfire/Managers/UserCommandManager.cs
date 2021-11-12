@@ -17,6 +17,7 @@ namespace Crossfire.Managers
         }
 
         private List<UInt16> _WaitingIDs = new List<UInt16>();
+        private object _WaitLock = new object();
         static Logger _Logger = new Logger(nameof(UserCommandManager));
 
         public event EventHandler<UserCommandEventArgs> OnUserCommand;
@@ -27,8 +28,10 @@ namespace Crossfire.Managers
 
             if (WaitingForCommand(commandID))
             {
-                _WaitingIDs.Remove(commandID);
-                _Logger.Debug("Received Command ID {0}: {1}ms", e.Packet, e.Time);
+                lock (_WaitLock)
+                    _WaitingIDs.Remove(commandID);
+
+                _Logger.Debug("Received Command ID {0}: {1}ms", commandID, e.Time);
             }
             else
             {
@@ -69,19 +72,24 @@ namespace Crossfire.Managers
                 if (string.IsNullOrWhiteSpace(args.Command))
                     continue;
 
-                commandID = Builder.SendNewCommand(args.Command.Trim(), args.Repeat);
-                if (commandID == 0)
-                    continue;
-
-                _Logger.Debug("Sending Command ID {0}: {1}", commandID, args.Command);
-
-                if (WaitingForCommand(commandID))
+                //lock from sending the command to adding the ID, as we can receieve
+                //Parser_CompletedCommand before calling _WaitingIDs.Add()
+                lock (_WaitLock)
                 {
-                    _Logger.Warning("Missed response for Command ID {0}", commandID);
-                }
-                else
-                {
-                    _WaitingIDs.Add(commandID);
+                    commandID = Builder.SendNewCommand(args.Command.Trim(), args.Repeat);
+                    if (commandID == 0)
+                        continue;
+
+                	_Logger.Debug("Sending Command ID {0}: {1}", commandID, args.Command);
+
+                    if (WaitingForCommand(commandID))
+                    {
+                        _Logger.Warning("Missed response for Command ID {0}", commandID);
+                    }
+                    else
+                    {
+                        _WaitingIDs.Add(commandID);
+                    }
                 }
             }
 
@@ -94,7 +102,8 @@ namespace Crossfire.Managers
             if (CommandID == 0)
                 return false;
 
-            return _WaitingIDs.Contains(CommandID);
+            lock (_WaitLock)
+                return _WaitingIDs.Contains(CommandID);
         }
 
         public void SendReadySkill(string Skill)
