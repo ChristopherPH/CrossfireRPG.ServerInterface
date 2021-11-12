@@ -59,14 +59,14 @@ namespace Crossfire.Managers
             OnDataChanged(ModificationTypes.Updated, Data, new string[] { UpdatedProperty });
         }
 
-        protected virtual void StartBatch()
+        protected virtual void StartMultiCommand()
         {
-            OnDataChanged(ModificationTypes.BatchStart, default);
+            OnDataChanged(ModificationTypes.MultiCommandStart, default);
         }
 
-        protected virtual void EndBatch()
+        protected virtual void EndMultiCommand()
         {
-            OnDataChanged(ModificationTypes.BatchEnd, default);
+            OnDataChanged(ModificationTypes.MultiCommandEnd, default);
         }
 
 

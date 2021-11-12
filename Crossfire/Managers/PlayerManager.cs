@@ -25,7 +25,7 @@ namespace Crossfire.Managers
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
         public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated |
-            ModificationTypes.BatchStart | ModificationTypes.BatchEnd;
+            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
 
         public Player Player { get; private set; } = new Player();
 
@@ -253,12 +253,12 @@ namespace Crossfire.Managers
 
         private void Parser_BeginStats(object sender, EventArgs e)
         {
-            StartBatch();
+            StartMultiCommand();
         }
 
         private void Parser_EndStats(object sender, EventArgs e)
         {
-            EndBatch();
+            EndMultiCommand();
         }
     }
 
