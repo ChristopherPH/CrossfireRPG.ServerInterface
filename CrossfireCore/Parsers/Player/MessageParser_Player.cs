@@ -62,7 +62,7 @@ namespace CrossfireCore.ServerInterface
 
                     case NewClient.CharacterStats.Exp64:
                         var stat_64 = BufferTokenizer.GetUInt64(packet, ref offset);
-                        HandleStat((NewClient.CharacterStats)stat_number, stat_64);
+                        HandleStat((NewClient.CharacterStats)stat_number, stat_64.ToString());
                         break;
 
                     case NewClient.CharacterStats.Hp:

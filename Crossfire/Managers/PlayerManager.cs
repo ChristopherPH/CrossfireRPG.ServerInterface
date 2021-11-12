@@ -1,4 +1,5 @@
 ﻿using Common;
+using CrossfireCore;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ namespace Crossfire.Managers
 
             switch (e.UpdateType)
             {
-                case CrossfireCore.NewClient.UpdateTypes.Name:
+                case NewClient.UpdateTypes.Name:
                     if (Player.Name != e.UpdateString)
                     {
                         Player.Name = e.UpdateString;
@@ -81,7 +82,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.UpdateTypes.Face:
+                case NewClient.UpdateTypes.Face:
                     if (Player.Face != e.UpdateValue)
                     {
                         Player.Face = (UInt32)e.UpdateValue;
@@ -89,7 +90,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.UpdateTypes.Weight:
+                case NewClient.UpdateTypes.Weight:
                     if (Player.RawWeight != e.UpdateValue)
                     {
                         Player.RawWeight = (UInt32)e.UpdateValue;
@@ -114,7 +115,7 @@ namespace Crossfire.Managers
 
             switch (e.Stat)
             {
-                case CrossfireCore.NewClient.CharacterStats.Hp:
+                case NewClient.CharacterStats.Hp:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.Health != u32))
                     {
                         Player.Health = u32;
@@ -122,7 +123,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.MaxHp:
+                case NewClient.CharacterStats.MaxHp:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.MaxHealth != u32))
                     {
                         Player.MaxHealth = u32;
@@ -130,7 +131,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Sp:
+                case NewClient.CharacterStats.Sp:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.Mana != u32))
                     {
                         Player.Mana = u32;
@@ -138,7 +139,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.MaxSp:
+                case NewClient.CharacterStats.MaxSp:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.MaxMana != u32))
                     {
                         Player.MaxMana = u32;
@@ -146,7 +147,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Grace:
+                case NewClient.CharacterStats.Grace:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.Grace != u32))
                     {
                         Player.Grace = u32;
@@ -154,7 +155,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.MaxGrace:
+                case NewClient.CharacterStats.MaxGrace:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.MaxGrace != u32))
                     {
                         Player.MaxGrace = u32;
@@ -162,8 +163,8 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Exp:
-                case CrossfireCore.NewClient.CharacterStats.Exp64:
+                case NewClient.CharacterStats.Exp:
+                case NewClient.CharacterStats.Exp64:
                     if (UInt64.TryParse(e.Value, out u64) && (Player.Experience != u64))
                     {
                         Player.Experience = u64;
@@ -171,7 +172,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Level:
+                case NewClient.CharacterStats.Level:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.Level != u32))
                     {
                         Player.Level = u32;
@@ -179,7 +180,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Food:
+                case NewClient.CharacterStats.Food:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.Food != u32))
                     {
                         Player.Food = u32;
@@ -187,7 +188,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Title:
+                case NewClient.CharacterStats.Title:
                     var tmpTitle = e.Value;
                     if (tmpTitle.StartsWith("Player: "))
                         tmpTitle = tmpTitle.Remove(0, "Player: ".Length);
@@ -199,7 +200,7 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.Range:
+                case NewClient.CharacterStats.Range:
                     var tmpRange = e.Value;
                     if (tmpRange.StartsWith("Range: "))
                         tmpRange = tmpRange.Remove(0, "Range: ".Length);
@@ -213,11 +214,27 @@ namespace Crossfire.Managers
                     }
                     break;
 
-                case CrossfireCore.NewClient.CharacterStats.WeightLim:
+                case NewClient.CharacterStats.WeightLim:
                     if (UInt32.TryParse(e.Value, out u32) && (Player.RawWeightLimit != u32))
                     {
                         Player.RawWeightLimit = u32;
                         base.OnPropertyChanged(Player, nameof(Managers.Player.WeightLimit));
+                    }
+                    break;
+
+                case NewClient.CharacterStats.Flags:
+                    if (Enum.TryParse<NewClient.StatFlags>(e.Value, out var statFlags) && (Player.StatFlags != statFlags))
+                    {
+                        Player.StatFlags = statFlags;
+                        base.OnPropertyChanged(Player, nameof(Managers.Player.StatFlags));
+                    }
+                    break;
+
+                case NewClient.CharacterStats.CharacterFlags:
+                    if (Enum.TryParse<NewClient.CharacterFlags>(e.Value, out var charFlags) && (Player.CharacterFlags != charFlags))
+                    {
+                        Player.CharacterFlags = charFlags;
+                        base.OnPropertyChanged(Player, nameof(Managers.Player.CharacterFlags));
                     }
                     break;
 
@@ -258,9 +275,11 @@ namespace Crossfire.Managers
         public UInt32 Level { get; set; } = 0;
         public string Range { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public NewClient.StatFlags StatFlags { get; set; } = 0;
+        public NewClient.CharacterFlags CharacterFlags { get; set; } = 0;
 
-        public Dictionary<CrossfireCore.NewClient.CharacterStats, string> Stats { get; } =
-            new Dictionary<CrossfireCore.NewClient.CharacterStats, string>();
+        public Dictionary<NewClient.CharacterStats, string> Stats { get; } =
+            new Dictionary<NewClient.CharacterStats, string>();
 
         public bool ValidPlayer => PlayerTag != 0;
 
