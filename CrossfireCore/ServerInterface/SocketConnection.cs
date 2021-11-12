@@ -240,13 +240,40 @@ namespace CrossfireCore.ServerInterface
             lengthBytes[0] = (byte)((messageLength >> 8) & 0xFF);
             lengthBytes[1] = (byte)((messageLength) & 0xFF);
 
-            _stream.Write(lengthBytes, 0, lengthBytes.Length);
-            _stream.Write(Message, 0, Message.Length);
+            _stream.BeginWrite(lengthBytes, 0, lengthBytes.Length, BeginSendCallback, _stream);
+            _stream.BeginWrite(Message, 0, Message.Length, BeginSendCallback, _stream);
 
             _Logger.Debug("Write {0} bytes\n{1}", 
                 messageLength, HexDump.Utils.HexDump(Message));
 
             return true;
+        }
+
+        private void BeginSendCallback(IAsyncResult ar)
+        {
+            var stream = ar.AsyncState as NetworkStream;
+
+            System.Diagnostics.Debug.Assert(stream == _stream);
+
+            //stream has been shut down
+            //TODO: cleanup/disconnect here?
+            if (!stream.CanRead)
+                return;
+
+            try
+            {
+                stream.EndWrite(ar);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                {
+                    ErrorMessage = ex.Message
+                });
+
+                Disconnect();
+                return;
+            }
         }
 
         private void WaitForBytes(StateObject so)
