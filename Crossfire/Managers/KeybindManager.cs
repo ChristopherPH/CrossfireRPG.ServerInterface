@@ -262,6 +262,7 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.S, KeyBind.Modifiers.Alt, "togglewindow GameWindowSpells") },
             { new KeyBind(KeyBind.GameKeys.P, KeyBind.Modifiers.Alt, "togglewindow GameWindowPickup") },
             { new KeyBind(KeyBind.GameKeys.K, KeyBind.Modifiers.Alt, "togglewindow GameWindowKeybinds") },
+            { new KeyBind(KeyBind.GameKeys.N, KeyBind.Modifiers.Alt, "togglewindow GameWindowNotes") },
             { new KeyBind(KeyBind.GameKeys.C, KeyBind.Modifiers.Alt, "hidewindow GameWindowContainer") },
             { new KeyBind(KeyBind.GameKeys.I, KeyBind.Modifiers.Alt, "showwindow GameWindowInventory") },
 
