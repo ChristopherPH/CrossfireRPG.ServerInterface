@@ -268,12 +268,12 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.Add, KeyBind.Modifiers.Alt, "mapzoomin") },
             { new KeyBind(KeyBind.GameKeys.Subtract, KeyBind.Modifiers.Alt, "mapzoomout") },
 
-            { new KeyBind(KeyBind.GameKeys.F1, KeyBind.Modifiers.Alt, "hotkey 1") },
-            { new KeyBind(KeyBind.GameKeys.F2, KeyBind.Modifiers.Alt, "hotkey 2") },
-            { new KeyBind(KeyBind.GameKeys.F3, KeyBind.Modifiers.Alt, "hotkey 3") },
-            { new KeyBind(KeyBind.GameKeys.F4, KeyBind.Modifiers.Alt, "hotkey 4") },
-            { new KeyBind(KeyBind.GameKeys.F5, KeyBind.Modifiers.Alt, "hotkey 5") },
-            { new KeyBind(KeyBind.GameKeys.F6, KeyBind.Modifiers.Alt, "hotkey 6") },
+            { new KeyBind(KeyBind.GameKeys.F1, KeyBind.Modifiers.None, "hotkey 1") },
+            { new KeyBind(KeyBind.GameKeys.F2, KeyBind.Modifiers.None, "hotkey 2") },
+            { new KeyBind(KeyBind.GameKeys.F3, KeyBind.Modifiers.None, "hotkey 3") },
+            { new KeyBind(KeyBind.GameKeys.F4, KeyBind.Modifiers.None, "hotkey 4") },
+            { new KeyBind(KeyBind.GameKeys.F5, KeyBind.Modifiers.None, "hotkey 5") },
+            { new KeyBind(KeyBind.GameKeys.F6, KeyBind.Modifiers.None, "hotkey 6") },
         };
     }
 
