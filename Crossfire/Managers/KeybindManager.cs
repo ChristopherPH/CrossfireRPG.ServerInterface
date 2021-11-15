@@ -275,6 +275,15 @@ namespace Crossfire.Keybinding
             { new KeyBind(KeyBind.GameKeys.F4, KeyBind.Modifiers.None, "hotkey 4") },
             { new KeyBind(KeyBind.GameKeys.F5, KeyBind.Modifiers.None, "hotkey 5") },
             { new KeyBind(KeyBind.GameKeys.F6, KeyBind.Modifiers.None, "hotkey 6") },
+
+            { new KeyBind(KeyBind.GameKeys.F1, KeyBind.Modifiers.Alt, "loadwindowlayout Default") },
+            { new KeyBind(KeyBind.GameKeys.F2, KeyBind.Modifiers.Alt, "loadwindowlayout Character") },
+            { new KeyBind(KeyBind.GameKeys.F3, KeyBind.Modifiers.Alt, "loadwindowlayout Global") },
+            { new KeyBind(KeyBind.GameKeys.F4, KeyBind.Modifiers.Alt, "loadwindowlayout Custom1") },
+            { new KeyBind(KeyBind.GameKeys.F5, KeyBind.Modifiers.Alt, "loadwindowlayout Custom2") },
+            { new KeyBind(KeyBind.GameKeys.F6, KeyBind.Modifiers.Alt, "loadwindowlayout Custom3") },
+            { new KeyBind(KeyBind.GameKeys.F7, KeyBind.Modifiers.Alt, "loadwindowlayout Custom4") },
+            { new KeyBind(KeyBind.GameKeys.F8, KeyBind.Modifiers.Alt, "loadwindowlayout Custom5") },
         };
     }
 
