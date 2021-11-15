@@ -19,6 +19,10 @@ namespace Crossfire.Managers
         private List<UInt16> _WaitingIDs = new List<UInt16>();
         private object _WaitLock = new object();
         static Logger _Logger = new Logger(nameof(UserCommandManager));
+        private Dictionary<string, List<CommandHandlerInfo>> _UserCommands = new Dictionary<string, List<CommandHandlerInfo>>();
+        public IEnumerable<string> UserCommands => _UserCommands.Keys.OrderBy(x => x).Distinct();
+
+        public delegate void UserCommandHandler(string Command, string CommandParameters);
 
         public event EventHandler<UserCommandEventArgs> OnUserCommand;
 
@@ -52,14 +56,33 @@ namespace Crossfire.Managers
             var CommandList = Command.Split(';');
             UInt16 commandID = 0;
 
-            foreach (var cmd in CommandList)
+            foreach (var singleCommand in CommandList)
             {
-                if (string.IsNullOrWhiteSpace(cmd))
+                if (string.IsNullOrWhiteSpace(singleCommand))
                     continue;
 
+                //clean up command and parameters
+                var splitCommand = singleCommand.Split(new char[] { ' ' }, 2);
+
+                if ((splitCommand == null) || (splitCommand.Length == 0))
+                    continue;
+
+                var tmpCommand = splitCommand[0];
+                var tmpParams = splitCommand.Length == 2 ? splitCommand[1] : string.Empty;
+
+                //if the command exists as a user command, then allow the configured handler to execute
+                if (_UserCommands.TryGetValue(tmpCommand, out var commandInfos))
+                {
+                    foreach (var commandInfo in commandInfos)
+                        commandInfo.Handler(tmpCommand, tmpParams);
+                    continue;
+                }
+
+                //Allow any handlers to either change or cancel the message to the server
                 var args = new UserCommandEventArgs()
                 {
-                    Command = cmd.Trim(),
+                    Command = tmpCommand,
+                    Params = tmpParams,
                 };
 
                 //Allow any handlers to either change or cancel the message
@@ -72,19 +95,25 @@ namespace Crossfire.Managers
                 if (string.IsNullOrWhiteSpace(args.Command))
                     continue;
 
+                //reassemble the command
+                tmpCommand = args.Command.Trim();
+
+                if (!string.IsNullOrWhiteSpace(args.Params))
+                    tmpCommand += " " + args.Params.Trim();
+
                 //lock from sending the command to adding the ID, as we can receieve
                 //Parser_CompletedCommand before calling _WaitingIDs.Add()
                 lock (_WaitLock)
                 {
-                    commandID = Builder.SendNewCommand(args.Command.Trim(), args.Repeat);
+                    commandID = Builder.SendNewCommand(tmpCommand, args.Repeat);
                     if (commandID == 0)
                         continue;
 
-                	_Logger.Debug("Sending Command ID {0}: {1}", commandID, args.Command);
+                    _Logger.Debug("Sending Command ID {0}: {1} [{2}]", commandID, tmpCommand, args.Repeat);
 
                     if (WaitingForCommand(commandID))
                     {
-                        _Logger.Warning("Missed response for Command ID {0}", commandID);
+                        _Logger.Warning("Missed previous response for Command ID {0}", commandID);
                     }
                     else
                     {
@@ -104,6 +133,36 @@ namespace Crossfire.Managers
 
             lock (_WaitLock)
                 return _WaitingIDs.Contains(CommandID);
+        }
+
+        public bool RegisterUserCommand(string Command, UserCommandHandler Handler, string Description)
+        {
+            if (string.IsNullOrWhiteSpace(Command) || (Handler == null))
+                return false;
+
+            var command = Command.ToLower().Trim();
+
+            if (!_UserCommands.ContainsKey(command))
+                _UserCommands[command] = new List<CommandHandlerInfo>();
+
+            _UserCommands[command].Add(new CommandHandlerInfo()
+            {
+                Handler = Handler,
+                Description = Description,
+            });
+
+            return true;
+        }
+
+        public void UnregisterUserCommand(string Command)
+        {
+            if (string.IsNullOrWhiteSpace(Command))
+                return;
+
+            if (!_UserCommands.ContainsKey(Command.ToLower()))
+                return;
+
+            _UserCommands.Remove(Command);
         }
 
         public void SendReadySkill(string Skill)
@@ -165,11 +224,18 @@ namespace Crossfire.Managers
         {
             SendUserCommand("knowledge search {0}", Text);
         }
+
+        private class CommandHandlerInfo
+        {
+            public UserCommandHandler Handler { get; set; }
+            public string Description { get; set; }
+        }
     }
 
     public class UserCommandEventArgs : System.ComponentModel.CancelEventArgs
     {
         public string Command { get; set; } = string.Empty;
+        public string Params { get; set; } = string.Empty;
         public uint Repeat { get; set; } = 0;
     }
 }
