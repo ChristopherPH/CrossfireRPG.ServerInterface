@@ -20,7 +20,10 @@ namespace Crossfire.Managers
         private object _WaitLock = new object();
         static Logger _Logger = new Logger(nameof(UserCommandManager));
         private Dictionary<string, List<CommandHandlerInfo>> _UserCommands = new Dictionary<string, List<CommandHandlerInfo>>();
-        public IEnumerable<string> UserCommands => _UserCommands.Keys.OrderBy(x => x).Distinct();
+        public IEnumerable<string> UserCommands => _UserCommands.Keys.OrderBy(x => x);
+        public IEnumerable<KeyValuePair<string, string>> UserCommandDescriptions => _UserCommands
+            .Select(x => new KeyValuePair<string, string>(x.Key, x.Value[0].Description))
+            .OrderBy(x => x.Key);
 
         public delegate void UserCommandHandler(string Command, string CommandParameters);
 
