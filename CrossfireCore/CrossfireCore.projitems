@@ -17,6 +17,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageEvents_Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageParser_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageParser_Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Messages\MessageEvents_Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Messages\MessageParser_Messages.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageEvents_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageParser_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parsers\Items\MessageEvents_Item.cs" />

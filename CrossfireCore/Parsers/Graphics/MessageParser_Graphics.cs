@@ -8,8 +8,6 @@ namespace CrossfireCore.ServerInterface
     {
         protected abstract void HandleAnimation(UInt16 AnimationNumber, UInt16 AnimationFlags,
             UInt16[] AnimationFaces);
-        protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Flags,
-            NewClient.MsgTypes MessageType, int SubType, string Message);
         protected abstract void HandleFace2(UInt16 face, byte faceset, UInt32 checksum, string filename);
         protected abstract void HandleImage2(UInt32 image_face, byte image_faceset, byte[] image_png);
         protected abstract void HandleMagicMap(int Width, int Height, int PlayerX, int PlayerY, byte[] MapData);
@@ -17,7 +15,6 @@ namespace CrossfireCore.ServerInterface
         private void AddGraphicsParsers()
         {
             AddCommandHandler("anim", new CommandParserDefinition(Parse_anim));
-            AddCommandHandler("drawextinfo", new CommandParserDefinition(Parse_drawextinfo));
             AddCommandHandler("face2", new CommandParserDefinition(Parse_face2));
             AddCommandHandler("image2", new CommandParserDefinition(Parse_image2));
             AddCommandHandler("magicmap", new CommandParserDefinition(Parse_magicmap));
@@ -34,18 +31,6 @@ namespace CrossfireCore.ServerInterface
                 anim_faces[anim_offset++] = BufferTokenizer.GetUInt16(Message, ref DataOffset);
 
             HandleAnimation(anim_num, anim_flags, anim_faces);
-
-            return true;
-        }
-
-        private bool Parse_drawextinfo(byte[] Message, ref int DataOffset, int DataEnd)
-        {
-            var flags = (NewClient.NewDrawInfo)BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
-            var message_type = (NewClient.MsgTypes)BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
-            var sub_type = BufferTokenizer.GetStringAsInt(Message, ref DataOffset, DataEnd);
-            var message = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
-
-            HandleDrawExtInfo(flags, message_type, sub_type, message);
 
             return true;
         }

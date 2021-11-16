@@ -8,7 +8,6 @@ namespace CrossfireCore.ServerInterface
     {
         protected abstract void HandleAddmeFailed();
         protected abstract void HandleAddmeSuccess();
-        protected abstract void HandleFailure(string ProtocolCommand, string FailureString);
         protected abstract void HandleGoodbye();
         protected abstract void HandleSetup(string SetupCommand, string SetupValue);
         protected abstract void HandleVersion(int csval, int scval, string verstring);
@@ -17,7 +16,6 @@ namespace CrossfireCore.ServerInterface
         {
             AddCommandHandler("addme_failed", new CommandParserDefinition(Parse_addme_failed));
             AddCommandHandler("addme_success", new CommandParserDefinition(Parse_addme_success));
-            AddCommandHandler("failure", new CommandParserDefinition(Parse_failure));
             AddCommandHandler("goodbye", new CommandParserDefinition(Parse_goodbye));
             AddCommandHandler("setup", new CommandParserDefinition(Parse_setup));
             AddCommandHandler("version", new CommandParserDefinition(Parse_version));
@@ -33,17 +31,6 @@ namespace CrossfireCore.ServerInterface
         private bool Parse_addme_success(byte[] Message, ref int DataOffset, int DataEnd)
         {
             HandleAddmeSuccess();
-
-            return true;
-        }
-
-        private bool Parse_failure(byte[] Message, ref int DataOffset, int DataEnd)
-        {
-            var protocol_command = BufferTokenizer.GetString(Message, ref DataOffset, DataEnd);
-            var failure_string = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
-
-            HandleFailure(protocol_command, failure_string);
-            _Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
 
             return true;
         }

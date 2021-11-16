@@ -8,7 +8,6 @@ namespace CrossfireCore.ServerInterface
     {
         public event EventHandler<EventArgs> AddmeFailed;
         public event EventHandler<EventArgs> AddmeSuccess;
-        public event EventHandler<FailureEventArgs> Failure;
         public event EventHandler<EventArgs> Goodbye;
         public event EventHandler<SetupEventArgs> Setup;
         public event EventHandler<VersionEventArgs> Version;
@@ -21,15 +20,6 @@ namespace CrossfireCore.ServerInterface
         protected override void HandleAddmeSuccess()
         {
             AddmeSuccess?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected override void HandleFailure(string ProtocolCommand, string FailureString)
-        {
-            Failure?.Invoke(this, new FailureEventArgs()
-            {
-                ProtocolCommand = ProtocolCommand,
-                FailureString = FailureString
-            });
         }
 
         protected override void HandleGoodbye()
@@ -54,12 +44,6 @@ namespace CrossfireCore.ServerInterface
                 ServerToClientProtocolVersion = scval,
                 ClientVersionString = verstring,
             });
-        }
-
-        public class FailureEventArgs : SingleCommandEventArgs
-        {
-            public string ProtocolCommand { get; set; }
-            public string FailureString { get; set; }
         }
 
         public class SetupEventArgs : MultiCommandEventArgs

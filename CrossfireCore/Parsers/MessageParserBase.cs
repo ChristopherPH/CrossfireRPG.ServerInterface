@@ -24,6 +24,7 @@ namespace CrossfireCore.ServerInterface
             AddGraphicsParsers();
             AddItemParsers();
             AddMapParsers();
+            AddMessageParsers();
             AddMiscParsers();
             AddPlayerParsers();
             AddProtocolParsers();

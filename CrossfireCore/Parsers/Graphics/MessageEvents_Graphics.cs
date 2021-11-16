@@ -7,7 +7,6 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageParser
     {
         public event EventHandler<AnimationEventArgs> Animation;
-        public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
         public event EventHandler<Face2EventArgs> Face2;
         public event EventHandler<Image2EventArgs> Image2;
         public event EventHandler<MagicMapEventArgs> MagicMap;
@@ -19,18 +18,6 @@ namespace CrossfireCore.ServerInterface
                 AnimationNumber = AnimationNumber,
                 AnimationFlags = AnimationFlags,
                 AnimationFaces = AnimationFaces,
-            });
-        }
-
-        protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Flags,
-            NewClient.MsgTypes MessageType, int SubType, string Message)
-        {
-            DrawExtInfo?.Invoke(this, new DrawExtInfoEventArgs()
-            {
-                Flags = Flags,
-                MessageType = MessageType,
-                SubType = SubType,
-                Message = Message
             });
         }
 
@@ -72,14 +59,6 @@ namespace CrossfireCore.ServerInterface
             public ushort AnimationNumber { get; set; }
             public ushort AnimationFlags { get; set; }
             public ushort[] AnimationFaces { get; set; }
-        }
-
-        public class DrawExtInfoEventArgs : SingleCommandEventArgs
-        {
-            public NewClient.NewDrawInfo Flags { get; set; }
-            public NewClient.MsgTypes MessageType { get; set; }
-            public int SubType { get; set; }
-            public string Message { get; set; }
         }
 
         public class Face2EventArgs : SingleCommandEventArgs
