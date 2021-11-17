@@ -6,33 +6,14 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageParser
     {
-        protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face);
         protected abstract void HandleAddQuest(UInt32 Code, string Title, Int32 Face, byte Replay, UInt32 Parent,
             byte End, string Step);
         protected abstract void HandleUpdateQuest(UInt32 Code, byte End, string Step);
 
         private void AddQuestParsers()
         {
-            AddCommandHandler("addknowledge", new CommandParserDefinition(Parse_addknowledge));
             AddCommandHandler("addquest", new CommandParserDefinition(Parse_addquest));
             AddCommandHandler("updquest", new CommandParserDefinition(Parse_updquest));
-        }
-
-        private bool Parse_addknowledge(byte[] Message, ref int DataOffset, int DataEnd)
-        {
-            while (DataOffset < DataEnd)
-            {
-                var knowledge_id = BufferTokenizer.GetUInt32(Message, ref DataOffset);
-                var knowledge_type_len = BufferTokenizer.GetUInt16(Message, ref DataOffset);
-                var knowledge_type = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, knowledge_type_len);
-                var knowledge_title_len = BufferTokenizer.GetUInt16(Message, ref DataOffset);
-                var knowledge_title = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, knowledge_title_len);
-                var knowledge_face = BufferTokenizer.GetInt32(Message, ref DataOffset);
-
-                HandleAddKnowledge(knowledge_id, knowledge_type, knowledge_title, knowledge_face);
-            }
-
-            return true;
         }
 
         private bool Parse_addquest(byte[] Message, ref int DataOffset, int DataEnd)

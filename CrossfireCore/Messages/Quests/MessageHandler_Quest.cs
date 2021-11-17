@@ -6,20 +6,8 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageHandler
     {
-        public event EventHandler<AddKnowledgeEventArgs> AddKnowledge;
         public event EventHandler<AddQuestEventArgs> AddQuest;
         public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
-
-        protected override void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face)
-        {
-            AddKnowledge?.Invoke(this, new AddKnowledgeEventArgs()
-            {
-                ID = ID,
-                Type = Type,
-                Title = Title,
-                Face = Face
-            });
-        }
 
         protected override void HandleAddQuest(UInt32 Code, string Title, int Face,
             byte Replay, uint Parent, byte End, string Step)
@@ -44,14 +32,6 @@ namespace CrossfireCore.ServerInterface
                 End = End,
                 Step = Step,
             });
-        }
-
-        public class AddKnowledgeEventArgs : MultiCommandEventArgs
-        {
-            public UInt32 ID { get; set; }
-            public string Type { get; set; }
-            public string Title { get; set; }
-            public Int32 Face { get; set; }
         }
 
         public class AddQuestEventArgs : MultiCommandEventArgs
