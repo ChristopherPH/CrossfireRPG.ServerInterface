@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParser : MessageParserBase
+    public partial class MessageHandler : MessageParserBase
     {
         public event EventHandler<ParseBufferEventArgs> BeginParseBuffer;
         public event EventHandler<ParseBufferEventArgs> EndParseBuffer;
 
-        public MessageParser(SocketConnection Connection)
+        public MessageHandler(SocketConnection Connection)
             : base(Connection) { }
 
         protected override void ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer,

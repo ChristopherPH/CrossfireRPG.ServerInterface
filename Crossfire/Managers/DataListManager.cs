@@ -11,11 +11,11 @@ namespace Crossfire.Managers
 {
     public abstract class DataListManager<T> : DataManager<T>, IEnumerable<T>
     {
-        public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.BeginParseBuffer += Parser_BeginParseBuffer;
-            Parser.EndParseBuffer += Parser_EndParseBuffer;
+            Handler.BeginParseBuffer += Handler_BeginParseBuffer;
+            Handler.EndParseBuffer += Handler_EndParseBuffer;
         }
 
         public override ModificationTypes SupportedModificationTypes => 
@@ -292,12 +292,12 @@ namespace Crossfire.Managers
          * Alternatively, we could update the server to send the commands as
          * multicommands but this should work.
          */
-        private void Parser_BeginParseBuffer(object sender, MessageParser.ParseBufferEventArgs e)
+        private void Handler_BeginParseBuffer(object sender, MessageHandler.ParseBufferEventArgs e)
         {
             StartGroupUpdate();
         }
 
-        private void Parser_EndParseBuffer(object sender, MessageParser.ParseBufferEventArgs e)
+        private void Handler_EndParseBuffer(object sender, MessageHandler.ParseBufferEventArgs e)
         {
             EndGroupUpdate();
         }

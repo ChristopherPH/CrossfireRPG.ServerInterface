@@ -10,15 +10,15 @@ namespace Crossfire.Managers
 {
     public abstract class Manager
     {
-        public Manager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
+        public Manager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
         {
             this.Connection = Connection;
             this.Builder = Builder;
-            this.Parser = Parser;
+            this.Handler = Handler;
         }
 
         protected SocketConnection Connection { get; private set; }
         protected MessageBuilder Builder { get; private set; }
-        protected MessageParser Parser { get; private set; }
+        protected MessageHandler Handler { get; private set; }
     }
 }

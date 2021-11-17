@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParser
+    public partial class MessageHandler
     {
         public event EventHandler<Item2EventArgs> Item2;
         public event EventHandler<EventArgs> BeginItem2;

@@ -9,14 +9,14 @@ namespace Crossfire.Managers
 {
     public abstract class DataManager<T> : Manager
     {
-        public DataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public DataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
             if (ClearDataOnConnectionDisconnect)
                 Connection.OnStatusChanged += Connection_OnStatusChanged;
 
             if (ClearDataOnNewPlayer)
-                Parser.Player += Parser_Player;
+                Handler.Player += Handler_Player;
         }
 
         protected abstract bool ClearDataOnConnectionDisconnect { get; }
@@ -31,7 +31,7 @@ namespace Crossfire.Managers
                 ClearData();
         }
 
-        private void Parser_Player(object sender, MessageParser.PlayerEventArgs e)
+        private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
             if (e.tag == 0)
                 ClearData();

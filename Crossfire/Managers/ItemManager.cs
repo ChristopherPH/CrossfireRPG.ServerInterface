@@ -12,20 +12,20 @@ namespace Crossfire.Managers
 {
     public class ItemManager : DataListManager<Item>
     {
-        public ItemManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public ItemManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.Item2 += _Parser_Item2;
-            Parser.UpdateItem += _Parser_UpdateItem;
-            Parser.DeleteItem += _Parser_DeleteItem;
-            Parser.DeleteInventory += _Parser_DeleteInventory;
-            Parser.Player += _Parser_Player;
-            Parser.BeginItem2 += _Parser_BeginItem2;
-            Parser.EndItem2 += _Parser_EndItem2;
-            Parser.BeginDeleteItem += _Parser_BeginDeleteItem;
-            Parser.EndDeleteItem += _Parser_EndDeleteItem;
-            Parser.BeginUpdateItem += _Parser_BeginUpdateItem;
-            Parser.EndUpdateItem += _Parser_EndUpdateItem;
+            Handler.Item2 += _Handler_Item2;
+            Handler.UpdateItem += _Handler_UpdateItem;
+            Handler.DeleteItem += _Handler_DeleteItem;
+            Handler.DeleteInventory += _Handler_DeleteInventory;
+            Handler.Player += _Handler_Player;
+            Handler.BeginItem2 += _Handler_BeginItem2;
+            Handler.EndItem2 += _Handler_EndItem2;
+            Handler.BeginDeleteItem += _Handler_BeginDeleteItem;
+            Handler.EndDeleteItem += _Handler_EndDeleteItem;
+            Handler.BeginUpdateItem += _Handler_BeginUpdateItem;
+            Handler.EndUpdateItem += _Handler_EndUpdateItem;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -78,7 +78,7 @@ namespace Crossfire.Managers
             base.ClearData();
         }
 
-        private void _Parser_Item2(object sender, MessageParser.Item2EventArgs e)
+        private void _Handler_Item2(object sender, MessageHandler.Item2EventArgs e)
         {
             var item = new Item()
             {
@@ -163,7 +163,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_DeleteItem(object sender, MessageParser.DeleteItemEventArgs e)
+        private void _Handler_DeleteItem(object sender, MessageHandler.DeleteItemEventArgs e)
         {
             var ix = this.GetIndex(x => x.Tag == e.ObjectTag, out var item);
             if (ix == -1)
@@ -184,7 +184,7 @@ namespace Crossfire.Managers
             this.RemoveData(ix);
         }
 
-        private void _Parser_DeleteInventory(object sender, MessageParser.DeleteInventoryEventArgs e)
+        private void _Handler_DeleteInventory(object sender, MessageHandler.DeleteInventoryEventArgs e)
         {
             var location = string.Empty;
 
@@ -232,7 +232,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_UpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
+        private void _Handler_UpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
         {
            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -355,7 +355,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_Player(object sender, MessageParser.PlayerEventArgs e)
+        private void _Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
             _PlayerTag = e.tag;
 
@@ -379,21 +379,21 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_BeginItem2(object sender, EventArgs e)
+        private void _Handler_BeginItem2(object sender, EventArgs e)
         {
             _Logger.Debug("Begin add items");
 
             StartMultiCommand();
         }
 
-        private void _Parser_EndItem2(object sender, EventArgs e)
+        private void _Handler_EndItem2(object sender, EventArgs e)
         {
             _Logger.Debug("End add items");
 
             EndMultiCommand();
         }
 
-        private void _Parser_BeginUpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
+        private void _Handler_BeginUpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
         {
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -404,7 +404,7 @@ namespace Crossfire.Managers
         }
 
 
-        private void _Parser_EndUpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
+        private void _Handler_EndUpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
         {
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -415,14 +415,14 @@ namespace Crossfire.Managers
         }
 
 
-        private void _Parser_BeginDeleteItem(object sender, EventArgs e)
+        private void _Handler_BeginDeleteItem(object sender, EventArgs e)
         {
             _Logger.Debug("Begin delete items");
 
             StartMultiCommand();
         }
 
-        private void _Parser_EndDeleteItem(object sender, EventArgs e)
+        private void _Handler_EndDeleteItem(object sender, EventArgs e)
         {
             _Logger.Debug("End delete items");
 

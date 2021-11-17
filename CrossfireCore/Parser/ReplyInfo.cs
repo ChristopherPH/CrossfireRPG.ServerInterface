@@ -11,16 +11,16 @@ namespace CrossfireCore.Parser
     {
         static Logger _Logger = new Logger(nameof(ReplyInfo));
 
-        public ReplyInfo(MessageBuilder Builder, MessageParser Parser)
+        public ReplyInfo(MessageBuilder Builder, MessageHandler Handler)
         {
             _Builder = Builder;
-            _Parser = Parser;
+            _Handler = Handler;
 
-            _Parser.ReplyInfo += _Parser_ReplyInfo;
+            _Handler.ReplyInfo += _Handler_ReplyInfo;
         }
 
         private MessageBuilder _Builder;
-        private MessageParser _Parser;
+        private MessageHandler _Handler;
 
         public event EventHandler<InfoAvailableEventArgs> InfoAvailable;
 
@@ -254,7 +254,7 @@ namespace CrossfireCore.Parser
             ImageSums.Clear();
         }
 
-        private void _Parser_ReplyInfo(object sender, MessageParser.ReplyInfoEventArgs e)
+        private void _Handler_ReplyInfo(object sender, MessageHandler.ReplyInfoEventArgs e)
         {
             int offset = 0;
             var end = e.Reply.Length;

@@ -10,10 +10,10 @@ namespace Crossfire.Managers
 {
     public class KnowledgeDataManager : DataListManager<Knowledge>
     {
-        public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.AddKnowledge += Parser_AddKnowledge;
+            Handler.AddKnowledge += Handler_AddKnowledge;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -21,7 +21,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes =>
             base.SupportedModificationTypes | ModificationTypes.Added;
 
-        private void Parser_AddKnowledge(object sender, MessageParser.AddKnowledgeEventArgs e)
+        private void Handler_AddKnowledge(object sender, MessageHandler.AddKnowledgeEventArgs e)
         {
             AddData(new Knowledge()
             {

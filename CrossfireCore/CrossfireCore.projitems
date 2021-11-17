@@ -40,7 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferAssembler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferTokenizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parser\MessageParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\MessageHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parser\MessageParserBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Parser\MultiCommandEventArgs.cs" />

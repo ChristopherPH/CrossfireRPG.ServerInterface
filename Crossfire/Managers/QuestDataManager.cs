@@ -10,11 +10,11 @@ namespace Crossfire.Managers
 {
     public class QuestDataManager : DataListManager<Quest>
     {
-        public QuestDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public QuestDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.AddQuest += Parser_AddQuest;
-            Parser.UpdateQuest += Parser_UpdateQuest;
+            Handler.AddQuest += Handler_AddQuest;
+            Handler.UpdateQuest += Handler_UpdateQuest;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -22,7 +22,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes =>
             base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated;
 
-        private void Parser_AddQuest(object sender, MessageParser.AddQuestEventArgs e)
+        private void Handler_AddQuest(object sender, MessageHandler.AddQuestEventArgs e)
         {
             AddData(new Quest()
             {
@@ -36,7 +36,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_UpdateQuest(object sender, MessageParser.UpdateQuestEventArgs e)
+        private void Handler_UpdateQuest(object sender, MessageHandler.UpdateQuestEventArgs e)
         {
             UpdateData(x => x.QuestID == e.Code, (data) =>
             {

@@ -11,13 +11,13 @@ namespace Crossfire.Managers
 {
     public class MessageManager : Manager
     {
-        public MessageManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public MessageManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
             Connection.OnError += Connection_OnError;
             Connection.OnStatusChanged += Connection_OnStatusChanged;
-            Parser.Failure += Parser_Failure;
-            Parser.DrawExtInfo += Parser_DrawExtInfo;
+            Handler.Failure += Handler_Failure;
+            Handler.DrawExtInfo += Handler_DrawExtInfo;
         }
 
         public event EventHandler<MessageInfo> Message;
@@ -43,14 +43,14 @@ namespace Crossfire.Managers
             AddClientMessage(s, NewClient.MsgSubTypeClient.Debug);
         }
 
-        private void Parser_Failure(object sender, MessageParser.FailureEventArgs e)
+        private void Handler_Failure(object sender, MessageHandler.FailureEventArgs e)
         {
             var s = string.Format("Failure: {0} {1}", e.ProtocolCommand, e.FailureString);
 
             AddClientMessage(s, NewClient.MsgSubTypeClient.Error);
         }
 
-        private void Parser_DrawExtInfo(object sender, MessageParser.DrawExtInfoEventArgs e)
+        private void Handler_DrawExtInfo(object sender, MessageHandler.DrawExtInfoEventArgs e)
         {
             //Split flags from colour to make handling easier
             var colour = (NewClient.NewDrawInfo)((int)e.Flags & NewClient.NewDrawInfoColorMask);

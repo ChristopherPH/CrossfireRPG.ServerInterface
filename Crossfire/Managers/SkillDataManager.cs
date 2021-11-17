@@ -10,10 +10,10 @@ namespace Crossfire.Managers
 {
     public class SkillDataManager : DataListManager<Skill>
     {
-        public SkillDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public SkillDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.Skills += Parser_Skills;
+            Handler.Skills += Handler_Skills;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -21,7 +21,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
             ModificationTypes.Added | ModificationTypes.Updated;
 
-        private void Parser_Skills(object sender, MessageParser.SkillEventArgs e)
+        private void Handler_Skills(object sender, MessageHandler.SkillEventArgs e)
         {
             if (!Contains(x => x.SkillID == e.Skill))
             {

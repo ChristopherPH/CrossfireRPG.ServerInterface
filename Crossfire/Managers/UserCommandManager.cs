@@ -11,10 +11,10 @@ namespace Crossfire.Managers
 {
     public class UserCommandManager : Manager
     {
-        public UserCommandManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public UserCommandManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.CompletedCommand += Parser_CompletedCommand;
+            Handler.CompletedCommand += Handler_CompletedCommand;
         }
 
         private List<UInt16> _WaitingIDs = new List<UInt16>();
@@ -30,7 +30,7 @@ namespace Crossfire.Managers
 
         public event EventHandler<UserCommandEventArgs> OnUserCommand;
 
-        private void Parser_CompletedCommand(object sender, MessageParser.CompletedCommandEventArgs e)
+        private void Handler_CompletedCommand(object sender, MessageHandler.CompletedCommandEventArgs e)
         {
             var commandID = e.Packet;
 

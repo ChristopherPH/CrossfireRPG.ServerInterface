@@ -13,11 +13,11 @@ namespace Crossfire.Managers
 {
     public class FaceManager : Manager
     {
-        public FaceManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public FaceManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
             Connection.OnStatusChanged += _Connection_OnStatusChanged;
-            Parser.Image2 += _Parser_Image2;
+            Handler.Image2 += _Handler_Image2;
         }
 
         static Logger _Logger = new Logger(nameof(FaceManager));
@@ -136,7 +136,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void _Parser_Image2(object sender, MessageParser.Image2EventArgs e)
+        private void _Handler_Image2(object sender, MessageHandler.Image2EventArgs e)
         {
             _Logger.Info("Received Face {0}:{1}", e.ImageFace, e.ImageFaceSet);
 

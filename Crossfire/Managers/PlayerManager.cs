@@ -12,14 +12,14 @@ namespace Crossfire.Managers
 {
     public class PlayerManager : DataManager<Player>
     {
-        public PlayerManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public PlayerManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.Player += Parser_Player;
-            Parser.UpdateItem += Parser_UpdateItem;
-            Parser.Stats += Parser_Stats;
-            Parser.BeginStats += Parser_BeginStats;
-            Parser.EndStats += Parser_EndStats;
+            Handler.Player += Handler_Player;
+            Handler.UpdateItem += Handler_UpdateItem;
+            Handler.Stats += Handler_Stats;
+            Handler.BeginStats += Handler_BeginStats;
+            Handler.EndStats += Handler_EndStats;
         }
 
         static Logger _Logger = new Logger(nameof(PlayerManager));
@@ -36,7 +36,7 @@ namespace Crossfire.Managers
             OnDataChanged(ModificationTypes.Updated, Player, null);
         }
 
-        private void Parser_Player(object sender, MessageParser.PlayerEventArgs e)
+        private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
             _Logger.Info("New Player: Tag={0} Name='{1}' Face={2} Weight={3}", e.tag, e.PlayerName, e.face, e.weight);
 
@@ -68,7 +68,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void Parser_UpdateItem(object sender, MessageParser.UpdateItemEventArgs e)
+        private void Handler_UpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
         {
             //UpdateItem will be called with the PlayerTag as the ObjectTag to update certain properties
             if (!Player.ValidPlayer || (e.ObjectTag != Player.PlayerTag))
@@ -107,7 +107,7 @@ namespace Crossfire.Managers
             }
         }
 
-        private void Parser_Stats(object sender, MessageParser.StatEventArgs e)
+        private void Handler_Stats(object sender, MessageHandler.StatEventArgs e)
         {
             //Technically the 'Player' command creates a new player or clears an existing player.
             //However, the server maintains the player properties and stats for the life of the connection,
@@ -252,12 +252,12 @@ namespace Crossfire.Managers
             }
         }
 
-        private void Parser_BeginStats(object sender, EventArgs e)
+        private void Handler_BeginStats(object sender, EventArgs e)
         {
             StartMultiCommand();
         }
 
-        private void Parser_EndStats(object sender, EventArgs e)
+        private void Handler_EndStats(object sender, EventArgs e)
         {
             EndMultiCommand();
         }

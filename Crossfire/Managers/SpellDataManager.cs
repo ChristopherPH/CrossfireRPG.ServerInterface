@@ -10,12 +10,12 @@ namespace Crossfire.Managers
 {
     public class SpellDataManager : DataListManager<Spell>
     {
-        public SpellDataManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public SpellDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            Parser.AddSpell += Parser_AddSpell;
-            Parser.UpdateSpell += Parser_UpdateSpell;
-            Parser.DeleteSpell += Parser_DeleteSpell;
+            Handler.AddSpell += Handler_AddSpell;
+            Handler.UpdateSpell += Handler_UpdateSpell;
+            Handler.DeleteSpell += Handler_DeleteSpell;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -23,7 +23,7 @@ namespace Crossfire.Managers
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
             ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed;
 
-        private void Parser_AddSpell(object sender, MessageParser.AddSpellEventArgs e)
+        private void Handler_AddSpell(object sender, MessageHandler.AddSpellEventArgs e)
         {
             AddData(new Spell()
             {
@@ -43,7 +43,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_UpdateSpell(object sender, MessageParser.UpdateSpellEventArgs e)
+        private void Handler_UpdateSpell(object sender, MessageHandler.UpdateSpellEventArgs e)
         {
             UpdateData(x => x.SpellTag == e.SpellTag, (data) =>
             {
@@ -67,7 +67,7 @@ namespace Crossfire.Managers
             });
         }
 
-        private void Parser_DeleteSpell(object sender, MessageParser.DeleteSpellEventArgs e)
+        private void Handler_DeleteSpell(object sender, MessageHandler.DeleteSpellEventArgs e)
         {
             RemoveData(x => x.SpellTag == e.SpellTag);
         }

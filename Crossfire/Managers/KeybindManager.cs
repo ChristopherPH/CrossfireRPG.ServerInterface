@@ -13,15 +13,15 @@ namespace Crossfire.Keybinding
 {
     public class KeybindManager : Managers.Manager
     {
-        public KeybindManager(SocketConnection Connection, MessageBuilder Builder, MessageParser Parser)
-            : base(Connection, Builder, Parser)
+        public KeybindManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
             foreach (KeybindLocations location in Enum.GetValues(typeof(KeybindLocations)))
             {
                 BindingStore[location] = new Bindings();
             }
 
-            Parser.Player += Parser_Player;
+            Handler.Player += Handler_Player;
 
             LoadBindings(KeybindLocations.Global, true);
         }
@@ -69,7 +69,7 @@ namespace Crossfire.Keybinding
             return null;
         }
 
-        private void Parser_Player(object sender, MessageParser.PlayerEventArgs e)
+        private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
             if (e.tag == 0)
             {
