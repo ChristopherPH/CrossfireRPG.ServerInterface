@@ -7,7 +7,6 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageHandler
     {
         public event EventHandler<PickupEventArgs> Pickup;
-        public event EventHandler<ReplyInfoEventArgs> ReplyInfo;
         public event EventHandler<TickEventArgs> Tick;
 
         protected override void HandlePickup(UInt32 PickupFlags)
@@ -15,15 +14,6 @@ namespace CrossfireCore.ServerInterface
             Pickup?.Invoke(this, new PickupEventArgs()
             {
                 Flags = PickupFlags,
-            });
-        }
-
-        protected override void HandleReplyInfo(string request, byte[] reply)
-        {
-            ReplyInfo?.Invoke(this, new ReplyInfoEventArgs()
-            {
-                Request = request,
-                Reply = reply
             });
         }
 
@@ -38,12 +28,6 @@ namespace CrossfireCore.ServerInterface
         public class PickupEventArgs : SingleCommandEventArgs
         {
             public UInt32 Flags { get; set; }
-        }
-
-        public class ReplyInfoEventArgs : SingleCommandEventArgs
-        {
-            public string Request { get; set; }
-            public byte[] Reply { get; set; }
         }
 
         public class TickEventArgs : SingleCommandEventArgs

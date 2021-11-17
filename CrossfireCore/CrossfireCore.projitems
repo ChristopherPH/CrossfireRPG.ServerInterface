@@ -29,6 +29,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageHandler_Knowledge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageParser_Knowledge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Quests\QuestDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageBuilder_Info.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageHandler_Info.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageParser_Info.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\SpellDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\CommandParserDefinition.cs" />
@@ -65,7 +68,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MultiCommandEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\ReplyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\ReplyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SingleCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
   </ItemGroup>

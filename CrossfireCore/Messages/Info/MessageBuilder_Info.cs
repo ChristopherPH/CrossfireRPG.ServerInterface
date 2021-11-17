@@ -9,10 +9,12 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendHeartbeat()
+        public void SendRequestInfo(string Request)
         {
-            using (var ba = new BufferAssembler("beat", false))
+            using (var ba = new BufferAssembler("requestinfo"))
             {
+                ba.AddString(Request);
+
                 SendMessage(ba);
             }
         }
