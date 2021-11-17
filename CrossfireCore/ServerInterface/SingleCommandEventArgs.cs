@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CrossfireCore.Parser
+namespace CrossfireCore.ServerInterface
 {
     public class SingleCommandEventArgs : EventArgs
     {

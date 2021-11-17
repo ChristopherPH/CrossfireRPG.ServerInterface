@@ -1,5 +1,4 @@
-﻿using CrossfireCore.Parser;
-using CrossfireCore.ServerInterface;
+﻿using CrossfireCore.ServerInterface;
 using System;
 using System.Collections;
 using System.Collections.Generic;

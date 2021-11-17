@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrossfireCore.Parser
+namespace CrossfireCore.ServerInterface
 {
     public partial class MessageHandler : MessageParser
     {

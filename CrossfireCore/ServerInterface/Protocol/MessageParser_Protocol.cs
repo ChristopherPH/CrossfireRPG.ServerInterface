@@ -1,9 +1,8 @@
-﻿using CrossfireCore.ServerInterface;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CrossfireCore.Parser
+namespace CrossfireCore.ServerInterface
 {
     public partial class MessageParser
     {
