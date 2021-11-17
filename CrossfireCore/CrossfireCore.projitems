@@ -13,30 +13,30 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Account\MessageHandler_Account.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Audio\MessageHandler_Audio.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Account\MessageParser_Account.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Audio\MessageParser_Audio.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Messages\MessageHandler_Messages.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Messages\MessageParser_Messages.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Misc\MessageHandler_Misc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Misc\MessageParser_Misc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Items\MessageHandler_Item.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Items\MessageParser_Item.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Map\MessageHandler_Map.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Map\MessageParser_Map.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Player\MessageHandler_Player.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Player\MessageParser_Player.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Graphics\MessageHandler_Graphics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Graphics\MessageParser_Graphics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Protocol\MessageHandler_Protocol.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Protocol\MessageParser_Protocol.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Commands\MessageHandler_Command.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Commands\MessageParser_Command.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Quests\MessageHandler_Quest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Quests\MessageParser_Quest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Spells\MessageHandler_Spell.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\Spells\MessageParser_Spell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageHandler_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Audio\MessageHandler_Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageParser_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Audio\MessageParser_Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageHandler_Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageParser_Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Misc\MessageHandler_Misc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Misc\MessageParser_Misc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\MessageHandler_Item.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\MessageParser_Item.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MessageHandler_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MessageParser_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\MessageHandler_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\MessageParser_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Graphics\MessageHandler_Graphics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Graphics\MessageParser_Graphics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageHandler_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageParser_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Commands\MessageHandler_Command.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Commands\MessageParser_Command.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Quests\MessageHandler_Quest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Quests\MessageParser_Quest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageHandler_Spell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageParser_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferAssembler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferTokenizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageBuilder.cs" />
@@ -47,5 +47,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\ReplyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SingleCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Messages\" />
   </ItemGroup>
 </Project>
