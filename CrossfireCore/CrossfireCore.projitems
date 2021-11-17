@@ -10,45 +10,45 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ClientTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\CommandParserDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageEvents_Account.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageEvents_Audio.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Account\MessageParser_Account.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Audio\MessageParser_Audio.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Messages\MessageEvents_Messages.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Messages\MessageParser_Messages.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageEvents_Misc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Misc\MessageParser_Misc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Items\MessageEvents_Item.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Items\MessageParser_Item.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Map\MessageEvents_Map.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Map\MessageParser_Map.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Player\MessageEvents_Player.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Player\MessageParser_Player.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Graphics\MessageEvents_Graphics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Graphics\MessageParser_Graphics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Protocol\MessageEvents_Protocol.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Protocol\MessageParser_Protocol.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Commands\MessageEvents_Command.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Commands\MessageParser_Command.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Quests\MessageEvents_Quest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Quests\MessageParser_Quest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Spells\MessageEvents_Spell.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\Spells\MessageParser_Spell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Account\MessageEvents_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Audio\MessageEvents_Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Account\MessageParser_Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Audio\MessageParser_Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Messages\MessageEvents_Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Messages\MessageParser_Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Misc\MessageEvents_Misc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Misc\MessageParser_Misc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Items\MessageEvents_Item.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Items\MessageParser_Item.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Map\MessageEvents_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Map\MessageParser_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Player\MessageEvents_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Player\MessageParser_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Graphics\MessageEvents_Graphics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Graphics\MessageParser_Graphics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Protocol\MessageEvents_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Protocol\MessageParser_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Commands\MessageEvents_Command.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Commands\MessageParser_Command.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Quests\MessageEvents_Quest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Quests\MessageParser_Quest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Spells\MessageEvents_Spell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\Spells\MessageParser_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferAssembler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\BufferTokenizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\MessageBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\MessageParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\MessageParserBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\MessageParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\MessageParserBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\MultiCommandEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\ReplyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Parsers\SingleCommandEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\MultiCommandEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\ReplyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parser\SingleCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\SocketConnection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Parsers\Audio\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Parser\" />
   </ItemGroup>
 </Project>
