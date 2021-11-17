@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.Utility;
+using CrossfireCore.Managers;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Crossfire.Keybinding
 {
-    public class KeybindManager : Managers.Manager
+    public class KeybindManager : Manager
     {
         public KeybindManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

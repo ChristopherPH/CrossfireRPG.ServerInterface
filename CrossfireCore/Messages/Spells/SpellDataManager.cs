@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public class SpellDataManager : DataListManager<Spell>
     {
@@ -48,15 +48,15 @@ namespace Crossfire.Managers
             {
                 switch (e.UpdateType)
                 {
-                    case CrossfireCore.NewClient.UpdateSpellTypes.Mana:
+                    case NewClient.UpdateSpellTypes.Mana:
                         data.Mana = (short)e.UpdateValue;
                         return new string[] { nameof(Spell.Mana) };
 
-                    case CrossfireCore.NewClient.UpdateSpellTypes.Grace:
+                    case NewClient.UpdateSpellTypes.Grace:
                         data.Grace = (short)e.UpdateValue;
                         return new string[] { nameof(Spell.Grace) };
 
-                    case CrossfireCore.NewClient.UpdateSpellTypes.Damage:
+                    case NewClient.UpdateSpellTypes.Damage:
                         data.Damage = (short)e.UpdateValue;
                         return new string[] { nameof(Spell.Damage) };
 

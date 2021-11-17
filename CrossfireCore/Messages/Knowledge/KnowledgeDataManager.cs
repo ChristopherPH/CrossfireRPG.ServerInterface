@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
-    public class KnowledgeDataManager : DataListManager<Knowledge>
+    public class KnowledgeDataManager : DataListManager<KnowledgeData>
     {
         public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -22,7 +22,7 @@ namespace Crossfire.Managers
 
         private void Handler_AddKnowledge(object sender, MessageHandler.AddKnowledgeEventArgs e)
         {
-            AddData(new Knowledge()
+            AddData(new KnowledgeData()
             {
                 KnowledgeID = e.ID,
                 Type = e.Type,
@@ -32,7 +32,7 @@ namespace Crossfire.Managers
         }
     }
 
-    public class Knowledge
+    public class KnowledgeData
     {
         public UInt32 KnowledgeID { get; set; }
         public string Type { get; set; }

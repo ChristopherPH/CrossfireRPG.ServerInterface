@@ -1,5 +1,4 @@
 ﻿using Common;
-using CrossfireCore;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public class PlayerManager : DataManager<Player>
     {

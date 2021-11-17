@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public abstract class DataListManager<T> : DataManager<T>, IEnumerable<T>
     {

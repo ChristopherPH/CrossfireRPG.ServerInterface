@@ -1,13 +1,12 @@
 ﻿using Common;
 using Common.Utility;
-using CrossfireCore;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public class ItemManager : DataListManager<Item>
     {

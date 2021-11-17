@@ -10,17 +10,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ClientTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataListManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageBuilder_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Commands\MessageBuilder_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Graphics\MessageBuilder_Graphics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\ItemManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\MessageBuilder_Items.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\KnowledgeDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MessageBuilder_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Misc\MessageBuilder_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\MessageBuilder_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\PlayerManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\SkillDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageBuilder_Protocol.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageHandler_Knowledge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageParser_Knowledge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Quests\QuestDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\SpellDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />

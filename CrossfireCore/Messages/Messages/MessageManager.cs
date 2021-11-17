@@ -1,12 +1,11 @@
 ﻿using Common.Utility;
-using CrossfireCore;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public class MessageManager : Manager
     {
