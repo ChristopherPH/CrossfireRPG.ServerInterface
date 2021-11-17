@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageHandler : MessageParserBase
+    public partial class MessageHandler : MessageParser
     {
         public event EventHandler<ParseBufferEventArgs> BeginParseBuffer;
         public event EventHandler<ParseBufferEventArgs> EndParseBuffer;

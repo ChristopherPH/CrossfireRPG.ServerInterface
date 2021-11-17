@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace CrossfireCore.Parser
 {
-    public abstract partial class MessageParserBase
+    public abstract partial class MessageParser
     {
-        static Logger _Logger = new Logger(nameof(MessageParserBase));
+        static Logger _Logger = new Logger(nameof(MessageParser));
 
         public const int ServerProtocolVersion = 1039;
 
-        public MessageParserBase(SocketConnection Connection)
+        public MessageParser(SocketConnection Connection)
         {
             _Connection = Connection;
             _Connection.OnPacket += Connection_OnPacket;

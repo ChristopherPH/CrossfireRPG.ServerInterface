@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandlePlayer(UInt32 tag, UInt32 weight, UInt32 face, string Name);
         protected abstract void HandleSkill(int Skill, byte Level, UInt64 Value);

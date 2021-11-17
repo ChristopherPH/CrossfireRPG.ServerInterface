@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime, Int16 Mana, Int16 Grace,
             Int16 Damage, byte Skill, UInt32 Path, Int32 Face, string Name, string Description, byte Usage,

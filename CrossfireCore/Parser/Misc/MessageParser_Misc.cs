@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandlePickup(UInt32 PickupFlags);
         protected abstract void HandleReplyInfo(string request, byte[] reply);

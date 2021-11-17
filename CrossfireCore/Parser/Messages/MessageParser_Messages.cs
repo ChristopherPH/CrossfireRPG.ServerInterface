@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandleDrawExtInfo(NewClient.NewDrawInfo Flags,
             NewClient.MsgTypes MessageType, int SubType, string Message);

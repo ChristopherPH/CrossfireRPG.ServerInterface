@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandleCompletedCommand(UInt16 comc_packet, UInt32 comc_time);
         protected abstract void HandleQuery(int Flags, string QueryText);

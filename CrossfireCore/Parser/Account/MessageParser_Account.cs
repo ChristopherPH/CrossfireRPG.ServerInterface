@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandleAccountPlayer(int PlayerCount, int PlayerNumber,
             UInt16 Level, UInt16 FaceNumber, string Name, string Class, string Race,

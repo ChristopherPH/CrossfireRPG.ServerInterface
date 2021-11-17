@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CrossfireCore.Parser
 {
-    public partial class MessageParserBase
+    public partial class MessageParser
     {
         protected abstract void HandleMusic(string Song);
         protected abstract void HandleSound2(byte RelativeX, byte RelativeY, byte Direction, 
