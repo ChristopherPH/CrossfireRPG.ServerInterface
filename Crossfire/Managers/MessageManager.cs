@@ -1,5 +1,6 @@
 ﻿using Common.Utility;
 using CrossfireCore;
+using CrossfireCore.Parser;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Linq;

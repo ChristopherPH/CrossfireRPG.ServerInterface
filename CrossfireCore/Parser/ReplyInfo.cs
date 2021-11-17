@@ -1,10 +1,11 @@
-﻿using Common;
+﻿using CrossfireCore.ServerInterface;
+using Common;
 using Common.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireCore.Parser
 {
     public class ReplyInfo
     {

@@ -1,6 +1,7 @@
 ﻿using Common;
 using Common.Utility;
 using CrossfireCore;
+using CrossfireCore.Parser;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
@@ -30,8 +31,8 @@ namespace Crossfire.Managers
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
         public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes |
-            ModificationTypes.Added | ModificationTypes.Updated | DataManager<Item>.ModificationTypes.Removed |
-            DataManager<Item>.ModificationTypes.MultiCommandStart | DataManager<Item>.ModificationTypes.MultiCommandEnd;
+            ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed |
+            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
 
         private UInt32 _PlayerTag = 0;
         static Logger _Logger = new Logger(nameof(ItemManager));
