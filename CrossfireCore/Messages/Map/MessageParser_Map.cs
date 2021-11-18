@@ -72,8 +72,8 @@ namespace CrossfireCore.ServerInterface
                 }
 
 #if THIS_IS_IN_THE_GTK_CLIENT
-                        //clear/init space
-                        HandleMap2ClearOld(map_coord_x, map_coord_y);
+                //clear/init space
+                HandleMap2ClearOld(map_coord_x, map_coord_y);
 #endif
 
                 while (DataOffset < DataEnd)
