@@ -34,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageParser_Info.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\SpellDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NewServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInterface\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetaServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NewClient_MessageTypes.cs" />
