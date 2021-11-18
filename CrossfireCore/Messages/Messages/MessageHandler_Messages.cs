@@ -6,8 +6,19 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageHandler
     {
+        public event EventHandler<DrawInfoEventArgs> DrawInfo;
         public event EventHandler<DrawExtInfoEventArgs> DrawExtInfo;
         public event EventHandler<FailureEventArgs> Failure;
+
+        protected override void HandleDrawInfo(NewClient.NewDrawInfo Color,
+            string Message)
+        {
+            DrawInfo?.Invoke(this, new DrawInfoEventArgs()
+            {
+                Color = Color,
+                Message = Message
+            });
+        }
 
         protected override void HandleDrawExtInfo(NewClient.NewDrawInfo Flags,
             NewClient.MsgTypes MessageType, int SubType, string Message)
@@ -28,6 +39,12 @@ namespace CrossfireCore.ServerInterface
                 ProtocolCommand = ProtocolCommand,
                 FailureString = FailureString
             });
+        }
+
+        public class DrawInfoEventArgs : SingleCommandEventArgs
+        {
+            public NewClient.NewDrawInfo Color { get; set; }
+            public string Message { get; set; }
         }
 
         public class DrawExtInfoEventArgs : SingleCommandEventArgs

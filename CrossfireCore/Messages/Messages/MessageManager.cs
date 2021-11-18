@@ -15,6 +15,7 @@ namespace CrossfireCore.Managers
             Connection.OnError += Connection_OnError;
             Connection.OnStatusChanged += Connection_OnStatusChanged;
             Handler.Failure += Handler_Failure;
+            Handler.DrawInfo += Handler_DrawInfo;
             Handler.DrawExtInfo += Handler_DrawExtInfo;
         }
 
@@ -46,6 +47,18 @@ namespace CrossfireCore.Managers
             var s = string.Format("Failure: {0} {1}", e.ProtocolCommand, e.FailureString);
 
             AddClientMessage(s, NewClient.MsgSubTypeClient.Error);
+        }
+
+        private void Handler_DrawInfo(object sender, MessageHandler.DrawInfoEventArgs e)
+        {
+            OnMessage(new MessageInfo()
+            {
+                Colour = e.Color,
+                Flags = 0,
+                Message = e.Message,
+                MessageType = NewClient.MsgTypes.None,
+                SubType = NewClient.SubTypeNone
+            });
         }
 
         private void Handler_DrawExtInfo(object sender, MessageHandler.DrawExtInfoEventArgs e)

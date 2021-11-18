@@ -8,6 +8,8 @@ namespace CrossfireCore
 	{
 		public enum MsgTypes
 		{
+			None = 0,
+
 			Book = 1,
 			Card = 2,
 			Paper = 3,
