@@ -7,20 +7,37 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageHandler
     {
         public event EventHandler<EventArgs> NewMap;
+        public event EventHandler<MapLocationEventArgs> MapBegin;
+        public event EventHandler<MapLocationEventArgs> MapEnd;
         public event EventHandler<MapFaceEventArgs> MapFace;
         public event EventHandler<MapAnimationEventArgs> MapAnimation;
         public event EventHandler<MapDarknessEventArgs> MapDarkness;
         public event EventHandler<MapLocationEventArgs> MapClear;
         public event EventHandler<MapLocationLayerEventArgs> MapClearLayer;
-#if THIS_IS_IN_THE_GTK_CLIENT
-        public event EventHandler<MapLocationEventArgs> MapClearOld;
-#endif
         public event EventHandler<MapLocationEventArgs> MapScroll;
         public event EventHandler<SmoothEventArgs> Smooth;
 
         protected override void HandleNewMap()
         {
             NewMap?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleMap2Begin(int x, int y)
+        {
+            MapBegin?.Invoke(this, new MapLocationEventArgs()
+            {
+                X = x,
+                Y = y,
+            });
+        }
+
+        protected override void HandleMap2End(int x, int y)
+        {
+            MapEnd?.Invoke(this, new MapLocationEventArgs()
+            {
+                X = x,
+                Y = y,
+            });
         }
 
         protected override void HandleMap2Animation(int x, int y, int layer, ushort animation, int animationtype, byte animationspeed, byte smooth)
@@ -55,17 +72,6 @@ namespace CrossfireCore.ServerInterface
                 Layer = layer,
             });
         }
-
-#if THIS_IS_IN_THE_GTK_CLIENT
-        protected override void HandleMap2ClearOld(int x, int y)
-        {
-            MapClearOld?.Invoke(this, new MapLocationEventArgs()
-            {
-                X = x,
-                Y = y,
-            });
-        }
-#endif
 
         protected override void HandleMap2Darkness(int x, int y, byte darkness)
         {

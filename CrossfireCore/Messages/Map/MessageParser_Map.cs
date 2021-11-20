@@ -8,13 +8,13 @@ namespace CrossfireCore.ServerInterface
     {
         protected abstract void HandleNewMap();
 
+        protected abstract void HandleMap2Begin(int x, int y);
+        protected abstract void HandleMap2End(int x, int y);
+
         /// <summary>
         /// Clear everything at the given x/y co-ords
         /// </summary>
         protected abstract void HandleMap2Clear(int x, int y);
-#if THIS_IS_IN_THE_GTK_CLIENT
-        protected abstract void HandleMap2ClearOld(int x, int y);
-#endif
         protected abstract void HandleMap2Scroll(int x, int y);
         protected abstract void HandleMap2Darkness(int x, int y, byte darkness);
 
@@ -59,22 +59,19 @@ namespace CrossfireCore.ServerInterface
 
                 var map_coord_x = (map_coord >> 10) & 0x3F;         //top 6 bits
                 var map_coord_y = (map_coord >> 4) & 0x3F;          //next 6 bits
-                var map_coord_l = (map_coord) & 0x0F;               //bottom 4 bits //TODO: find a use for this variable
+                var map_coord_l = (map_coord) & 0x0F;               //bottom 4 bits: 0=normal co-ord, 1 = scroll, 2=15 = unused
 
                 map_coord_x -= MAP2_COORD_OFFSET;
                 map_coord_y -= MAP2_COORD_OFFSET;
 
                 //handle scroll
-                if ((map_coord & 0x1) != 0)
+                if ((map_coord_l & 0x1) != 0)
                 {
                     HandleMap2Scroll(map_coord_x, map_coord_y);
                     continue;
                 }
 
-#if THIS_IS_IN_THE_GTK_CLIENT
-                //clear/init space
-                HandleMap2ClearOld(map_coord_x, map_coord_y);
-#endif
+                HandleMap2Begin(map_coord_x, map_coord_y);
 
                 while (DataOffset < DataEnd)
                 {
@@ -172,6 +169,8 @@ namespace CrossfireCore.ServerInterface
                             throw new Exception("Invalid map_data_type: " + map_data_type.ToString());
                     }
                 }
+
+                HandleMap2End(map_coord_x, map_coord_y);
             }
 
             return true;
