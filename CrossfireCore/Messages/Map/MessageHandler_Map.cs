@@ -7,7 +7,7 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageHandler
     {
         public event EventHandler<EventArgs> NewMap;
-        public event EventHandler<MapEventArgs> Map;
+        public event EventHandler<MapFaceEventArgs> MapFace;
         public event EventHandler<MapAnimationEventArgs> MapAnimation;
         public event EventHandler<MapDarknessEventArgs> MapDarkness;
         public event EventHandler<MapLocationEventArgs> MapClear;
@@ -79,7 +79,7 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleMap2Face(int x, int y, int layer, ushort face, byte smooth)
         {
-            Map?.Invoke(this, new MapEventArgs()
+            MapFace?.Invoke(this, new MapFaceEventArgs()
             {
                 X = x,
                 Y = y,
@@ -107,7 +107,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class MapEventArgs : SingleCommandEventArgs
+        public class MapFaceEventArgs : SingleCommandEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
