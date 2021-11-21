@@ -166,6 +166,10 @@ namespace CrossfireCore.Managers
             var ix = this.GetIndex(x => x.Tag == e.ObjectTag, out var item);
             if (ix == -1)
             {
+                //We will get these messages when applying a bed to reality, when we have
+                //applied containers with items inside, that we haven't opened in this session.
+                //The server has not sent the items to the client, but sends a removal message
+                //when quitting.
                 _Logger.Warning("Trying to delete invalid object {0}", e.ObjectTag);
                 return;
             }
