@@ -7,8 +7,10 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageHandler
     {
         public event EventHandler<EventArgs> NewMap;
-        public event EventHandler<MapLocationEventArgs> MapBegin;
-        public event EventHandler<MapLocationEventArgs> MapEnd;
+        public event EventHandler<EventArgs> MapBegin;
+        public event EventHandler<EventArgs> MapEnd;
+        public event EventHandler<MapLocationEventArgs> MapBeginLocation;
+        public event EventHandler<MapLocationEventArgs> MapEndLocation;
         public event EventHandler<MapFaceEventArgs> MapFace;
         public event EventHandler<MapAnimationEventArgs> MapAnimation;
         public event EventHandler<MapDarknessEventArgs> MapDarkness;
@@ -22,18 +24,28 @@ namespace CrossfireCore.ServerInterface
             NewMap?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override void HandleMap2Begin(int x, int y)
+        protected override void HandleMap2Begin()
         {
-            MapBegin?.Invoke(this, new MapLocationEventArgs()
+            MapBegin?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleMap2End()
+        {
+            MapEnd?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleMap2BeginLocation(int x, int y)
+        {
+            MapBeginLocation?.Invoke(this, new MapLocationEventArgs()
             {
                 X = x,
                 Y = y,
             });
         }
 
-        protected override void HandleMap2End(int x, int y)
+        protected override void HandleMap2EndLocation(int x, int y)
         {
-            MapEnd?.Invoke(this, new MapLocationEventArgs()
+            MapEndLocation?.Invoke(this, new MapLocationEventArgs()
             {
                 X = x,
                 Y = y,

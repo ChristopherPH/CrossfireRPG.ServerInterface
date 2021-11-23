@@ -8,8 +8,11 @@ namespace CrossfireCore.ServerInterface
     {
         protected abstract void HandleNewMap();
 
-        protected abstract void HandleMap2Begin(int x, int y);
-        protected abstract void HandleMap2End(int x, int y);
+        protected abstract void HandleMap2Begin();
+        protected abstract void HandleMap2End();
+
+        protected abstract void HandleMap2BeginLocation(int x, int y);
+        protected abstract void HandleMap2EndLocation(int x, int y);
 
         /// <summary>
         /// Clear everything at the given x/y co-ords
@@ -53,6 +56,8 @@ namespace CrossfireCore.ServerInterface
 
         private bool Parse_map2(byte[] Message, ref int DataOffset, int DataEnd)
         {
+            HandleMap2Begin();
+
             while (DataOffset < DataEnd)
             {
                 var map_coord = BufferTokenizer.GetUInt16(Message, ref DataOffset);
@@ -71,7 +76,7 @@ namespace CrossfireCore.ServerInterface
                     continue;
                 }
 
-                HandleMap2Begin(map_coord_x, map_coord_y);
+                HandleMap2BeginLocation(map_coord_x, map_coord_y);
 
                 while (DataOffset < DataEnd)
                 {
@@ -170,8 +175,10 @@ namespace CrossfireCore.ServerInterface
                     }
                 }
 
-                HandleMap2End(map_coord_x, map_coord_y);
+                HandleMap2EndLocation(map_coord_x, map_coord_y);
             }
+
+            HandleMap2End();
 
             return true;
         }
