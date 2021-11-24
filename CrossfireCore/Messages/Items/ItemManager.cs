@@ -36,6 +36,7 @@ namespace CrossfireCore.Managers
         static Logger _Logger = new Logger(nameof(ItemManager));
 
         public Item OpenContainer { get; private set; } = null;
+        public bool HasOpenContainer => OpenContainer != null;
 
         public IEnumerable<Item> PlayerItems => this.Where(x => x.Location == ItemLocations.Player);
         public IEnumerable<Item> PlayerHeldItems => PlayerItems.Where(x => !x.IsInContainer);
@@ -502,7 +503,8 @@ namespace CrossfireCore.Managers
         }
 
         /// <summary>
-        /// Moves item to player's open container, then active container, then player inventory
+        /// Moves item from an open container (ground or player) to the player inventory
+        /// Moves item from the ground to the open container (ground or player), then active container (player), then player inventory
         /// </summary>
         /// <param name="item"></param>
         /// <param name="count"></param>
@@ -620,10 +622,19 @@ namespace CrossfireCore.Managers
         /// </summary>
         public float TotalWeight => !HasWeight ? float.NaN : Weight * NumberOf;
 
+        /// <summary>
+        /// Location of item (this does not test if in container or not)
+        /// </summary>
         public ItemLocations Location { get; set; }
+
+        /// <summary>
+        /// Check if item is in a container (Container may be on the player or on the ground)
+        /// </summary>
         public bool IsInContainer { get; set; }
 
-
+        /// <summary>
+        /// Item is on the ground, and ground only (this does not test for in a container on the ground)
+        /// </summary>
         public bool IsOnGround => LocationTag == 0;
         public bool HasWeight => !float.IsNaN(Weight);
         public bool IsApplied => (Flags & NewClient.ItemFlags.Applied_Mask) > 0;
