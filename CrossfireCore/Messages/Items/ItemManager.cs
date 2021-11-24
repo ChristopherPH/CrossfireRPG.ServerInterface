@@ -569,6 +569,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         public UInt32 LocationTag { get; set; }
         public NewClient.ItemFlags Flags { get; set; }
+        public NewClient.ItemFlags FlagsNoPick => Flags & ~NewClient.ItemFlags.NoPick;
 
         public UInt32 RawWeight { get; set; } = 0;
 
@@ -657,11 +658,12 @@ namespace CrossfireCore.Managers
             Tag,
             LocationTag,
             Flags,
+            FlagsNoPick,
             ClientTypes.GetClientTypeInfo(ClientType, out var clientGroup),
         };
 
         public const string FormatHelp = "{0}=Name {1}=PluralName {2}=NumberOf {3}=NumberOfInWords " +
             "{4}=NumberOfWithout1 {5}=NumberOfInWordsWithout1 {6}=Weight {7}=TotalWeight {8}=Tag " +
-            "{9}=Location {10}=Flags {11}=ClientType";
+            "{9}=Location {10}=Flags {11}=FlagsNoPick {12}=ClientType";
     }
 }
