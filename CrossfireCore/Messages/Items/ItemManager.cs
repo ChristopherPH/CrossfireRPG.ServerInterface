@@ -506,8 +506,6 @@ namespace CrossfireCore.Managers
         /// Moves item from an open container (ground or player) to the player inventory
         /// Moves item from the ground to the open container (ground or player), then active container (player), then player inventory
         /// </summary>
-        /// <param name="item"></param>
-        /// <param name="count"></param>
         public void MoveItemToPlayer(Item item, int count = 0)
         {
             if (item == null)
@@ -530,6 +528,11 @@ namespace CrossfireCore.Managers
                 return;
 
             Builder.SendMove(container.Tag.ToString(), item.Tag.ToString(), count.ToString());
+        }
+
+        public void MoveItemToOpenContainer(Item item, int count = 0)
+        {
+            MoveItemToContainer(item, OpenContainer, count);
         }
     }
 
