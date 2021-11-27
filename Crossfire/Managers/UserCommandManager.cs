@@ -66,7 +66,7 @@ namespace Crossfire.Managers
                     continue;
 
                 //clean up command and parameters
-                var splitCommand = singleCommand.Split(new char[] { ' ' }, 2);
+                var splitCommand = singleCommand.Trim().Split(new char[] { ' ' }, 2);
 
                 if ((splitCommand == null) || (splitCommand.Length == 0))
                     continue;
