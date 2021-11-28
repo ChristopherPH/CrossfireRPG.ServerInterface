@@ -103,8 +103,8 @@ namespace CrossfireCore
             [Description("Charisma")]       AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
             [Description("Power")]          AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
 
-            [Description("Golem Health")]		GolemHp = 53,         /* Golem's Current Hp = 0, If No Golem. */
-            [Description("Golem Max Health")]	GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
+            [Description("Golem Health")]	    GolemHp = 53,           /* Golem's Current Hp = 0, If No Golem. */
+            [Description("Golem Max HP")]	    GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
 
             [Description("Character Flags")]    CharacterFlags = 55,
             [Description("God Name")]           GodName = 56,
