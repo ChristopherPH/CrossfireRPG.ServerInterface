@@ -58,7 +58,7 @@ namespace CrossfireCore.Managers
 
         public override string ToString()
         {
-            return Title;
+            return string.Format("{0}:{1}: {2}", QuestID, ParentID, Title);
         }
     }
 }
