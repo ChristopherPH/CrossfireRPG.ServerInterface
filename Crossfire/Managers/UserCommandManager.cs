@@ -49,7 +49,18 @@ namespace Crossfire.Managers
 
         public UInt16 SendUserCommand(string format, params object[] args)
         {
-            return SendUserCommand(string.Format(format, args));
+            string s;
+
+            try
+            {
+                s = string.Format(format, args);
+            }
+            catch
+            {
+                return 0;
+            }
+
+            return SendUserCommand(s);
         }
 
         public UInt16 SendUserCommand(string Command)
