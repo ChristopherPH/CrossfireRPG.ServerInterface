@@ -24,7 +24,11 @@ namespace CrossfireCore.ServerInterface
         private bool SendMessage(BufferAssembler ba)
         {
             _Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
-            return _Connection.SendMessage(ba.GetBytes());
+
+            var bytes = ba.GetBytes();
+            _Logger.Debug("{0}", HexDump.Utils.HexDump(bytes));
+
+            return _Connection.SendMessage(bytes);
         }
     }
 }

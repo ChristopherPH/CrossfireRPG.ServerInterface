@@ -144,6 +144,7 @@ namespace CrossfireCore.ServerInterface
             if (_CommandHandler.TryGetValue(command, out var parseCommand))
             {
                 _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1}", command, DataLength);
+                _Logger.Debug("{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
 
                 try
                 {
@@ -159,13 +160,16 @@ namespace CrossfireCore.ServerInterface
             else
             {
                 _Logger.Warning("Unhandled Command: {0}", command);
+                _Logger.Info("{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                return;
             }
 
             //log excess data
             if (curPos < dataEnd)
             {
-                _Logger.Warning("Excess data for command {0}:\n{1}",
-                    command, HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                _Logger.Warning("Excess data for command {0}: {1} bytes",
+                    command, dataEnd - curPos);
+                _Logger.Info("{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
             }
             else if (curPos > dataEnd)
             {
