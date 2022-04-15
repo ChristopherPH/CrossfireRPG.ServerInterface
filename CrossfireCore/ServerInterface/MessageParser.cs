@@ -149,7 +149,8 @@ namespace CrossfireCore.ServerInterface
             if (_CommandHandler.TryGetValue(command, out var parseCommand))
             {
                 _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1}", command, DataLength);
-                _Logger.Debug("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                if (dataEnd - curPos > 0) //if there is data after the command
+                    _Logger.Debug("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
 
                 try
                 {
