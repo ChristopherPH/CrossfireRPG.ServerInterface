@@ -278,6 +278,13 @@ namespace CrossfireCore.ServerInterface
 
         private void WaitForBytes(StateObject so)
         {
+            //client has been disconnected
+            //TODO: cleanup/disconnect here?
+            if (_client == null)
+                return;
+
+            //this happened when the game manager called Connection.Disconnect() on a protocol mismatch
+            //as _client was null
             System.Diagnostics.Debug.Assert(so.client == _client, "WaitForBytes: Internal client mismatch");
 
             //stream has been shut down
