@@ -323,6 +323,36 @@ namespace CrossfireCore.ServerInterface
             {
                 bytesRead = so.stream.EndRead(ar);
             }
+            catch (System.IO.IOException ex)
+            {
+                if (ex.InnerException is SocketException se)
+                {
+                    switch (se.ErrorCode)
+                    {
+                        //Don't send a ConnectionErrorEventArgs on these error codes
+                        case 10054: //WSAECONNRESET / Connection reset by peer.
+                            break;
+
+                        //use socket error message instead of System.IO.IOException error message
+                        default:
+                            OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                            {
+                                ErrorMessage = se.Message
+                            });
+                            break;
+                    }
+                }
+                else
+                {
+                    OnError?.Invoke(this, new ConnectionErrorEventArgs()
+                    {
+                        ErrorMessage = ex.Message
+                    });
+                }
+
+                Disconnect();
+                return;
+            }
             catch (Exception ex)
             {
                 OnError?.Invoke(this, new ConnectionErrorEventArgs()
