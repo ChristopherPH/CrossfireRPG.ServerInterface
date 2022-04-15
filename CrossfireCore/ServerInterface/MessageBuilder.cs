@@ -26,7 +26,7 @@ namespace CrossfireCore.ServerInterface
             _Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
 
             var bytes = ba.GetBytes();
-            _Logger.Debug("{0}", HexDump.Utils.HexDump(bytes));
+            _Logger.Debug("\n{0}", HexDump.Utils.HexDump(bytes));
 
             return _Connection.SendMessage(bytes);
         }
