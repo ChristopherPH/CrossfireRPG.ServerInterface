@@ -12,7 +12,11 @@ namespace CrossfireCore.ServerInterface
     {
         static Logger _Logger = new Logger(nameof(MessageParser));
 
-        public const int ServerProtocolVersion = 1039;
+        //This is the protocol version that this CrossfireCore.ServerInterface understands
+        public const int ServerProtocolMaximumVersion = 1029;
+
+        //Save the protocol version for the parser
+        public int ServerProtocolVersion { get; private set; } = 0;
 
         public MessageParser(SocketConnection Connection)
         {
@@ -183,6 +187,7 @@ namespace CrossfireCore.ServerInterface
         {
             //Reset the parser options
             ParserOption_SpellMon = 0;
+            ServerProtocolVersion = 0;
         }
     }
 }

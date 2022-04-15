@@ -64,10 +64,10 @@ namespace CrossfireCore.ServerInterface
         private bool Parse_version(byte[] packet, ref int offset, int end)
         {
             var version_csval = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
-            var version_scval = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
+            ServerProtocolVersion = BufferTokenizer.GetStringAsInt(packet, ref offset, end);
             var version_verstr = BufferTokenizer.GetRemainingBytesAsString(packet, ref offset, end);
 
-            HandleVersion(version_csval, version_scval, version_verstr);
+            HandleVersion(version_csval, ServerProtocolVersion, version_verstr);
 
             return true;
         }

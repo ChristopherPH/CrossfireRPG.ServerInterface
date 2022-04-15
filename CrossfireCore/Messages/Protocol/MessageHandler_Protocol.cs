@@ -42,7 +42,7 @@ namespace CrossfireCore.ServerInterface
             {
                 ClientToServerProtocolVersion = csval,
                 ServerToClientProtocolVersion = scval,
-                ClientVersionString = verstring,
+                ClientVersionString = verstring.Trim(),
             });
         }
 
