@@ -112,8 +112,8 @@ namespace CrossfireCore.ServerInterface
         {
             var client = ar.AsyncState as TcpClient;
 
-            System.Diagnostics.Debug.Assert(client != null);
-            System.Diagnostics.Debug.Assert(client == _client);
+            System.Diagnostics.Debug.Assert(client != null, "ConnectCallback: client is not a TcpClient");
+            System.Diagnostics.Debug.Assert(client == _client, "ConnectCallback: Internal client mismatch");
 
             try
             {
@@ -253,7 +253,7 @@ namespace CrossfireCore.ServerInterface
         {
             var stream = ar.AsyncState as NetworkStream;
 
-            System.Diagnostics.Debug.Assert(stream == _stream);
+            System.Diagnostics.Debug.Assert(stream == _stream, "BeginSendCallback: Internal stream mismatch");
 
             //stream has been shut down
             //TODO: cleanup/disconnect here?
@@ -278,7 +278,7 @@ namespace CrossfireCore.ServerInterface
 
         private void WaitForBytes(StateObject so)
         {
-            System.Diagnostics.Debug.Assert(so.client == _client);
+            System.Diagnostics.Debug.Assert(so.client == _client, "WaitForBytes: Internal client mismatch");
 
             //stream has been shut down
             //TODO: cleanup/disconnect here?
