@@ -18,6 +18,7 @@ namespace CrossfireCore.ServerInterface
         {
             _Connection = Connection;
             _Connection.OnPacket += Connection_OnPacket;
+            _Connection.OnStatusChanged += _Connection_OnStatusChanged;
 
             AddAccountParsers();
             AddAudioParsers();
@@ -176,6 +177,12 @@ namespace CrossfireCore.ServerInterface
                 _Logger.Warning("Used too much data for command {0}: {1}",
                     command, curPos - dataEnd);
             }
+        }
+
+        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        {
+            //Reset the parser options
+            ParserOption_SpellMon = 0;
         }
     }
 }
