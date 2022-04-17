@@ -113,7 +113,16 @@ namespace CrossfireCore.ServerInterface
             var client = ar.AsyncState as TcpClient;
 
             System.Diagnostics.Debug.Assert(client != null, "ConnectCallback: client is not a TcpClient");
+
+            //if we have called disconnect() while trying to connect, ignore this ConnectCallback()
+            if (_client == null)
+                return;
+
             System.Diagnostics.Debug.Assert(client == _client, "ConnectCallback: Internal client mismatch");
+
+            //ensure socket is valid before calling EndConnect()
+            if (client.Client == null)
+                return;
 
             try
             {
