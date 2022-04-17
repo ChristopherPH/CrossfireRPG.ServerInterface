@@ -186,6 +186,8 @@ namespace CrossfireCore.ServerInterface
 
         private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
+            _SavedBuffer = null;
+
             //Reset the parser options
             ParserOption_SpellMon = 0;
             ServerProtocolVersion = 0;
