@@ -130,10 +130,24 @@ namespace CrossfireCore.ServerInterface
             }
             catch (SocketException ex)
             {
+                var msg = ex.Message;
+                var code = ex.ErrorCode;
+
+                switch (ex.ErrorCode)
+                {
+                    case 10060: //WSAETIMEDOUT
+                        msg = "Timed out connecting to server";
+                        break;
+
+                    case 10061: //WSAECONNREFUSED
+                        msg = "Server refused connection";
+                        break;
+                }
+
                 OnError?.Invoke(this, new ConnectionErrorEventArgs()
                 {
                     ErrorCode = ex.ErrorCode,
-                    ErrorMessage = ex.Message
+                    ErrorMessage = msg
                 });
 
                 Disconnect();
@@ -353,6 +367,7 @@ namespace CrossfireCore.ServerInterface
                         default:
                             OnError?.Invoke(this, new ConnectionErrorEventArgs()
                             {
+                                ErrorCode = se.ErrorCode,
                                 ErrorMessage = se.Message
                             });
                             break;
