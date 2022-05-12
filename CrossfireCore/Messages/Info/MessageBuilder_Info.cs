@@ -9,13 +9,13 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendRequestInfo(string Request)
+        public bool SendRequestInfo(string Request)
         {
             using (var ba = new BufferAssembler("requestinfo"))
             {
                 ba.AddString(Request);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

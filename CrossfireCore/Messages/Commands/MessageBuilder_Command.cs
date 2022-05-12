@@ -34,13 +34,13 @@ namespace CrossfireCore.ServerInterface
         /// Reply to a query
         /// </summary>
         /// <param name="Reply"></param>
-        public void SendReply(string Reply)
+        public bool SendReply(string Reply)
         {
             using (var ba = new BufferAssembler("reply"))
             {
                 ba.AddString(Reply);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

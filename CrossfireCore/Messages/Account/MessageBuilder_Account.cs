@@ -13,39 +13,39 @@ namespace CrossfireCore.ServerInterface
         /// Start playing with the given PlayerName, assuming there is a logged in account
         /// </summary>
         /// <param name="PlayerName"></param>
-        public void SendAccountPlay(string PlayerName)
+        public bool SendAccountPlay(string PlayerName)
         {
             using (var ba = new BufferAssembler("accountplay"))
             {
                 ba.AddString(PlayerName);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendAccountLogin(string UserName, string Password)
+        public bool SendAccountLogin(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountlogin"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendAccountNew(string UserName, string Password)
+        public bool SendAccountNew(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountnew"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendAccountAddPlayer(bool Force, string UserName, string Password)
+        public bool SendAccountAddPlayer(bool Force, string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountaddplayer"))
             {
@@ -53,18 +53,18 @@ namespace CrossfireCore.ServerInterface
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendAccountPW(string OldPassword, string NewPassword)
+        public bool SendAccountPW(string OldPassword, string NewPassword)
         {
             using (var ba = new BufferAssembler("accountpw"))
             {
                 ba.AddLengthPrefixedString(OldPassword);
                 ba.AddLengthPrefixedString(NewPassword);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

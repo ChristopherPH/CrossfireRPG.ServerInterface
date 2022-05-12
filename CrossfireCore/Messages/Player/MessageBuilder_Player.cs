@@ -9,18 +9,18 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendCreatePlayer(string UserName, string Password)
+        public bool SendCreatePlayer(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("createplayer"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendCreatePlayer(string UserName, string Password,
+        public bool SendCreatePlayer(string UserName, string Password,
             string RaceArch, string ClassArch, IEnumerable<KeyValuePair<string, int>> Stats,
             string StartingMapArch, IEnumerable<KeyValuePair<string, string>> Choices)
         {
@@ -77,7 +77,7 @@ namespace CrossfireCore.ServerInterface
                     }
                 }
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

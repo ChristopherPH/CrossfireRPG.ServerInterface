@@ -9,13 +9,13 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendAskFace(Int32 tag)
+        public bool SendAskFace(Int32 tag)
         {
             using (var ba = new BufferAssembler("askface"))
             {
                 ba.AddIntAsString(tag);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

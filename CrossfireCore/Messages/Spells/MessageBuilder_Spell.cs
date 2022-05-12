@@ -9,7 +9,7 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendInscribe(UInt32 SpellTag, UInt32 ScrollTag)
+        public bool SendInscribe(UInt32 SpellTag, UInt32 ScrollTag)
         {
             using (var ba = new BufferAssembler("inscribe"))
             {
@@ -17,7 +17,7 @@ namespace CrossfireCore.ServerInterface
                 ba.AddUInt32(SpellTag);
                 ba.AddUInt32(ScrollTag);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

@@ -9,23 +9,23 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendAskSmooth(Int32 tag)
+        public bool SendAskSmooth(Int32 tag)
         {
             using (var ba = new BufferAssembler("asksmooth"))
             {
                 ba.AddIntAsString(tag);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
 
-        public void SendLookAt(int x, int y)
+        public bool SendLookAt(int x, int y)
         {
             using (var ba = new BufferAssembler("lookat"))
             {
                 ba.AddString("{0} {1}", x, y);
 
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }

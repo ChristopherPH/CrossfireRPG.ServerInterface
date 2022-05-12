@@ -9,11 +9,11 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
-        public void SendHeartbeat()
+        public bool SendHeartbeat()
         {
             using (var ba = new BufferAssembler("beat", false))
             {
-                SendMessage(ba);
+                return SendMessage(ba);
             }
         }
     }
