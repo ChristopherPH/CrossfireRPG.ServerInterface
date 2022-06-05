@@ -85,20 +85,26 @@ namespace Crossfire.Keybinding
 
         string GetLocationFilename(KeybindLocations location)
         {
+            var rc = string.Empty;
+
             switch (location)
             {
                 case KeybindLocations.Global:
-                    return string.Format("Global.keys");
+                    rc = string.Format("Global.keys");
+                    break;
 
                 case KeybindLocations.Character:
                     if (_PlayerName == string.Empty)
                         return string.Empty;
 
-                    return string.Format("{0}.{1}.keys", Connection?.Host ?? "unknown", _PlayerName);
+                    rc = string.Format("{0}.{1}.keys", Connection?.Host ?? "unknown", _PlayerName);
+                    break;
 
                 default:
                     return string.Empty;
             }
+
+            return System.IO.Path.Combine(Program.DataFolder, rc);
         }
 
         bool WriteDefaultBindings(string filename)
