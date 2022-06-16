@@ -11,6 +11,9 @@ namespace CrossfireCore.ServerInterface
     {
         static Logger _Logger = new Logger(nameof(MessageBuilder));
 
+        /// <summary>
+        /// CrossfireCore.ServerInterface can receive and understand protocol messages up to and including version:
+        /// </summary>
         public const int ClientProtocolVersion = 1023;
 
         public MessageBuilder(SocketConnection Connection)

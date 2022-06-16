@@ -6,6 +6,11 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageParser
     {
+        /// <summary>
+        /// Minimum protocol version to use Setup command
+        /// </summary>
+        public const int ServerProtocolVersionSetupCommand = 1026;
+
         protected abstract void HandleAddmeFailed();
         protected abstract void HandleAddmeSuccess();
         protected abstract void HandleGoodbye();

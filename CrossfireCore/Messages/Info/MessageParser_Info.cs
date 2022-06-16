@@ -6,6 +6,11 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageParser
     {
+        /// <summary>
+        /// Minimum protocol version to use RequestInfo command
+        /// </summary>
+        public const int ServerProtocolVersionRequestInfoCommand = 1023;
+
         protected abstract void HandleReplyInfo(string request, byte[] reply);
 
         private void AddInfoParsers()

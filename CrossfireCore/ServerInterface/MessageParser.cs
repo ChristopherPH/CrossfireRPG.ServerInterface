@@ -12,7 +12,9 @@ namespace CrossfireCore.ServerInterface
     {
         static Logger _Logger = new Logger(nameof(MessageParser));
 
-        //This is the protocol version that this CrossfireCore.ServerInterface understands
+        /// <summary>
+        /// CrossfireCore.ServerInterface can send protocol messages up to and including version:
+        /// </summary>
         public const int ServerProtocolMaximumVersion = 1029;
 
         //Save the protocol version for the parser
