@@ -188,11 +188,16 @@ namespace CrossfireCore.ServerInterface
 
         private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
-            _SavedBuffer = null;
+            //Only clean up on a disconnect. If we clean up on any status change (connect)
+            //then we somtimes clear items after they've been set (event race condition)
+            if (e.Status == ConnectionStatuses.Disconnected)
+            {
+                _SavedBuffer = null;
 
-            //Reset the parser options
-            ParserOption_SpellMon = 0;
-            ServerProtocolVersion = 0;
+                //Reset the parser options
+                ParserOption_SpellMon = 0;
+                ServerProtocolVersion = 0;
+            }
         }
     }
 }
