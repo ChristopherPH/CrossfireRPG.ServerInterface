@@ -7,12 +7,15 @@ namespace CrossfireCore.ServerInterface
     public partial class MessageParser
     {
         protected abstract void HandleItem2(UInt32 item_location, UInt32 item_tag, UInt32 item_flags,
-            UInt32 item_weight, UInt32 item_face, string item_name, string item_name_plural, UInt16 item_anim, byte item_animspeed,
+            float item_weight, UInt32 item_face, string item_name, string item_name_plural, UInt16 item_anim, byte item_animspeed,
             UInt32 item_nrof, UInt16 item_type);
         protected abstract void HandleBeginItem2();
         protected abstract void HandleEndItem2();
 
-        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, Int64 UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, byte UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt16 UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt32 UpdateValue);
+        protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, float UpdateValue);
         protected abstract void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string UpdateValue, string UpdateValuePlural);
         protected abstract void HandleBeginUpdateItem(UInt32 ObjectTag);
         protected abstract void HandleEndUpdateItem(UInt32 ObjectTag);
@@ -25,8 +28,6 @@ namespace CrossfireCore.ServerInterface
         /// </summary>
         /// <param name="Tag"></param>
         protected abstract void HandleDeleteInventory(int ObjectTag);
-
-        const float FLOAT_MULTF = 100000.0f;
 
         private void AddItemParsers()
         {
@@ -46,6 +47,7 @@ namespace CrossfireCore.ServerInterface
                 var item_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 var item_flags = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 var item_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset);
+                var float_weight = (item_weight == UInt32.MaxValue) ? float.NaN : item_weight / FLOAT_MULTF;
                 var item_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 var item_namelen = BufferTokenizer.GetByte(Message, ref DataOffset);
                 var item_name_bytes = BufferTokenizer.GetBytes(Message, ref DataOffset, item_namelen);
@@ -70,7 +72,7 @@ namespace CrossfireCore.ServerInterface
                 var item_nrof = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 var item_type = BufferTokenizer.GetUInt16(Message, ref DataOffset);
 
-                HandleItem2(item_location, item_tag, item_flags, item_weight, item_face,
+                HandleItem2(item_location, item_tag, item_flags, float_weight, item_face,
                     item_name, item_name_plural, item_anim, item_animspeed, item_nrof, item_type);
             }
 
@@ -103,7 +105,8 @@ namespace CrossfireCore.ServerInterface
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Weight))
                 {
                     var update_item_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset);
-                    HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Weight, update_item_weight);
+                    var float_weight = (update_item_weight == UInt32.MaxValue) ? float.NaN : update_item_weight / FLOAT_MULTF;
+                    HandleUpdateItem(update_item_tag, NewClient.UpdateTypes.Weight, float_weight);
                 }
 
                 if (update_item_type.HasFlag(NewClient.UpdateTypes.Face))

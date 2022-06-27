@@ -10,15 +10,15 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<EventArgs> BeginItem2;
         public event EventHandler<EventArgs> EndItem2;
         public event EventHandler<UpdateItemEventArgs> UpdateItem;
-        public event EventHandler<UpdateItemEventArgs> BeginUpdateItem;
-        public event EventHandler<UpdateItemEventArgs> EndUpdateItem;
+        public event EventHandler<BeginEndUpdateItemUpdateEventArgs> BeginUpdateItem;
+        public event EventHandler<BeginEndUpdateItemUpdateEventArgs> EndUpdateItem;
         public event EventHandler<DeleteItemEventArgs> DeleteItem;
         public event EventHandler<EventArgs> BeginDeleteItem;
         public event EventHandler<EventArgs> EndDeleteItem;
         public event EventHandler<DeleteInventoryEventArgs> DeleteInventory;
 
         protected override void HandleItem2(uint item_location, uint item_tag, uint item_flags,
-            uint item_weight, uint item_face, string item_name, string item_name_plural,
+            float item_weight, uint item_face, string item_name, string item_name_plural,
             ushort item_anim, byte item_animspeed, uint item_nrof, ushort item_type)
         {
             Item2?.Invoke(this, new Item2EventArgs()
@@ -47,31 +47,35 @@ namespace CrossfireCore.ServerInterface
             EndItem2?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, long UpdateValue)
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, byte UpdateValue)
         {
-            UpdateItem?.Invoke(this, new UpdateItemEventArgs()
-            {
-                ObjectTag = ObjectTag,
-                UpdateType = UpdateType,
-                UpdateValue = UpdateValue
-            });
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs(ObjectTag, UpdateType, UpdateValue));
+        }
+
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt16 UpdateValue)
+        {
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs(ObjectTag, UpdateType, UpdateValue));
+        }
+
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt32 UpdateValue)
+        {
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs(ObjectTag, UpdateType, UpdateValue));
+        }
+
+        protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, float UpdateValue)
+        {
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs(ObjectTag, UpdateType, UpdateValue));
         }
 
         protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType,
             string UpdateValue, string UpdateValuePlural)
         {
-            UpdateItem?.Invoke(this, new UpdateItemEventArgs()
-            {
-                ObjectTag = ObjectTag,
-                UpdateType = UpdateType,
-                UpdateString = UpdateValue,
-                UpdateStringPlural = UpdateValuePlural,
-            });
+            UpdateItem?.Invoke(this, new UpdateItemEventArgs(ObjectTag, UpdateType, UpdateValue, UpdateValuePlural));
         }
 
         protected override void HandleBeginUpdateItem(uint ObjectTag)
         {
-            BeginUpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            BeginUpdateItem?.Invoke(this, new BeginEndUpdateItemUpdateEventArgs()
             {
                 ObjectTag = ObjectTag,
             });
@@ -79,7 +83,7 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleEndUpdateItem(uint ObjectTag)
         {
-            EndUpdateItem?.Invoke(this, new UpdateItemEventArgs()
+            EndUpdateItem?.Invoke(this, new BeginEndUpdateItemUpdateEventArgs()
             {
                 ObjectTag = ObjectTag,
             });
@@ -116,7 +120,7 @@ namespace CrossfireCore.ServerInterface
             public UInt32 item_location { get; set; }
             public UInt32 item_tag { get; set; }
             public UInt32 item_flags { get; set; }
-            public UInt32 item_weight { get; set; }
+            public float item_weight { get; set; }
             public UInt32 item_face { get; set; }
             public string item_name { get; set; }
             public string item_name_plural { get; set; }
@@ -128,11 +132,70 @@ namespace CrossfireCore.ServerInterface
 
         public class UpdateItemEventArgs : MultiCommandEventArgs
         {
+            public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, byte Value)
+            {
+                this.ObjectTag = ObjectTag;
+                this.UpdateType = UpdateType;
+                this.DataType = UpdateDataTypes.UInt8;
+                this.UpdateValueUInt8 = Value;
+            }
+
+            public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt16 Value)
+            {
+                this.ObjectTag = ObjectTag;
+                this.UpdateType = UpdateType;
+                this.DataType = UpdateDataTypes.UInt16;
+                this.UpdateValueUInt16 = Value;
+            }
+
+            public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, UInt32 Value)
+            {
+                this.ObjectTag = ObjectTag;
+                this.UpdateType = UpdateType;
+                this.DataType = UpdateDataTypes.UInt32;
+                this.UpdateValueUInt32 = Value;
+            }
+
+            public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, float Value)
+            {
+                this.ObjectTag = ObjectTag;
+                this.UpdateType = UpdateType;
+                this.DataType = UpdateDataTypes.Float;
+                this.UpdateValueFloat = Value;
+            }
+
+            public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, string Value, string Plural)
+            {
+                this.ObjectTag = ObjectTag;
+                this.UpdateType = UpdateType;
+                this.DataType = UpdateDataTypes.String;
+                this.UpdateString = Value;
+                this.UpdateStringPlural = Plural;
+            }
+
+            public enum UpdateDataTypes
+            {
+                UInt8,
+                UInt16,
+                UInt32,
+                Float,
+                String,
+            }
+
+            public UInt32 ObjectTag { get; }
+            public NewClient.UpdateTypes UpdateType { get; }
+            public UpdateDataTypes DataType { get; }
+            public float UpdateValueFloat { get; }
+            public byte UpdateValueUInt8 { get; }
+            public UInt16 UpdateValueUInt16 { get; }
+            public UInt32 UpdateValueUInt32 { get; }
+            public string UpdateString { get; }
+            public string UpdateStringPlural { get; }
+        }
+
+        public class BeginEndUpdateItemUpdateEventArgs : SingleCommandEventArgs
+        {
             public UInt32 ObjectTag { get; set; }
-            public NewClient.UpdateTypes UpdateType { get; set; }
-            public Int64 UpdateValue { get; set; }
-            public string UpdateString { get; set; }
-            public string UpdateStringPlural { get; set; }
         }
 
         public class DeleteItemEventArgs : MultiCommandEventArgs

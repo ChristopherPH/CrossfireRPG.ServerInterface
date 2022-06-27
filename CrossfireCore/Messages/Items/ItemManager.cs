@@ -84,7 +84,7 @@ namespace CrossfireCore.Managers
                 LocationTag = e.item_location,
                 Tag = e.item_tag,
                 Flags = (NewClient.ItemFlags)e.item_flags,
-                RawWeight = e.item_weight,
+                Weight = e.item_weight,
                 Face = e.item_face,
                 Name = e.item_name,
                 NamePlural = e.item_name_plural,
@@ -112,10 +112,7 @@ namespace CrossfireCore.Managers
                 if (item.Flags != existingItem.Flags)
                     UpdatedProperties.Add(nameof(Item.Flags));
                 if (item.Weight != existingItem.Weight)
-                {
-                    UpdatedProperties.Add(nameof(Item.RawWeight));
                     UpdatedProperties.Add(nameof(Item.Weight));
-                }
                 if (item.Face != existingItem.Face)
                     UpdatedProperties.Add(nameof(Item.Face));
                 if (item.Name != existingItem.Name)
@@ -247,85 +244,142 @@ namespace CrossfireCore.Managers
                 return;
             }
 
-            _Logger.Info("Update {0} of {1} to {2}/{3} {4}",
-                e.UpdateType, item, e.UpdateValue, e.UpdateString, e.UpdateStringPlural);
+            _Logger.Info("Update {0} of {1} to ({2}/{3}/{4}/{5}) {6} {7}",
+                e.UpdateType, item, e.UpdateValueUInt8, e.UpdateValueUInt16, e.UpdateValueUInt32,
+                e.UpdateValueFloat, e.UpdateString, e.UpdateStringPlural);
 
             string[] UpdatedProperties = null;
 
             switch (e.UpdateType)
             {
                 case NewClient.UpdateTypes.Location:
-                    if (item.LocationTag != (UInt32)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt32)
                     {
-                        item.LocationTag = (UInt32)e.UpdateValue;
+                        if (item.LocationTag != e.UpdateValueUInt32)
+                        {
+                            item.LocationTag = e.UpdateValueUInt32;
 
-                        item.Location = GetLocation(item.LocationTag, out var inContainer);
-                        item.IsInContainer = inContainer;
-                        UpdatedProperties = new string[] { nameof(Item.LocationTag),
+                            item.Location = GetLocation(item.LocationTag, out var inContainer);
+                            item.IsInContainer = inContainer;
+                            UpdatedProperties = new string[] { nameof(Item.LocationTag),
                             nameof(Item.Location), nameof(Item.IsInContainer) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Location has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.Flags:
-                    if (item.Flags != (NewClient.ItemFlags)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt32)
                     {
-                        item.Flags = (NewClient.ItemFlags)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.Flags) };
+                        if (item.Flags != (NewClient.ItemFlags)e.UpdateValueUInt32)
+                        {
+                            item.Flags = (NewClient.ItemFlags)e.UpdateValueUInt32;
+                            UpdatedProperties = new string[] { nameof(Item.Flags) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Flags has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.Weight:
-                    if (item.RawWeight != e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.Float)
                     {
-                        item.RawWeight = (UInt32)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.RawWeight), nameof(Item.Weight) };
+                        if (item.Weight != e.UpdateValueFloat)
+                        {
+                            item.Weight = (UInt32)e.UpdateValueFloat;
+                            UpdatedProperties = new string[] { nameof(Item.Weight) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Weight has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.Face:
-                    if (item.Face != (UInt32)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt32)
                     {
-                        item.Face = (UInt32)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.Face) };
+                        if (item.Face != (UInt32)e.UpdateValueUInt32)
+                        {
+                            item.Face = (UInt32)e.UpdateValueUInt32;
+                            UpdatedProperties = new string[] { nameof(Item.Face) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Face has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.Name:
-                    if ((item.Name != e.UpdateString) || (item.NamePlural != e.UpdateStringPlural))
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.String)
                     {
-                        item.Name = e.UpdateString;
-                        item.NamePlural = e.UpdateStringPlural;
-                        UpdatedProperties = new string[] { nameof(Item.Name), nameof(Item.NamePlural) };
+                        if ((item.Name != e.UpdateString) || (item.NamePlural != e.UpdateStringPlural))
+                        {
+                            item.Name = e.UpdateString;
+                            item.NamePlural = e.UpdateStringPlural;
+                            UpdatedProperties = new string[] { nameof(Item.Name), nameof(Item.NamePlural) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Name has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.Animation:
-                    if (item.Animation != (UInt16)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt16)
                     {
-                        item.Animation = (UInt16)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.Animation) };
+                        if (item.Animation != e.UpdateValueUInt16)
+                        {
+                            item.Animation = e.UpdateValueUInt16;
+                            UpdatedProperties = new string[] { nameof(Item.Animation) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.Animation has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.AnimationSpeed:
-                    if (item.AnimationSpeed != (byte)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt8)
                     {
-                        item.AnimationSpeed = (byte)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.AnimationSpeed) };
+                        if (item.AnimationSpeed != e.UpdateValueUInt8)
+                        {
+                            item.AnimationSpeed = e.UpdateValueUInt8;
+                            UpdatedProperties = new string[] { nameof(Item.AnimationSpeed) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.AnimationSpeed has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
                 case NewClient.UpdateTypes.NumberOf:
-                    if (item.RawNumberOf != (UInt32)e.UpdateValue)
+                    if (e.DataType == MessageHandler.UpdateItemEventArgs.UpdateDataTypes.UInt32)
                     {
-                        item.RawNumberOf = (UInt32)e.UpdateValue;
-                        UpdatedProperties = new string[] { nameof(Item.RawNumberOf) };
+                        if (item.RawNumberOf != e.UpdateValueUInt32)
+                        {
+                            item.RawNumberOf = e.UpdateValueUInt32;
+                            UpdatedProperties = new string[] { nameof(Item.RawNumberOf) };
+                        }
+                    }
+                    else
+                    {
+                        _Logger.Warning("UpdateTypes.NumberOf has wrong datatype: {0}", e.DataType);
                     }
                     break;
             }
 
             if (UpdatedProperties != null)
-                OnDataChanged(DataManager<Item>.ModificationTypes.Updated, item, ix, UpdatedProperties);
+                OnDataChanged(ModificationTypes.Updated, item, ix, UpdatedProperties);
             else
                 _Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
 
@@ -396,7 +450,7 @@ namespace CrossfireCore.Managers
             EndMultiCommand();
         }
 
-        private void _Handler_BeginUpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
+        private void _Handler_BeginUpdateItem(object sender, MessageHandler.BeginEndUpdateItemUpdateEventArgs e)
         {
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -407,7 +461,7 @@ namespace CrossfireCore.Managers
         }
 
 
-        private void _Handler_EndUpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
+        private void _Handler_EndUpdateItem(object sender, MessageHandler.BeginEndUpdateItemUpdateEventArgs e)
         {
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
@@ -576,13 +630,11 @@ namespace CrossfireCore.Managers
         public NewClient.ItemFlags Flags { get; set; }
         public NewClient.ItemFlags FlagsNoPick => Flags & ~NewClient.ItemFlags.NoPick;
 
-        public UInt32 RawWeight { get; set; } = 0;
 
         /// <summary>
         /// Item weight in kg
         /// </summary>
-        public float Weight => (RawWeight == uint.MaxValue) ? float.NaN : RawWeight / 1000; //TODO: use constant
-
+        public float Weight { get; set; }
         public UInt32 Face { get; set; }
         public string Name { get; set; }
         public string NameCase => Name.ToTitleCase();

@@ -20,6 +20,8 @@ namespace CrossfireCore.ServerInterface
         //Save the protocol version for the parser
         public int ServerProtocolVersion { get; private set; } = 0;
 
+        const float FLOAT_MULTF = 1000.0f;
+
         public MessageParser(SocketConnection Connection)
         {
             _Connection = Connection;

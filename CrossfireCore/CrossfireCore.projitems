@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Misc\MessageBuilder_Misc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\MessageBuilder_Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\PlayerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\SkillDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageBuilder_Protocol.cs" />

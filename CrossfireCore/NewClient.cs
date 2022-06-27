@@ -164,7 +164,7 @@ namespace CrossfireCore
 
 
         [Flags]
-        public enum ItemFlags : uint
+        public enum ItemFlags : UInt32
         {
             None = 0,
 
@@ -219,7 +219,7 @@ namespace CrossfireCore
         }
 
         [Flags]
-        public enum StatFlags : uint
+        public enum StatFlags : UInt16
         {
             Firing = 0x01,
             Running = 0x02,
