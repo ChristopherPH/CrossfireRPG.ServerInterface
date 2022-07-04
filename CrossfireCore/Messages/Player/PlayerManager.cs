@@ -36,7 +36,8 @@ namespace CrossfireCore.Managers
 
         private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
-            _Logger.Info("New Player: Tag={0} Name='{1}' Face={2} Weight={3}", e.tag, e.PlayerName, e.face, e.weight);
+            _Logger.Debug("Handler_Player(): Tag={0} Name='{1}' Face={2} Weight={3}",
+                e.tag, e.PlayerName, e.face, e.weight);
 
             //Technically the 'Player' command creates a new player or clears an existing player.
             //However, the server maintains the player properties and stats for the life of the connection,
@@ -44,24 +45,28 @@ namespace CrossfireCore.Managers
             if (Player.PlayerTag != e.tag)
             {
                 Player.PlayerTag = e.tag;
+                _Logger.Info("Player.PlayerTag = {0}", Player.PlayerTag);
                 base.OnPropertyChanged(Player, nameof(Managers.Player.PlayerTag));
             }
 
             if (Player.Name != e.PlayerName)
             {
                 Player.Name = e.PlayerName;
+                _Logger.Info("Player.Name = {0}", Player.Name);
                 base.OnPropertyChanged(Player, nameof(Managers.Player.Name));
             }
 
             if (Player.Face != e.face)
             {
                 Player.Face = e.face;
+                _Logger.Info("Player.Face = {0}", Player.Face);
                 base.OnPropertyChanged(Player, nameof(Managers.Player.Face));
             }
 
             if (Player.Weight != e.weight)
             {
                 Player.Weight = e.weight;
+                _Logger.Info("Player.Weight = {0}", Player.Weight);
                 base.OnPropertyChanged(Player, nameof(Managers.Player.Weight));
             }
         }
@@ -72,9 +77,7 @@ namespace CrossfireCore.Managers
             if (!Player.ValidPlayer || (e.ObjectTag != Player.PlayerTag))
                 return;
 
-            _Logger.Info("Update Player: {0} => {1}{2}{3}{4}{5}", e.UpdateType,
-                e.UpdateValueUInt8, e.UpdateValueUInt16, e.UpdateValueUInt32,
-                e.UpdateValueFloat, e.UpdateString);
+            _Logger.Debug("Handler_UpdateItem(): {0} => {1}", e.UpdateType, e.ValueAsString);
 
             switch (e.UpdateType)
             {
@@ -84,6 +87,7 @@ namespace CrossfireCore.Managers
                         if (Player.Name != e.UpdateString)
                         {
                             Player.Name = e.UpdateString;
+                            _Logger.Info("Player.Name = {0}", Player.Name);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Name));
                         }
                     }
@@ -99,6 +103,7 @@ namespace CrossfireCore.Managers
                         if (Player.Face != e.UpdateValueUInt32)
                         {
                             Player.Face = e.UpdateValueUInt32;
+                            _Logger.Info("Player.Face = {0}", Player.Face);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Face));
                         }
                     }
@@ -114,6 +119,7 @@ namespace CrossfireCore.Managers
                         if (Player.Weight != e.UpdateValueFloat)
                         {
                             Player.Weight = e.UpdateValueFloat;
+                            _Logger.Info("Player.Weight = {0}", Player.Weight);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Weight));
                         }
                     }
@@ -133,7 +139,7 @@ namespace CrossfireCore.Managers
             //Technically the 'Player' command creates a new player or clears an existing player.
             //However, the server maintains the player properties and stats for the life of the connection,
             //and only sends updates if the data changes, so we can't clear data on a new player, only update it
-            _Logger.Info("Player Stats: {0} => {1}", e.Stat, e.ValueAsString);
+            _Logger.Debug("Handler_Stats(): {0} => {1}", e.Stat, e.ValueAsString);
 
             switch (e.Stat)
             {
@@ -143,6 +149,7 @@ namespace CrossfireCore.Managers
                         if (Player.Health != e.ValueUInt16)
                         {
                             Player.Health = e.ValueUInt16;
+                            _Logger.Info("Player.Health = {0}", Player.Health);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Health));
                         }
                     }
@@ -158,6 +165,7 @@ namespace CrossfireCore.Managers
                         if (Player.MaxHealth != e.ValueInt16)
                         {
                             Player.MaxHealth = e.ValueInt16;
+                            _Logger.Info("Player.MaxHealth = {0}", Player.MaxHealth);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.MaxHealth));
                         }
                     }
@@ -173,6 +181,7 @@ namespace CrossfireCore.Managers
                         if (Player.Mana != e.ValueInt16)
                         {
                             Player.Mana = e.ValueInt16;
+                            _Logger.Info("Player.Mana = {0}", Player.Mana);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Mana));
                         }
                     }
@@ -188,6 +197,7 @@ namespace CrossfireCore.Managers
                         if (Player.MaxMana != e.ValueInt16)
                         {
                             Player.MaxMana = e.ValueInt16;
+                            _Logger.Info("Player.MaxMana = {0}", Player.MaxMana);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.MaxMana));
                         }
                     }
@@ -203,6 +213,7 @@ namespace CrossfireCore.Managers
                         if (Player.Grace != e.ValueInt16)
                         {
                             Player.Grace = e.ValueInt16;
+                            _Logger.Info("Player.Grace = {0}", Player.Grace);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Grace));
                         }
                     }
@@ -218,6 +229,7 @@ namespace CrossfireCore.Managers
                         if (Player.MaxGrace != e.ValueInt16)
                         {
                             Player.MaxGrace = e.ValueInt16;
+                            _Logger.Info("Player.MaxGrace = {0}", Player.MaxGrace);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.MaxGrace));
                         }
                     }
@@ -233,6 +245,7 @@ namespace CrossfireCore.Managers
                         if (Player.Experience != (UInt64)e.ValueInt16)
                         {
                             Player.Experience = (UInt64)e.ValueInt16;
+                            _Logger.Info("Player.Experience = {0}", Player.Experience);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Experience));
                         }
                     }
@@ -248,6 +261,7 @@ namespace CrossfireCore.Managers
                         if (Player.Experience != e.ValueUInt64)
                         {
                             Player.Experience = e.ValueUInt64;
+                            _Logger.Info("Player.Experience = {0}", Player.Experience);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Experience));
                         }
                     }
@@ -263,6 +277,7 @@ namespace CrossfireCore.Managers
                         if (Player.Level != e.ValueInt16)
                         {
                             Player.Level = e.ValueInt16;
+                            _Logger.Info("Player.Level = {0}", Player.Level);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Level));
                         }
                     }
@@ -278,6 +293,7 @@ namespace CrossfireCore.Managers
                         if (Player.Food != e.ValueInt16)
                         {
                             Player.Food = e.ValueInt16;
+                            _Logger.Info("Player.Food = {0}", Player.Food);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Food));
                         }
                     }
@@ -291,12 +307,18 @@ namespace CrossfireCore.Managers
                     if (e.DataType == MessageHandler.StatEventArgs.StatDataTypes.String)
                     {
                         var tmpTitle = e.ValueString;
-                        if (tmpTitle.StartsWith("Player: "))
-                            tmpTitle = tmpTitle.Remove(0, "Player: ".Length);
+
+                        //Title prefix is currently "Player: ", but lets futureproof it
+                        var splitString = tmpTitle.Split(new char[] { ':' }, 2);
+                        if ((splitString != null) && (splitString.Length >= 2))
+                        {
+                            tmpTitle = splitString[1].Trim();
+                        }
 
                         if (Player.Title != tmpTitle)
                         {
                             Player.Title = tmpTitle;
+                            _Logger.Info("Player.Title = {0}", Player.Title);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Title));
                         }
                     }
@@ -309,16 +331,30 @@ namespace CrossfireCore.Managers
                 case NewClient.CharacterStats.Range:
                     if (e.DataType == MessageHandler.StatEventArgs.StatDataTypes.String)
                     {
-                        var tmpRange = e.ValueString;
-                        if (tmpRange.StartsWith("Range: "))
-                            tmpRange = tmpRange.Remove(0, "Range: ".Length);
-                        if (tmpRange.StartsWith("Skill: "))
-                            tmpRange = tmpRange.Remove(0, "Skill: ".Length);
+                        var rangeType = string.Empty;
+                        var rangeValue = e.ValueString;
 
-                        if (Player.Range != tmpRange)
+                        //Range types are currently "Range: ", "Skill: ", "Builder: "
+                        //but lets futureproof it
+                        var splitString = rangeValue.Split(new char[] { ':' }, 2);
+                        if ((splitString != null) && (splitString.Length >= 2))
                         {
-                            Player.Range = tmpRange;
+                            rangeType = splitString[0].Trim();
+                            rangeValue = splitString[1].Trim();
+                        }
+
+                        if (Player.Range != rangeValue)
+                        {
+                            Player.Range = rangeValue;
+                            _Logger.Info("Player.Range = {0}", Player.Range);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.Range));
+                        }
+
+                        if (Player.RangeType != rangeType)
+                        {
+                            Player.RangeType = rangeType;
+                            _Logger.Info("Player.RangeType = {0}", Player.RangeType);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RangeType));
                         }
                     }
                     else
@@ -333,6 +369,7 @@ namespace CrossfireCore.Managers
                         if (Player.WeightLimit != e.ValueFloat)
                         {
                             Player.WeightLimit = e.ValueFloat;
+                            _Logger.Info("Player.WeightLimit = {0}", Player.WeightLimit);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.WeightLimit));
                         }
                     }
@@ -348,6 +385,7 @@ namespace CrossfireCore.Managers
                         if (Player.StatFlags != (NewClient.StatFlags)e.ValueInt16)
                         {
                             Player.StatFlags = (NewClient.StatFlags)e.ValueInt16;
+                            _Logger.Info("Player.StatFlags = {0}", Player.StatFlags);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.StatFlags));
                         }
                     }
@@ -363,6 +401,7 @@ namespace CrossfireCore.Managers
                         if (Player.CharacterFlags != (NewClient.CharacterFlags)e.ValueUInt32)
                         {
                             Player.CharacterFlags = (NewClient.CharacterFlags)e.ValueUInt32;
+                            _Logger.Info("Player.CharacterFlags = {0}", Player.CharacterFlags);
                             base.OnPropertyChanged(Player, nameof(Managers.Player.CharacterFlags));
                         }
                     }
@@ -378,7 +417,8 @@ namespace CrossfireCore.Managers
                         if (Player.Strength != e.ValueInt16)
                         {
                             Player.Strength = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Strength));
+                            _Logger.Info("Player.Strength = {0}", Player.Strength);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Strength));
                         }
                     }
                     else
@@ -393,7 +433,8 @@ namespace CrossfireCore.Managers
                         if (Player.Intellegence != e.ValueInt16)
                         {
                             Player.Intellegence = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Intellegence));
+                            _Logger.Info("Player.Intellegence = {0}", Player.Intellegence);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Intellegence));
                         }
                     }
                     else
@@ -408,7 +449,8 @@ namespace CrossfireCore.Managers
                         if (Player.Power != e.ValueInt16)
                         {
                             Player.Power = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Power));
+                            _Logger.Info("Player.Power = {0}", Player.Power);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Power));
                         }
                     }
                     else
@@ -423,7 +465,8 @@ namespace CrossfireCore.Managers
                         if (Player.Wisdom != e.ValueInt16)
                         {
                             Player.Wisdom = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Wisdom));
+                            _Logger.Info("Player.Wisdom = {0}", Player.Wisdom);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Wisdom));
                         }
                     }
                     else
@@ -438,7 +481,8 @@ namespace CrossfireCore.Managers
                         if (Player.Dexterity != e.ValueInt16)
                         {
                             Player.Dexterity = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Dexterity));
+                            _Logger.Info("Player.Dexterity = {0}", Player.Dexterity);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Dexterity));
                         }
                     }
                     else
@@ -453,7 +497,8 @@ namespace CrossfireCore.Managers
                         if (Player.Constitution != e.ValueInt16)
                         {
                             Player.Constitution = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Constitution));
+                            _Logger.Info("Player.Constitution = {0}", Player.Constitution);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Constitution));
                         }
                     }
                     else
@@ -468,7 +513,8 @@ namespace CrossfireCore.Managers
                         if (Player.Charisma != e.ValueInt16)
                         {
                             Player.Charisma = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Charisma));
+                            _Logger.Info("Player.Charisma = {0}", Player.Charisma);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Charisma));
                         }
                     }
                     else
@@ -483,7 +529,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceStrength != e.ValueInt16)
                         {
                             Player.RaceStrength = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceStrength));
+                            _Logger.Info("Player.RaceStrength = {0}", Player.RaceStrength);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceStrength));
                         }
                     }
                     else
@@ -498,7 +545,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceIntellegence != e.ValueInt16)
                         {
                             Player.RaceIntellegence = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceIntellegence));
+                            _Logger.Info("Player.RaceIntellegence = {0}", Player.RaceIntellegence);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceIntellegence));
                         }
                     }
                     else
@@ -513,7 +561,8 @@ namespace CrossfireCore.Managers
                         if (Player.RacePower != e.ValueInt16)
                         {
                             Player.RacePower = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RacePower));
+                            _Logger.Info("Player.RacePower = {0}", Player.RacePower);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RacePower));
                         }
                     }
                     else
@@ -528,7 +577,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceWisdom != e.ValueInt16)
                         {
                             Player.RaceWisdom = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceWisdom));
+                            _Logger.Info("Player.RaceWisdom = {0}", Player.RaceWisdom);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceWisdom));
                         }
                     }
                     else
@@ -543,7 +593,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceDexterity != e.ValueInt16)
                         {
                             Player.RaceDexterity = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceDexterity));
+                            _Logger.Info("Player.RaceDexterity = {0}", Player.RaceDexterity);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceDexterity));
                         }
                     }
                     else
@@ -558,7 +609,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceConstitution != e.ValueInt16)
                         {
                             Player.RaceConstitution = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceConstitution));
+                            _Logger.Info("Player.RaceConstitution = {0}", Player.RaceConstitution);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceConstitution));
                         }
                     }
                     else
@@ -573,7 +625,8 @@ namespace CrossfireCore.Managers
                         if (Player.RaceCharisma != e.ValueInt16)
                         {
                             Player.RaceCharisma = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.RaceCharisma));
+                            _Logger.Info("Player.RaceCharisma = {0}", Player.RaceCharisma);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.RaceCharisma));
                         }
                     }
                     else
@@ -588,7 +641,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseStrength != e.ValueInt16)
                         {
                             Player.BaseStrength = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseStrength));
+                            _Logger.Info("Player.BaseStrength = {0}", Player.BaseStrength);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseStrength));
                         }
                     }
                     else
@@ -603,7 +657,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseIntellegence != e.ValueInt16)
                         {
                             Player.BaseIntellegence = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseIntellegence));
+                            _Logger.Info("Player.BaseIntellegence = {0}", Player.BaseIntellegence);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseIntellegence));
                         }
                     }
                     else
@@ -618,7 +673,8 @@ namespace CrossfireCore.Managers
                         if (Player.BasePower != e.ValueInt16)
                         {
                             Player.BasePower = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BasePower));
+                            _Logger.Info("Player.BasePower = {0}", Player.BasePower);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BasePower));
                         }
                     }
                     else
@@ -633,7 +689,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseWisdom != e.ValueInt16)
                         {
                             Player.BaseWisdom = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseWisdom));
+                            _Logger.Info("Player.BaseWisdom = {0}", Player.BaseWisdom);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseWisdom));
                         }
                     }
                     else
@@ -648,7 +705,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseDexterity != e.ValueInt16)
                         {
                             Player.BaseDexterity = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseDexterity));
+                            _Logger.Info("Player.BaseDexterity = {0}", Player.BaseDexterity);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseDexterity));
                         }
                     }
                     else
@@ -663,7 +721,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseConstitution != e.ValueInt16)
                         {
                             Player.BaseConstitution = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseConstitution));
+                            _Logger.Info("Player.BaseConstitution = {0}", Player.BaseConstitution);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseConstitution));
                         }
                     }
                     else
@@ -678,7 +737,8 @@ namespace CrossfireCore.Managers
                         if (Player.BaseCharisma != e.ValueInt16)
                         {
                             Player.BaseCharisma = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.BaseCharisma));
+                            _Logger.Info("Player.BaseCharisma = {0}", Player.BaseCharisma);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.BaseCharisma));
                         }
                     }
                     else
@@ -693,7 +753,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedStrength != e.ValueInt16)
                         {
                             Player.AppliedStrength = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedStrength));
+                            _Logger.Info("Player.AppliedStrength = {0}", Player.AppliedStrength);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedStrength));
                         }
                     }
                     else
@@ -708,7 +769,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedIntellegence != e.ValueInt16)
                         {
                             Player.AppliedIntellegence = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedIntellegence));
+                            _Logger.Info("Player.AppliedIntellegence = {0}", Player.AppliedIntellegence);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedIntellegence));
                         }
                     }
                     else
@@ -723,7 +785,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedPower != e.ValueInt16)
                         {
                             Player.AppliedPower = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedPower));
+                            _Logger.Info("Player.AppliedPower = {0}", Player.AppliedPower);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedPower));
                         }
                     }
                     else
@@ -738,7 +801,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedWisdom != e.ValueInt16)
                         {
                             Player.AppliedWisdom = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedWisdom));
+                            _Logger.Info("Player.AppliedWisdom = {0}", Player.AppliedWisdom);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedWisdom));
                         }
                     }
                     else
@@ -753,7 +817,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedDexterity != e.ValueInt16)
                         {
                             Player.AppliedDexterity = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedDexterity));
+                            _Logger.Info("Player.AppliedDexterity = {0}", Player.AppliedDexterity);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedDexterity));
                         }
                     }
                     else
@@ -768,7 +833,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedContitution != e.ValueInt16)
                         {
                             Player.AppliedContitution = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedContitution));
+                            _Logger.Info("Player.AppliedContitution = {0}", Player.AppliedContitution);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedContitution));
                         }
                     }
                     else
@@ -783,7 +849,8 @@ namespace CrossfireCore.Managers
                         if (Player.AppliedCharisma != e.ValueInt16)
                         {
                             Player.AppliedCharisma = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.AppliedCharisma));
+                            _Logger.Info("Player.AppliedCharisma = {0}", Player.AppliedCharisma);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedCharisma));
                         }
                     }
                     else
@@ -798,7 +865,8 @@ namespace CrossfireCore.Managers
                         if (Player.Speed != e.ValueFloat)
                         {
                             Player.Speed = e.ValueFloat;
-                            base.OnPropertyChanged(Player, nameof(Player.Speed));
+                            _Logger.Info("Player.Speed = {0}", Player.Speed);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Speed));
                         }
                     }
                     else
@@ -810,10 +878,15 @@ namespace CrossfireCore.Managers
                 case NewClient.CharacterStats.GodName:
                     if (e.DataType == MessageHandler.StatEventArgs.StatDataTypes.String)
                     {
-                        if (Player.GodName != e.ValueString)
+                        var tmpGodName = e.ValueString;
+                        if (tmpGodName == "none")
+                            tmpGodName = string.Empty;
+
+                        if (Player.GodName != tmpGodName)
                         {
-                            Player.GodName = e.ValueString;
-                            base.OnPropertyChanged(Player, nameof(Player.GodName));
+                            Player.GodName = tmpGodName;
+                            _Logger.Info("Player.GodName = {0}", Player.GodName);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.GodName));
                         }
                     }
                     else
@@ -828,7 +901,8 @@ namespace CrossfireCore.Managers
                         if (Player.Overload != e.ValueFloat)
                         {
                             Player.Overload = e.ValueFloat;
-                            base.OnPropertyChanged(Player, nameof(Player.Overload));
+                            _Logger.Info("Player.Overload = {0}", Player.Overload);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Overload));
                         }
                     }
                     else
@@ -843,7 +917,8 @@ namespace CrossfireCore.Managers
                         if (Player.GolemHealth != e.ValueInt16)
                         {
                             Player.GolemHealth = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.GolemHealth));
+                            _Logger.Info("Player.GolemHealth = {0}", Player.GolemHealth);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.GolemHealth));
                         }
                     }
                     else
@@ -858,7 +933,8 @@ namespace CrossfireCore.Managers
                         if (Player.GolemMaxHealth != e.ValueInt16)
                         {
                             Player.GolemMaxHealth = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.GolemMaxHealth));
+                            _Logger.Info("Player.GolemMaxHealth = {0}", Player.GolemMaxHealth);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.GolemMaxHealth));
                         }
                     }
                     else
@@ -873,7 +949,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistPhysical != e.ValueInt16)
                         {
                             Player.ResistPhysical = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistPhysical));
+                            _Logger.Info("Player.ResistPhysical = {0}", Player.ResistPhysical);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistPhysical));
                         }
                     }
                     else
@@ -888,7 +965,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistMagic != e.ValueInt16)
                         {
                             Player.ResistMagic = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistMagic));
+                            _Logger.Info("Player.ResistMagic = {0}", Player.ResistMagic);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistMagic));
                         }
                     }
                     else
@@ -903,7 +981,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistFire != e.ValueInt16)
                         {
                             Player.ResistFire = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistFire));
+                            _Logger.Info("Player.ResistFire = {0}", Player.ResistFire);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistFire));
                         }
                     }
                     else
@@ -918,7 +997,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistElectricity != e.ValueInt16)
                         {
                             Player.ResistElectricity = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistElectricity));
+                            _Logger.Info("Player.ResistElectricity = {0}", Player.ResistElectricity);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistElectricity));
                         }
                     }
                     else
@@ -933,7 +1013,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistCold != e.ValueInt16)
                         {
                             Player.ResistCold = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistCold));
+                            _Logger.Info("Player.ResistCold = {0}", Player.ResistCold);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistCold));
                         }
                     }
                     else
@@ -948,7 +1029,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistConfusion != e.ValueInt16)
                         {
                             Player.ResistConfusion = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistConfusion));
+                            _Logger.Info("Player.ResistConfusion = {0}", Player.ResistConfusion);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistConfusion));
                         }
                     }
                     else
@@ -963,7 +1045,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistAcid != e.ValueInt16)
                         {
                             Player.ResistAcid = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistAcid));
+                            _Logger.Info("Player.ResistAcid = {0}", Player.ResistAcid);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistAcid));
                         }
                     }
                     else
@@ -978,7 +1061,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistDrain != e.ValueInt16)
                         {
                             Player.ResistDrain = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistDrain));
+                            _Logger.Info("Player.ResistDrain = {0}", Player.ResistDrain);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistDrain));
                         }
                     }
                     else
@@ -993,7 +1077,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistGhostHit != e.ValueInt16)
                         {
                             Player.ResistGhostHit = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistGhostHit));
+                            _Logger.Info("Player.ResistGhostHit = {0}", Player.ResistGhostHit);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistGhostHit));
                         }
                     }
                     else
@@ -1008,7 +1093,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistPoison != e.ValueInt16)
                         {
                             Player.ResistPoison = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistPoison));
+                            _Logger.Info("Player.ResistPoison = {0}", Player.ResistPoison);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistPoison));
                         }
                     }
                     else
@@ -1023,7 +1109,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistSlow != e.ValueInt16)
                         {
                             Player.ResistSlow = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistSlow));
+                            _Logger.Info("Player.ResistSlow = {0}", Player.ResistSlow);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistSlow));
                         }
                     }
                     else
@@ -1038,7 +1125,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistParalysis != e.ValueInt16)
                         {
                             Player.ResistParalysis = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistParalysis));
+                            _Logger.Info("Player.ResistParalysis = {0}", Player.ResistParalysis);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistParalysis));
                         }
                     }
                     else
@@ -1053,7 +1141,8 @@ namespace CrossfireCore.Managers
                         if (Player.TurnUndead != e.ValueInt16)
                         {
                             Player.TurnUndead = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.TurnUndead));
+                            _Logger.Info("Player.TurnUndead = {0}", Player.TurnUndead);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.TurnUndead));
                         }
                     }
                     else
@@ -1068,7 +1157,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistFear != e.ValueInt16)
                         {
                             Player.ResistFear = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistFear));
+                            _Logger.Info("Player.ResistFear = {0}", Player.ResistFear);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistFear));
                         }
                     }
                     else
@@ -1083,7 +1173,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistDeplete != e.ValueInt16)
                         {
                             Player.ResistDeplete = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistDeplete));
+                            _Logger.Info("Player.ResistDeplete = {0}", Player.ResistDeplete);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistDeplete));
                         }
                     }
                     else
@@ -1098,7 +1189,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistDeath != e.ValueInt16)
                         {
                             Player.ResistDeath = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistDeath));
+                            _Logger.Info("Player.ResistDeath = {0}", Player.ResistDeath);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistDeath));
                         }
                     }
                     else
@@ -1113,7 +1205,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistHolyWord != e.ValueInt16)
                         {
                             Player.ResistHolyWord = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistHolyWord));
+                            _Logger.Info("Player.ResistHolyWord = {0}", Player.ResistHolyWord);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistHolyWord));
                         }
                     }
                     else
@@ -1128,7 +1221,8 @@ namespace CrossfireCore.Managers
                         if (Player.ResistBlindness != e.ValueInt16)
                         {
                             Player.ResistBlindness = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ResistBlindness));
+                            _Logger.Info("Player.ResistBlindness = {0}", Player.ResistBlindness);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ResistBlindness));
                         }
                     }
                     else
@@ -1143,7 +1237,8 @@ namespace CrossfireCore.Managers
                         if (Player.WeaponClass != e.ValueInt16)
                         {
                             Player.WeaponClass = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.WeaponClass));
+                            _Logger.Info("Player.WeaponClass = {0}", Player.WeaponClass);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.WeaponClass));
                         }
                     }
                     else
@@ -1158,7 +1253,8 @@ namespace CrossfireCore.Managers
                         if (Player.WeaponSpeed != e.ValueFloat)
                         {
                             Player.WeaponSpeed = e.ValueFloat;
-                            base.OnPropertyChanged(Player, nameof(Player.WeaponSpeed));
+                            _Logger.Info("Player.WeaponSpeed = {0}", Player.WeaponSpeed);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.WeaponSpeed));
                         }
                     }
                     else
@@ -1173,7 +1269,8 @@ namespace CrossfireCore.Managers
                         if (Player.Damage != e.ValueInt16)
                         {
                             Player.Damage = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Damage));
+                            _Logger.Info("Player.Damage = {0}", Player.Damage);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Damage));
                         }
                     }
                     else
@@ -1188,7 +1285,8 @@ namespace CrossfireCore.Managers
                         if (Player.ArmourClass != e.ValueInt16)
                         {
                             Player.ArmourClass = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ArmourClass));
+                            _Logger.Info("Player.ArmourClass = {0}", Player.ArmourClass);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ArmourClass));
                         }
                     }
                     else
@@ -1203,7 +1301,8 @@ namespace CrossfireCore.Managers
                         if (Player.Armour != e.ValueInt16)
                         {
                             Player.Armour = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.Armour));
+                            _Logger.Info("Player.Armour = {0}", Player.Armour);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.Armour));
                         }
                     }
                     else
@@ -1218,7 +1317,8 @@ namespace CrossfireCore.Managers
                         if (Player.ItemPower != e.ValueInt16)
                         {
                             Player.ItemPower = e.ValueInt16;
-                            base.OnPropertyChanged(Player, nameof(Player.ItemPower));
+                            _Logger.Info("Player.ItemPower = {0}", Player.ItemPower);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.ItemPower));
                         }
                     }
                     else
@@ -1233,7 +1333,8 @@ namespace CrossfireCore.Managers
                         if (Player.SpellAttune != e.ValueUInt32)
                         {
                             Player.SpellAttune = e.ValueUInt32;
-                            base.OnPropertyChanged(Player, nameof(Player.SpellAttune));
+                            _Logger.Info("Player.SpellAttune = {0}", Player.SpellAttune);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.SpellAttune));
                         }
                     }
                     else
@@ -1248,7 +1349,8 @@ namespace CrossfireCore.Managers
                         if (Player.SpellRepel != e.ValueUInt32)
                         {
                             Player.SpellRepel = e.ValueUInt32;
-                            base.OnPropertyChanged(Player, nameof(Player.SpellRepel));
+                            _Logger.Info("Player.SpellRepel = {0}", Player.SpellRepel);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.SpellRepel));
                         }
                     }
                     else
@@ -1263,7 +1365,8 @@ namespace CrossfireCore.Managers
                         if (Player.SpellDeny != e.ValueUInt32)
                         {
                             Player.SpellDeny = e.ValueUInt32;
-                            base.OnPropertyChanged(Player, nameof(Player.SpellDeny));
+                            _Logger.Info("Player.SpellDeny = {0}", Player.SpellDeny);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.SpellDeny));
                         }
                     }
                     else
@@ -1279,6 +1382,7 @@ namespace CrossfireCore.Managers
                     if (!Player.UnmappedStats.ContainsKey(e.Stat) || (Player.UnmappedStats[e.Stat] != e.ValueAsString))
                     {
                         Player.UnmappedStats[e.Stat] = e.ValueAsString;
+                        _Logger.Info("Player.UnmappedStats:{0} = {1}", e.Stat, Player.UnmappedStats[e.Stat]);
                         base.OnPropertyChanged(Player, nameof(Managers.Player.UnmappedStats) + "|" + e.Stat.ToString());
                     }
                     break;

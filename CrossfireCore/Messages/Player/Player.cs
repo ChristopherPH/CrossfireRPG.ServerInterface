@@ -26,6 +26,7 @@ namespace CrossfireCore.Managers
         public UInt64 Experience { get; set; } = 0;
         public Int16 Level { get; set; } = 0;
         public string Range { get; set; } = string.Empty;
+        public string RangeType { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public NewClient.StatFlags StatFlags { get; set; } = 0;
         public NewClient.CharacterFlags CharacterFlags { get; set; } = 0;

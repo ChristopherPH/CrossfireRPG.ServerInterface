@@ -191,6 +191,33 @@ namespace CrossfireCore.ServerInterface
             public UInt32 UpdateValueUInt32 { get; }
             public string UpdateString { get; }
             public string UpdateStringPlural { get; }
+
+            public string ValueAsString
+            {
+                get
+                {
+                    switch (DataType)
+                    {
+                        case UpdateDataTypes.UInt8:
+                            return this.UpdateValueUInt8.ToString();
+
+                        case UpdateDataTypes.UInt16:
+                            return this.UpdateValueUInt16.ToString();
+
+                        case UpdateDataTypes.UInt32:
+                            return this.UpdateValueUInt32.ToString();
+
+                        case UpdateDataTypes.Float:
+                            return this.UpdateValueFloat.ToString();
+
+                        case UpdateDataTypes.String:
+                            return this.UpdateString;
+
+                        default:
+                            return string.Empty;
+                    }
+                }
+            }
         }
 
         public class BeginEndUpdateItemUpdateEventArgs : SingleCommandEventArgs
