@@ -32,7 +32,7 @@ namespace CrossfireCore.Managers
         public NewClient.CharacterFlags CharacterFlags { get; set; } = 0;
 
         /// <summary>
-        /// Character Total Strength
+        /// Character Current Strength
         /// </summary>
         public Int16 Strength { get; set; } = 0;
         public Int16 Intellegence { get; set; } = 0;
@@ -43,7 +43,7 @@ namespace CrossfireCore.Managers
         public Int16 Charisma { get; set; } = 0;
 
         /// <summary>
-        /// Character Strength Racial Bonus
+        /// Character Maximum Strength
         /// </summary>
         public Int16 RaceStrength { get; set; } = 0;
         public Int16 RaceIntellegence { get; set; } = 0;
@@ -72,7 +72,7 @@ namespace CrossfireCore.Managers
         public Int16 AppliedPower { get; set; } = 0;
         public Int16 AppliedWisdom { get; set; } = 0;
         public Int16 AppliedDexterity { get; set; } = 0;
-        public Int16 AppliedContitution { get; set; } = 0;
+        public Int16 AppliedConstitution { get; set; } = 0;
         public Int16 AppliedCharisma { get; set; } = 0;
 
         public float Speed { get; set; } = 0;

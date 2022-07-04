@@ -830,11 +830,11 @@ namespace CrossfireCore.Managers
                 case NewClient.CharacterStats.AppliedCon:
                     if (e.DataType == MessageHandler.StatEventArgs.StatDataTypes.Int16)
                     {
-                        if (Player.AppliedContitution != e.ValueInt16)
+                        if (Player.AppliedConstitution != e.ValueInt16)
                         {
-                            Player.AppliedContitution = e.ValueInt16;
-                            _Logger.Info("Player.AppliedContitution = {0}", Player.AppliedContitution);
-                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedContitution));
+                            Player.AppliedConstitution = e.ValueInt16;
+                            _Logger.Info("Player.AppliedContitution = {0}", Player.AppliedConstitution);
+                            base.OnPropertyChanged(Player, nameof(Managers.Player.AppliedConstitution));
                         }
                     }
                     else
