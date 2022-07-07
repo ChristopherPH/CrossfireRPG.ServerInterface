@@ -126,40 +126,60 @@ namespace Crossfire.Keybinding
             }
         }
 
+        /// <summary>
+        /// Load keybindings from file
+        /// </summary>
+        /// <param name="location">Binding location</param>
+        /// <param name="defaultOnError">If the keybind file doesn't exist or fails to load, set bindings to default</param>
+        /// <returns></returns>
         bool LoadBindings(KeybindLocations location, bool defaultOnError)
         {
             var filename = GetLocationFilename(location);
             if (string.IsNullOrWhiteSpace(filename))
                 return false;
 
-            if (defaultOnError && !System.IO.File.Exists(filename))
-            {
-                if (!WriteDefaultBindings(filename))
-                    return false;
-            }
+            Bindings bindings = null;
 
-            try
+            //load the bindings if they exist
+            if (System.IO.File.Exists(filename))
             {
-                BindingStore[location] = XmlHelper.XmlToObject<Bindings>(filename);
-            }
-            catch
-            {
-                if (defaultOnError)
+                try
                 {
-                    if (!WriteDefaultBindings(filename))
-                        return false;
-
-                    try
-                    {
-                        BindingStore[location] = XmlHelper.XmlToObject<Bindings>(filename);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
+                    bindings = XmlHelper.XmlToObject<Bindings>(filename);
+                }
+                catch
+                {
+                    bindings = null;
                 }
             }
 
+            //if loading fails/file doesn't exit and we don't default, we are done
+            if ((bindings == null) && !defaultOnError)
+                return false;
+
+            //if loading fails/file doesn't exit, create it
+            if (bindings == null)
+            {
+                if (!WriteDefaultBindings(filename))
+                    return false;
+
+                //then load it
+                try
+                {
+                    bindings = XmlHelper.XmlToObject<Bindings>(filename);
+                }
+                catch
+                {
+                    bindings = null;
+                }
+
+                //if loading fails, we are done
+                if (bindings == null)
+                    return false;
+            }
+
+            //we have loaded bindings, save them and notify
+            BindingStore[location] = bindings;
             KeybindsChanged?.Invoke(this, new KeybindsChangedEventArgs());
             return true;
         }
