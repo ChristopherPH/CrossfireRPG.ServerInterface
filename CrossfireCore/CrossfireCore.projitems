@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ClientTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Defaults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DataListManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Manager.cs" />

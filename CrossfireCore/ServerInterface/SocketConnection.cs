@@ -12,7 +12,6 @@ namespace CrossfireCore.ServerInterface
     {
         static Logger _Logger = new Logger(nameof(SocketConnection));
 
-        const int DefaultServerPort = 13327;
         const string DefaultServerHost = "127.0.0.1";
 
         public TcpClient client
@@ -34,7 +33,7 @@ namespace CrossfireCore.ServerInterface
         public string Host { get; private set; } = string.Empty;
         public int Port { get; private set; } = 0;
 
-        public bool Connect(string Host = DefaultServerHost, int Port = DefaultServerPort)
+        public bool Connect(string Host = DefaultServerHost, int Port = Defaults.ServerPort)
         {
             Disconnect();
 

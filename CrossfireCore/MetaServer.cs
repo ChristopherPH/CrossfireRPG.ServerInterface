@@ -20,7 +20,7 @@ namespace CrossfireCore
         static Logger _Logger = new Logger(nameof(MetaServer));
 
         public string HostName { get; set; }
-        public int Port { get; set; } = 13327;
+        public int Port { get; set; } = Defaults.ServerPort;
         public string HtmlComment { get; set; }
         public string TextComment { get; set; }
         public string ArchBase { get; set; }
