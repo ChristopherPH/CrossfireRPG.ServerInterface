@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Utility;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -125,6 +126,241 @@ namespace CrossfireCore.Managers
             new Dictionary<NewClient.CharacterStats, string>();
 
         public bool ValidPlayer => PlayerTag != 0;
+
+        public string GetStat(NewClient.CharacterStats Stat)
+        {
+            switch (Stat)
+            {
+                case NewClient.CharacterStats.Str:
+                    return this.Strength.ToString();
+
+                case NewClient.CharacterStats.Int:
+                    return this.Intellegence.ToString();
+
+                case NewClient.CharacterStats.Pow:
+                    return this.Power.ToString();
+
+                case NewClient.CharacterStats.Wis:
+                    return this.Wisdom.ToString();
+
+                case NewClient.CharacterStats.Dex:
+                    return this.Dexterity.ToString();
+
+                case NewClient.CharacterStats.Con:
+                    return this.Constitution.ToString();
+
+                case NewClient.CharacterStats.Cha:
+                    return this.Charisma.ToString();
+
+                case NewClient.CharacterStats.RaceStr:
+                    return this.RaceStrength.ToString();
+
+                case NewClient.CharacterStats.RaceInt:
+                    return this.RaceIntellegence.ToString();
+
+                case NewClient.CharacterStats.RacePow:
+                    return this.RacePower.ToString();
+
+                case NewClient.CharacterStats.RaceWis:
+                    return this.RaceWisdom.ToString();
+
+                case NewClient.CharacterStats.RaceDex:
+                    return this.RaceDexterity.ToString();
+
+                case NewClient.CharacterStats.RaceCon:
+                    return this.RaceConstitution.ToString();
+
+                case NewClient.CharacterStats.RaceCha:
+                    return this.RaceCharisma.ToString();
+
+                case NewClient.CharacterStats.BaseStr:
+                    return this.BaseStrength.ToString();
+
+                case NewClient.CharacterStats.BaseInt:
+                    return this.BaseIntellegence.ToString();
+
+                case NewClient.CharacterStats.BasePow:
+                    return this.BasePower.ToString();
+
+                case NewClient.CharacterStats.BaseWis:
+                    return this.BaseWisdom.ToString();
+
+                case NewClient.CharacterStats.BaseDex:
+                    return this.BaseDexterity.ToString();
+
+                case NewClient.CharacterStats.BaseCon:
+                    return this.BaseConstitution.ToString();
+
+                case NewClient.CharacterStats.BaseCha:
+                    return this.BaseCharisma.ToString();
+
+                case NewClient.CharacterStats.AppliedStr:
+                    return this.AppliedStrength.ToString();
+
+                case NewClient.CharacterStats.AppliedInt:
+                    return this.AppliedIntellegence.ToString();
+
+                case NewClient.CharacterStats.AppliedPow:
+                    return this.AppliedPower.ToString();
+
+                case NewClient.CharacterStats.AppliedWis:
+                    return this.AppliedWisdom.ToString();
+
+                case NewClient.CharacterStats.AppliedDex:
+                    return this.AppliedDexterity.ToString();
+
+                case NewClient.CharacterStats.AppliedCon:
+                    return this.AppliedConstitution.ToString();
+
+                case NewClient.CharacterStats.AppliedCha:
+                    return this.AppliedCharisma.ToString();
+
+                case NewClient.CharacterStats.Hp:
+                    return this.Health.ToString();
+
+                case NewClient.CharacterStats.MaxHp:
+                    return this.MaxHealth.ToString();
+
+                case NewClient.CharacterStats.Sp:
+                    return this.Mana.ToString();
+
+                case NewClient.CharacterStats.MaxSp:
+                    return this.MaxMana.ToString();
+
+                case NewClient.CharacterStats.Grace:
+                    return this.Grace.ToString();
+
+                case NewClient.CharacterStats.MaxGrace:
+                    return this.MaxGrace.ToString();
+
+                case NewClient.CharacterStats.Food:
+                    return this.Food.ToString();
+
+                case NewClient.CharacterStats.Exp:
+                case NewClient.CharacterStats.Exp64:
+                    return this.Experience.ToString();
+
+                case NewClient.CharacterStats.Level:
+                    return this.Level.ToString();
+
+                case NewClient.CharacterStats.Title:
+                    return this.Title;
+
+                case NewClient.CharacterStats.Speed:
+                    return this.Speed.ToString("n2");
+
+                case NewClient.CharacterStats.WeightLim:
+                    return this.WeightLimit.ToString("n2");
+
+                case NewClient.CharacterStats.Flags:
+                    return this.StatFlags.GetDescriptions(", ");
+
+                case NewClient.CharacterStats.CharacterFlags:
+                    return this.CharacterFlags.GetDescriptions(", ");
+
+                case NewClient.CharacterStats.GodName:
+                    return this.GodName;
+
+                case NewClient.CharacterStats.Overload:
+                    return this.Overload.ToString("n2");
+
+                case NewClient.CharacterStats.GolemHp:
+                    return this.GolemHealth.ToString();
+
+                case NewClient.CharacterStats.GolemMaxHp:
+                    return this.GolemMaxHealth.ToString();
+
+                case NewClient.CharacterStats.ResPhys:
+                    return this.ResistPhysical.ToString();
+
+                case NewClient.CharacterStats.ResMag:
+                    return this.ResistMagic.ToString();
+
+                case NewClient.CharacterStats.ResFire:
+                    return this.ResistFire.ToString();
+
+                case NewClient.CharacterStats.ResElec:
+                    return this.ResistElectricity.ToString();
+
+                case NewClient.CharacterStats.ResCold:
+                    return this.ResistCold.ToString();
+
+                case NewClient.CharacterStats.ResConf:
+                    return this.ResistConfusion.ToString();
+
+                case NewClient.CharacterStats.ResAcid:
+                    return this.ResistAcid.ToString();
+
+                case NewClient.CharacterStats.ResDrain:
+                    return this.ResistDrain.ToString();
+
+                case NewClient.CharacterStats.ResGhosthit:
+                    return this.ResistGhostHit.ToString();
+
+                case NewClient.CharacterStats.ResPoison:
+                    return this.ResistPoison.ToString();
+
+                case NewClient.CharacterStats.ResSlow:
+                    return this.ResistSlow.ToString();
+
+                case NewClient.CharacterStats.ResPara:
+                    return this.ResistParalysis.ToString();
+
+                case NewClient.CharacterStats.TurnUndead:
+                    return this.TurnUndead.ToString();
+
+                case NewClient.CharacterStats.ResFear:
+                    return this.ResistFear.ToString();
+
+                case NewClient.CharacterStats.ResDeplete:
+                    return this.ResistDeplete.ToString();
+
+                case NewClient.CharacterStats.ResDeath:
+                    return this.ResistDeath.ToString();
+
+                case NewClient.CharacterStats.ResHolyword:
+                    return this.ResistHolyWord.ToString();
+
+                case NewClient.CharacterStats.ResBlind:
+                    return this.ResistBlindness.ToString();
+
+                case NewClient.CharacterStats.Range:
+                    return this.Range;
+
+                case NewClient.CharacterStats.Wc:
+                    return this.WeaponClass.ToString();
+
+                case NewClient.CharacterStats.WeapSp:
+                    return this.WeaponSpeed.ToString("n2");
+
+                case NewClient.CharacterStats.Dam:
+                    return this.Damage.ToString();
+
+                case NewClient.CharacterStats.Ac:
+                    return this.ArmourClass.ToString();
+
+                case NewClient.CharacterStats.Armour:
+                    return this.Armour.ToString();
+
+                case NewClient.CharacterStats.ItemPower:
+                    return this.ItemPower.ToString();
+
+                case NewClient.CharacterStats.SpellAttune:
+                    return this.SpellAttune.ToString();
+
+                case NewClient.CharacterStats.SpellRepel:
+                    return this.SpellRepel.ToString();
+
+                case NewClient.CharacterStats.SpellDeny:
+                    return this.SpellDeny.ToString();
+
+                default:
+                    if (UnmappedStats.TryGetValue(Stat, out var value))
+                        return value;
+
+                    return null;
+            }
+        }
 
         public override string ToString()
         {
