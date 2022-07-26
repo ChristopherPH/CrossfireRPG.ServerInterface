@@ -8,6 +8,8 @@ namespace CrossfireCore.ServerInterface
     {
         public event EventHandler<AddQuestEventArgs> AddQuest;
         public event EventHandler<UpdateQuestEventArgs> UpdateQuest;
+        public event EventHandler<EventArgs> BeginQuests;
+        public event EventHandler<EventArgs> EndQuests;
 
         protected override void HandleAddQuest(UInt32 Code, string Title, int Face,
             byte Replay, uint Parent, byte End, string Step)
@@ -32,6 +34,16 @@ namespace CrossfireCore.ServerInterface
                 End = End,
                 Step = Step,
             });
+        }
+
+        protected override void HandleBeginQuests()
+        {
+            BeginQuests?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void HandleEndQuests()
+        {
+            EndQuests?.Invoke(this, EventArgs.Empty);
         }
 
         public class AddQuestEventArgs : MultiCommandEventArgs

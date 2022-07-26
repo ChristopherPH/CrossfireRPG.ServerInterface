@@ -14,12 +14,15 @@ namespace CrossfireCore.Managers
         {
             Handler.AddQuest += Handler_AddQuest;
             Handler.UpdateQuest += Handler_UpdateQuest;
+            Handler.BeginQuests += Handler_BeginQuests;
+            Handler.EndQuests += Handler_EndQuests;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
         public override ModificationTypes SupportedModificationTypes =>
-            base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated;
+            base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated |
+            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
 
         private void Handler_AddQuest(object sender, MessageHandler.AddQuestEventArgs e)
         {
@@ -43,6 +46,16 @@ namespace CrossfireCore.Managers
                 data.End = e.End;
                 return new string[] { nameof(Quest.Step), nameof(Quest.End) };
             });
+        }
+
+        private void Handler_BeginQuests(object sender, EventArgs e)
+        {
+            StartMultiCommand();
+        }
+
+        private void Handler_EndQuests(object sender, EventArgs e)
+        {
+            EndMultiCommand();
         }
     }
 

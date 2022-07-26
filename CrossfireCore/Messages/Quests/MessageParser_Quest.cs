@@ -9,6 +9,8 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleAddQuest(UInt32 Code, string Title, Int32 Face, byte Replay, UInt32 Parent,
             byte End, string Step);
         protected abstract void HandleUpdateQuest(UInt32 Code, byte End, string Step);
+        protected abstract void HandleBeginQuests();
+        protected abstract void HandleEndQuests();
 
         private void AddQuestParsers()
         {
@@ -18,6 +20,8 @@ namespace CrossfireCore.ServerInterface
 
         private bool Parse_addquest(byte[] Message, ref int DataOffset, int DataEnd)
         {
+            HandleBeginQuests();
+
             while (DataOffset < DataEnd)
             {
                 var quest_code = BufferTokenizer.GetUInt32(Message, ref DataOffset);
@@ -33,6 +37,8 @@ namespace CrossfireCore.ServerInterface
                 HandleAddQuest(quest_code, quest_title, quest_face, quest_replay, quest_parent_code,
                     quest_end, quest_step);
             }
+
+            HandleEndQuests();
 
             return true;
         }
