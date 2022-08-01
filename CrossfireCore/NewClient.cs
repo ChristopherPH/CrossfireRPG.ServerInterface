@@ -280,5 +280,17 @@ namespace CrossfireCore
             /// </summary>
             Wizard = 0x0200
         }
+
+        public enum SoundTypes
+        {
+            Living = 1,
+            Spell = 2,
+            Item = 3,
+            Ground = 4,
+            Hit = 5,
+
+            [Description("Hit By")]
+            HitBy = 6
+        }
     }
 }
