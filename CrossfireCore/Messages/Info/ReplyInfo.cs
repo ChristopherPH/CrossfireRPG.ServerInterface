@@ -48,10 +48,12 @@ namespace CrossfireCore.ServerInterface
             public int Face { get; set; }
             public int CanAttempt { get; set; }
         }
+
         public class Skill
         {
             public string Name { get; set; }
             public uint Face { get; set; }
+            public string Description { get; set; } = "";
         }
 
         public class SpellPath
@@ -159,6 +161,7 @@ namespace CrossfireCore.ServerInterface
         public const string InfoTypeNews = "news";
         public const string InfoTypeRules = "rules";
         public const string InfoTypeSkillInfo = "skill_info";
+        public const string InfoTypeSkillExtra = "skill_extra";
         public const string InfoTypeExpTable = "exp_table";
         public const string InfoTypeSpellPaths = "spell_paths";
         public const string InfoTypeKnowledgeInfo = "knowledge_info";
@@ -189,7 +192,8 @@ namespace CrossfireCore.ServerInterface
 
         public void RequestSkillInfo()
         {
-            _Builder.SendRequestInfo(InfoTypeSkillInfo);
+            _Builder.SendRequestInfo(InfoTypeSkillInfo, 1);
+            _Builder.SendRequestInfo(InfoTypeSkillExtra, 1);
         }
 
         public void RequestExperienceTable()
@@ -285,6 +289,23 @@ namespace CrossfireCore.ServerInterface
                             case 3: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = UInt32.Parse(SkillSet[2]) }; break;
                             default: throw new Exception();
                         }
+                    }
+                    break;
+
+                case InfoTypeSkillExtra:
+                    while (offset < end)
+                    {
+                        var SkillID = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                        if (SkillID == 0)
+                            break;
+
+                        var SkillDescriptionLen = BufferTokenizer.GetUInt16(e.Reply, ref offset);
+                        var SkillDescription = BufferTokenizer.GetBytesAsString(e.Reply, ref offset, SkillDescriptionLen);
+
+                        if (Skills.TryGetValue(SkillID, out var skill))
+                            skill.Description = SkillDescription;
+                        else
+                            _Logger.Warning("Unknown ReplyInfo {0} Skill {1} {2}", e.Request, SkillID, SkillDescription);
                     }
                     break;
 
