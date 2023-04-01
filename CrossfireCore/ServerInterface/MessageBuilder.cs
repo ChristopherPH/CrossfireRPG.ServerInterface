@@ -33,5 +33,21 @@ namespace CrossfireCore.ServerInterface
 
             return _Connection.SendMessage(bytes);
         }
+
+        /// <summary>
+        /// Sends a raw string to the server
+        /// </summary>
+        /// <returns>True if the message was sent, false if not</returns>
+        public bool SendMessage(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return false;
+
+            message = message.Trim();
+
+            _Logger.Info("C->S: message={0}", message);
+
+            return _Connection.SendMessage(message);
+        }
     }
 }

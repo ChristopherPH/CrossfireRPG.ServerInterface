@@ -67,5 +67,13 @@ namespace CrossfireCore.ServerInterface
                 return SendMessage(ba);
             }
         }
+
+        public bool SendAddMe()
+        {
+            using (var ba = new BufferAssembler("addme", false))
+            {
+                return SendMessage(ba);
+            }
+        }
     }
 }
