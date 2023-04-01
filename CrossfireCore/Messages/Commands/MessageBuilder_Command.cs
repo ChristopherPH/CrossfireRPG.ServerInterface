@@ -9,6 +9,12 @@ namespace CrossfireCore.ServerInterface
 {
     public partial class MessageBuilder
     {
+        private UInt16 nComPacket = 1;
+
+        /// <summary>
+        /// Sends a NewCommand (UserCommand) to the server
+        /// </summary>
+        /// <returns>Command ID, or 0 on failure</returns>
         public UInt16 SendNewCommand(string command, UInt32 repeat = 0)
         {
             using (var ba = new BufferAssembler("ncom")) //NewCommand

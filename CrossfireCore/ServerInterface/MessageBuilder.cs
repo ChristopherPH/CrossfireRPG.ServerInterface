@@ -22,10 +22,16 @@ namespace CrossfireCore.ServerInterface
         }
 
         private SocketConnection _Connection;
-        private UInt16 nComPacket = 1;
 
+        /// <summary>
+        /// Sends an assembled message to the server
+        /// </summary>
+        /// <returns>True if the message was sent, false if not</returns>
         private bool SendMessage(BufferAssembler ba)
         {
+            if (ba == null)
+                return false;
+
             _Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
 
             var bytes = ba.GetBytes();
