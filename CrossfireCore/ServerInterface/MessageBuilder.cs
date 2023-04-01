@@ -1,18 +1,18 @@
 ﻿using Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossfireCore.ServerInterface
 {
+    /// <summary>
+    /// MessageBuilder is used to create and send messages to the server
+    /// Note: This is a partial class and commands are implemented across multiple files
+    /// </summary>
     public partial class MessageBuilder
     {
         static Logger _Logger = new Logger(nameof(MessageBuilder));
 
         /// <summary>
-        /// CrossfireCore.ServerInterface can receive and understand protocol messages up to and including version:
+        /// CrossfireCore.ServerInterface can receive and understand protocol
+        /// messages up to and including version:
         /// </summary>
         public const int ClientProtocolVersion = 1023;
 

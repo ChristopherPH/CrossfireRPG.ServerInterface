@@ -1,12 +1,11 @@
-﻿using CrossfireCore.ServerInterface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace CrossfireCore.ServerInterface
 {
+    /// <summary>
+    /// MessageParser is used to receive messages from the server and generate
+    /// events that other objects can subscribe to
+    /// </summary>
     public partial class MessageHandler : MessageParser
     {
         public event EventHandler<ParseBufferEventArgs> BeginParseBuffer;
@@ -15,6 +14,13 @@ namespace CrossfireCore.ServerInterface
         public MessageHandler(SocketConnection Connection)
             : base(Connection) { }
 
+        /// <summary>
+        /// Overrides parsing buffer to send a begin and end event wrapped around the parsing.
+        /// Note: The server often sends commands batched (multiple commands arrive in a single
+        /// packet if the network latency is low. This means we can try to minimize updates if
+        /// we know that there are multiple similar commands (eg: inventory add) as part of
+        /// a single batch). See the data managers as an example.
+        /// </summary>
         protected override void ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer,
             out int ByteCount, out int MessageCount)
         {
@@ -34,7 +40,7 @@ namespace CrossfireCore.ServerInterface
             EndParseBuffer?.Invoke(this, args);
         }
 
-        public class ParseBufferEventArgs : SingleCommandEventArgs
+        public class ParseBufferEventArgs : EventArgs
         {
             public byte[] SavedBuffer { get; set; } = null;
             public byte[] Buffer { get; set; } = null;

@@ -1,13 +1,14 @@
 ﻿using Common;
-using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossfireCore.ServerInterface
 {
+    /// <summary>
+    /// MessageParser is used to receive and parse messages from the server
+    /// Abstract functions are used so derived classes can handle the message in different ways
+    /// Note: This is a partial class and commands are implemented across multiple files
+    /// </summary>
     public abstract partial class MessageParser
     {
         static Logger _Logger = new Logger(nameof(MessageParser));
@@ -28,6 +29,7 @@ namespace CrossfireCore.ServerInterface
             _Connection.OnPacket += Connection_OnPacket;
             _Connection.OnStatusChanged += _Connection_OnStatusChanged;
 
+            //Add all the different parsers to the command handler
             AddAccountParsers();
             AddAudioParsers();
             AddCommandParsers();
@@ -47,6 +49,10 @@ namespace CrossfireCore.ServerInterface
         private SocketConnection _Connection;
         private Dictionary<string, CommandParserDefinition> _CommandHandler = new Dictionary<string, CommandParserDefinition>();
 
+        /// <summary>
+        /// Add a command handler and parser function for the command data
+        /// </summary>
+        /// <returns>true if the handler was added</returns>
         protected bool AddCommandHandler(string command, CommandParserDefinition parseCommand)
         {
             if (string.IsNullOrWhiteSpace(command) || (parseCommand == null) || (parseCommand.Parser == null))
@@ -66,6 +72,9 @@ namespace CrossfireCore.ServerInterface
             ParseBuffer(ref _SavedBuffer, e.Packet, out var ByteCount, out var MessageCount);
         }
 
+        /// <summary>
+        /// Parses messages from the incoming buffer and the current saved buffer
+        /// </summary>
         protected virtual void ParseBuffer(ref byte[] SavedBuffer, byte[] Buffer,
             out int ByteCount, out int MessageCount)
         {

@@ -3,11 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossfireCore.Managers
 {
+    /// <summary>
+    /// Manager class that holds, manages and organizes data for multiple objects
+    /// Managers are used to combine multiple server messages/events into a single object
+    /// with less updates
+    /// </summary>
     public abstract class DataListManager<T> : DataManager<T>, IEnumerable<T>
     {
         public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
@@ -17,6 +20,9 @@ namespace CrossfireCore.Managers
             Handler.EndParseBuffer += Handler_EndParseBuffer;
         }
 
+        /// <summary>
+        /// Setup property to indicate what events the manager will trigger
+        /// </summary>
         public override ModificationTypes SupportedModificationTypes => 
             base.SupportedModificationTypes | ModificationTypes.Cleared |
                 ModificationTypes.GroupUpdateStart | ModificationTypes.GroupUpdateEnd;
@@ -151,7 +157,7 @@ namespace CrossfireCore.Managers
         }
 
         /// <summary>
-        /// Updates Properties of Data given a match
+        /// Helper function to Update Properties of Data given a match
         /// </summary>
         protected bool UpdateData(Predicate<T> Match, Func<T, string[]> UpdateAction)
         {
@@ -159,7 +165,7 @@ namespace CrossfireCore.Managers
         }
 
         /// <summary>
-        /// Updates Properties of Data at a given index
+        /// Helper function to Update Properties of Data at a given index
         /// </summary>
         protected bool UpdateData(int index, Func<T, string[]> UpdateAction)
         {
@@ -188,7 +194,7 @@ namespace CrossfireCore.Managers
         }
 
         /// <summary>
-        /// Replaces Data at a given index with a new Data
+        /// Helper function to replace Data at a given index with a new Data
         /// </summary>
         protected bool UpdateData(int index, T Data)
         {
@@ -211,11 +217,19 @@ namespace CrossfireCore.Managers
             return true;
         }
 
+        /// <summary>
+        /// Helper function to remove data given a match
+        /// </summary>
+        /// <param name="Match"></param>
+        /// <returns></returns>
         protected bool RemoveData(Predicate<T> Match)
         {
             return RemoveData(Datas.FindIndex(Match));
         }
 
+        /// <summary>
+        /// Helper function to remove data
+        /// </summary>
         protected bool RemoveData(T Data)
         {
             var index = GetIndex(Data);
@@ -225,6 +239,9 @@ namespace CrossfireCore.Managers
             return RemoveData(index);
         }
 
+        /// <summary>
+        /// Helper function to remove data at a specified index
+        /// </summary>
         protected bool RemoveData(int index)
         {
             if ((index < 0) || (index >= Count))
@@ -249,6 +266,9 @@ namespace CrossfireCore.Managers
             return true;
         }
 
+        /// <summary>
+        /// Helper function to remove data
+        /// </summary>
         protected override void ClearData()
         {
             if (Datas.Count > 0)

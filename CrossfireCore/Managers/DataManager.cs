@@ -1,11 +1,14 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossfireCore.Managers
 {
+    /// <summary>
+    /// Manager class that holds, manages and organizes data for a single object
+    /// Managers are used to combine multiple server messages/events into a single object
+    /// with less updates
+    /// </summary>
     public abstract class DataManager<T> : Manager
     {
         public DataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
@@ -18,10 +21,26 @@ namespace CrossfireCore.Managers
                 Handler.Player += Handler_Player;
         }
 
+        /// <summary>
+        /// Setup property to indicate that the manager should clear all of its data 
+        /// when the socket disconnects
+        /// </summary>
         protected abstract bool ClearDataOnConnectionDisconnect { get; }
+
+        /// <summary>
+        /// Setup property to indicate that the manager should clear all of its data 
+        /// when the player changes
+        /// </summary>
         protected abstract bool ClearDataOnNewPlayer { get; }
+
+        /// <summary>
+        /// Custom function that clears all the data for the manager
+        /// </summary>
         protected abstract void ClearData();
 
+        /// <summary>
+        /// Setup property to indicate what events the manager will trigger
+        /// </summary>
         public virtual ModificationTypes SupportedModificationTypes => ModificationTypes.None;
 
         private void Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
@@ -36,6 +55,9 @@ namespace CrossfireCore.Managers
                 ClearData();
         }
 
+        /// <summary>
+        /// Event when any data for the managed object changes
+        /// </summary>
         public event EventHandler<DataUpdatedEventArgs> DataChanged;
 
         protected virtual void OnDataChanged(ModificationTypes ModificationType,
@@ -54,16 +76,25 @@ namespace CrossfireCore.Managers
             DataChanged?.Invoke(this, dataUpdatedEventArgs);
         }
 
+        /// <summary>
+        /// Helper function to trigger a Updated event
+        /// </summary>
         protected virtual void OnPropertyChanged(T Data, string UpdatedProperty)
         {
             OnDataChanged(ModificationTypes.Updated, Data, new string[] { UpdatedProperty });
         }
 
+        /// <summary>
+        /// Helper function to trigger a MultiCommandStart event
+        /// </summary>
         protected virtual void StartMultiCommand()
         {
             OnDataChanged(ModificationTypes.MultiCommandStart, default);
         }
 
+        /// <summary>
+        /// Helper function to trigger a MultiCommandEnd event
+        /// </summary>
         protected virtual void EndMultiCommand()
         {
             OnDataChanged(ModificationTypes.MultiCommandEnd, default);
