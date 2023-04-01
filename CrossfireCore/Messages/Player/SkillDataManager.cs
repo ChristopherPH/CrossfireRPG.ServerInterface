@@ -1,9 +1,5 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossfireCore.Managers
 {
@@ -35,9 +31,24 @@ namespace CrossfireCore.Managers
             {
                 UpdateData(x => x.SkillID == e.Skill, (data) =>
                 {
+                    string[] rc = null;
+
+                    if ((data.Level != e.Level) && (data.Value != e.Value))
+                    {
+                        rc = new string[] { nameof(Skill.Level), nameof(Skill.Value) };
+                    }
+                    else if (data.Level != e.Level)
+                    {
+                        rc = new string[] { nameof(Skill.Level) };
+                    }
+                    else if (data.Value != e.Value)
+                    {
+                        rc = new string[] { nameof(Skill.Value) };
+                    }
+
                     data.Level = e.Level;
                     data.Value = e.Value;
-                    return new string[] { nameof(Skill.Level), nameof(Skill.Value) };
+                    return rc;
                 });
             }
         }
