@@ -170,7 +170,12 @@ namespace CrossfireCore.ServerInterface
                     if (!parseCommand.Parser(Message, ref curPos, dataEnd))
                         _Logger.Error("Failed to parse command: {0}", command);
                 }
-                catch (Exception ex)
+                catch (BufferTokenizerException ex)
+                {
+                    _Logger.Error("Failed to tokenize buffer: {0}: {1}",
+                        command, ex.Message);
+                }
+                catch (MessageParserException ex)
                 {
                     _Logger.Error("Failed to parse command: {0}: {1}",
                         command, ex.Message);
