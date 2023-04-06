@@ -49,7 +49,9 @@ namespace CrossfireCore.ServerInterface
                 {
                     spell_usage = BufferTokenizer.GetByte(Message, ref DataOffset);
                     var spell_requirement_len = BufferTokenizer.GetByte(Message, ref DataOffset);
-                    spell_requirement = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_requirement_len);
+
+                    if (spell_requirement_len != 0)
+                        spell_requirement = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_requirement_len);
                 }
 
                 HandleAddSpell(spell_tag, spell_level, spell_cast_time, spell_mana, spell_grace, spell_damage, spell_skill,

@@ -29,7 +29,10 @@ namespace CrossfireCore.ServerInterface
             var player_weight = BufferTokenizer.GetUInt32(Message, ref DataOffset) / FLOAT_MULTF; //UInt32 -> Float
             var player_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
             var player_name_len = BufferTokenizer.GetByte(Message, ref DataOffset);
-            var player_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, player_name_len);
+
+            var player_name = string.Empty;
+            if (player_name_len != 0)
+                player_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, player_name_len);
 
             HandlePlayer(player_tag, player_weight, player_face, player_name);
 
