@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CrossfireCore.ServerInterface
 {
@@ -93,21 +91,21 @@ namespace CrossfireCore.ServerInterface
                     if (map_data_len == 0x07)
                     {
                         map_data_len += BufferTokenizer.GetByte(Message, ref DataOffset);
-                        throw new Exception("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
+                        throw new MessageParserException("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
                     }
 
                     switch (map_data_type)
                     {
                         case 0x00: //clear
                             if (map_data_len != 0)
-                                throw new Exception("Invalid map_data_len: must be 0");
+                                throw new MessageParserException("Invalid map_data_len: must be 0");
 
                             HandleMap2Clear(map_coord_x, map_coord_y);
                             break;
 
                         case 0x01: //darkness
                             if (map_data_len != 1)
-                                throw new Exception("Invalid map_data_len: must be 1");
+                                throw new MessageParserException("Invalid map_data_len: must be 1");
 
                             var darkness = BufferTokenizer.GetByte(Message, ref DataOffset); //0=dark, 255=light
 
@@ -150,7 +148,7 @@ namespace CrossfireCore.ServerInterface
                                     break;
 
                                 default:
-                                    throw new Exception("Invalid map_data_len - must be 2,3,4: is " + map_data_len.ToString());
+                                    throw new MessageParserException("Invalid map_data_len - must be 2,3,4: is " + map_data_len.ToString());
                             }
 
                             if (face_or_animation == 0)
@@ -171,7 +169,7 @@ namespace CrossfireCore.ServerInterface
                             break;
 
                         default:
-                            throw new Exception("Invalid map_data_type: " + map_data_type.ToString());
+                            throw new MessageParserException("Invalid map_data_type: " + map_data_type.ToString());
                     }
                 }
 

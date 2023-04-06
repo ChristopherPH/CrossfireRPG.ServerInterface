@@ -119,7 +119,7 @@ namespace CrossfireCore.ServerInterface
                 var messageLen = (workingBuffer[ByteCount] * 256) + workingBuffer[ByteCount + 1];
 
                 if (messageLen <= 0)
-                    throw new Exception("Invalid message length");
+                    throw new MessageParserException("Message length <= 0");
 
                 //ensure enough data to retrieve message
                 if (ByteCount + MessageLengthSize + messageLen > workingBuffer.Length)
@@ -210,5 +210,18 @@ namespace CrossfireCore.ServerInterface
                 ServerProtocolVersion = 0;
             }
         }
+    }
+
+
+    [Serializable]
+    public class MessageParserException : Exception
+
+    {
+        public MessageParserException() { }
+        public MessageParserException(string message) : base(message) { }
+        public MessageParserException(string message, Exception inner) : base(message, inner) { }
+        protected MessageParserException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

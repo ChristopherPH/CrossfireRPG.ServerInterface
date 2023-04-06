@@ -287,7 +287,7 @@ namespace CrossfireCore.ServerInterface
                         {
                             case 2: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = 0 }; break;
                             case 3: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = UInt32.Parse(SkillSet[2]) }; break;
-                            default: throw new Exception();
+                            default: throw new MessageParserException("Unhandled skill info count");
                         }
                     }
                     break;
