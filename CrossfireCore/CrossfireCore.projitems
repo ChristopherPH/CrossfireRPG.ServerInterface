@@ -71,7 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MultiCommandEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\ReplyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\InfoManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\SingleCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Net\SocketConnection.cs" />
   </ItemGroup>

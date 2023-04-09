@@ -1,24 +1,21 @@
 ﻿using Common;
 using Common.Utility;
+using CrossfireCore.Managers;
 using System;
 using System.Collections.Generic;
 
 namespace CrossfireCore.ServerInterface
 {
-    public class ReplyInfo
+    public class InfoManager : Manager
     {
-        static Logger _Logger = new Logger(nameof(ReplyInfo));
+        static Logger _Logger = new Logger(nameof(InfoManager));
 
-        public ReplyInfo(MessageBuilder Builder, MessageHandler Handler)
+        public InfoManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+            : base(Connection, Builder, Handler)
         {
-            _Builder = Builder;
-            _Handler = Handler;
-
-            _Handler.ReplyInfo += _Handler_ReplyInfo;
+            Connection.OnStatusChanged += _Connection_OnStatusChanged;
+            Handler.ReplyInfo += Handler_ReplyInfo;
         }
-
-        private MessageBuilder _Builder;
-        private MessageHandler _Handler;
 
         public event EventHandler<InfoAvailableEventArgs> InfoAvailable;
 
@@ -175,71 +172,71 @@ namespace CrossfireCore.ServerInterface
         //Supported Request functions
         public void RequestMOTD()
         {
-            _Builder.SendRequestInfo(InfoTypeMODT);
+            Builder.SendRequestInfo(InfoTypeMODT);
         }
 
         public void RequestNews()
         {
-            _Builder.SendRequestInfo(InfoTypeNews);
+            Builder.SendRequestInfo(InfoTypeNews);
         }
 
         public void RequestRules()
         {
-            _Builder.SendRequestInfo(InfoTypeRules);
+            Builder.SendRequestInfo(InfoTypeRules);
         }
 
         public void RequestSkillInfo()
         {
-            _Builder.SendRequestInfo(InfoTypeSkillInfo, 1);
-            _Builder.SendRequestInfo(InfoTypeSkillExtra, 1);
+            Builder.SendRequestInfo(InfoTypeSkillInfo, 1);
+            Builder.SendRequestInfo(InfoTypeSkillExtra, 1);
         }
 
         public void RequestExperienceTable()
         {
-            _Builder.SendRequestInfo(InfoTypeExpTable);
+            Builder.SendRequestInfo(InfoTypeExpTable);
         }
 
         public void RequestSpellPaths()
         {
-            _Builder.SendRequestInfo(InfoTypeSpellPaths);
+            Builder.SendRequestInfo(InfoTypeSpellPaths);
         }
 
         public void RequestKnowledgeInfo()
         {
-            _Builder.SendRequestInfo(InfoTypeKnowledgeInfo);
+            Builder.SendRequestInfo(InfoTypeKnowledgeInfo);
         }
 
         public void RequestRaces()
         {
-            _Builder.SendRequestInfo(InfoTypeRaceList);
+            Builder.SendRequestInfo(InfoTypeRaceList);
         }
 
         public void RequestClasses()
         {
-            _Builder.SendRequestInfo(InfoTypeClassList);
+            Builder.SendRequestInfo(InfoTypeClassList);
         }
 
         public void RequestStartingMap()
         {
-            _Builder.SendRequestInfo(InfoTypeStartingMap);
+            Builder.SendRequestInfo(InfoTypeStartingMap);
         }
 
         public void RequestNewCharInfo()
         {
-            _Builder.SendRequestInfo(InfoTypeNewCharInfo);
+            Builder.SendRequestInfo(InfoTypeNewCharInfo);
         }
 
         public void RequestImageInfo()
         {
-            _Builder.SendRequestInfo(InfoTypeImageInfo);
+            Builder.SendRequestInfo(InfoTypeImageInfo);
         }
 
         public void RequestImageSums(int start, int stop)
         {
-            _Builder.SendRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
+            Builder.SendRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
         }
 
-        public void ClearReplyInfo()
+        public void ClearInfo()
         {
             Motd = string.Empty;
             News = string.Empty;
@@ -256,7 +253,12 @@ namespace CrossfireCore.ServerInterface
             ImageSums.Clear();
         }
 
-        private void _Handler_ReplyInfo(object sender, MessageHandler.ReplyInfoEventArgs e)
+        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        {
+            ClearInfo();
+        }
+
+        private void Handler_ReplyInfo(object sender, MessageHandler.ReplyInfoEventArgs e)
         {
             int offset = 0;
             var end = e.Reply.Length;
@@ -354,7 +356,7 @@ namespace CrossfireCore.ServerInterface
                     var race_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset, end).Split('|');
                     foreach (var race in race_arches)
                         if (!string.IsNullOrWhiteSpace(race))
-                            _Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeRaceInfo, race));
+                            Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeRaceInfo, race));
                     break;
 
                 case InfoTypeRaceInfo:
@@ -472,7 +474,7 @@ namespace CrossfireCore.ServerInterface
                     var class_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset, end).Split('|');
                     foreach (var cls in class_arches)
                         if (!string.IsNullOrWhiteSpace(cls))
-                            _Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeClassInfo, cls));
+                            Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeClassInfo, cls));
                     break;
 
                 case InfoTypeClassInfo:
