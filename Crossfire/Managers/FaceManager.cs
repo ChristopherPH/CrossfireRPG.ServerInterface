@@ -16,6 +16,7 @@ namespace Crossfire.Managers
         {
             Connection.OnStatusChanged += _Connection_OnStatusChanged;
             Handler.Image2 += _Handler_Image2;
+            Handler.Face2 += _Handler_Face2;
         }
 
         static Logger _Logger = new Logger(nameof(FaceManager));
@@ -180,6 +181,26 @@ namespace Crossfire.Managers
                         faceAction.Value(image);
                     _FaceAvailableActions.RemoveAll(x => x.Key == e.ImageFace);
                 }
+            }
+        }
+
+        private void _Handler_Face2(object sender, MessageHandler.Face2EventArgs e)
+        {
+            //TODO: Implement face cache
+
+            bool requestedFace = false;
+
+            lock (_MissingLock)
+            {
+                requestedFace = _MissingFaces.Contains(e.Face);
+                if (!requestedFace)
+                    _MissingFaces.Add(e.Face);
+            }
+
+            if (!requestedFace)
+            {
+                _Logger.Warning($"Face {e.Face} not in cache, requesting face");
+                Builder.SendAskFace(e.Face);
             }
         }
 
