@@ -1,7 +1,6 @@
 ﻿using Common.Utility;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CrossfireCore.Managers
 {

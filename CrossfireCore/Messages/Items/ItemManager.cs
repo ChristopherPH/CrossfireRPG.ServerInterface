@@ -4,7 +4,6 @@ using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CrossfireCore.Managers
 {

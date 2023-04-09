@@ -1,9 +1,7 @@
-﻿using CrossfireCore.ServerInterface;
-using Common;
+﻿using Common;
 using Common.Utility;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CrossfireCore.ServerInterface
 {
