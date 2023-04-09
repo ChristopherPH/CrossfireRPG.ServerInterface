@@ -185,6 +185,32 @@ namespace CrossfireCore.Managers
             }
         }
 
+        public static bool ParseMapSize(string mapsize, out int width, out int height)
+        {
+            //Check for setup command failure
+            if (string.IsNullOrWhiteSpace(mapsize) || (mapsize == "FALSE"))
+            {
+                width = Config.MAP_CLIENT_X_DEFAULT;
+                height = Config.MAP_CLIENT_Y_DEFAULT;
+                return false;
+            }
+
+            //match pattern of (number)x(number) with allowed whitespace and case insensitive x
+            var match = System.Text.RegularExpressions.Regex.Match(mapsize, @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
+            if (!match.Success)
+            {
+                width = Config.MAP_CLIENT_X_DEFAULT;
+                height = Config.MAP_CLIENT_Y_DEFAULT;
+                return false;
+            }
+
+            //we know we've captured digits so we can assume int.Parse() won't fail here, hence no error checking
+            width = int.Parse(match.Groups[1].Value);
+            height = int.Parse(match.Groups[2].Value);
+
+            return true;
+        }
+
         private bool HandleMapSize(string mapsize)
         {
             MapSizeEventArgs RequestedMapSize;

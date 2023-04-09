@@ -21,6 +21,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\ItemManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\MessageBuilder_Items.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\KnowledgeDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MapDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MapObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MapSizeManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MessageBuilder_Map.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageManager.cs" />
@@ -38,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageParser_Info.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\SpellDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Map.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\MetaServer.cs" />
@@ -81,6 +84,5 @@
     <Folder Include="$(MSBuildThisFileDirectory)Core\Net\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Messenger\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Parser\" />
-    <Folder Include="$(MSBuildThisFileDirectory)ServerConfig\" />
   </ItemGroup>
 </Project>
