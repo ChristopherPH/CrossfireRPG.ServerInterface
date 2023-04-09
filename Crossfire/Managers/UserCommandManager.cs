@@ -12,6 +12,7 @@ namespace Crossfire.Managers
         public UserCommandManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
+            Connection.OnStatusChanged += _Connection_OnStatusChanged;
             Handler.CompletedCommand += Handler_CompletedCommand;
         }
 
@@ -27,6 +28,12 @@ namespace Crossfire.Managers
         public delegate void UserCommandHandler(string Command, string CommandParameters);
 
         public event EventHandler<UserCommandEventArgs> OnUserCommand;
+
+        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        {
+            lock (_WaitLock)
+                _WaitingIDs.Clear();
+        }
 
         private void Handler_CompletedCommand(object sender, MessageHandler.CompletedCommandEventArgs e)
         {
