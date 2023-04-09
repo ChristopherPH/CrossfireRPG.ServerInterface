@@ -4,7 +4,7 @@ using System;
 
 namespace CrossfireCore.Managers
 {
-    public class PlayerManager : DataManager<Player>
+    public class PlayerManager : DataObjectManager<Player>
     {
         public PlayerManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

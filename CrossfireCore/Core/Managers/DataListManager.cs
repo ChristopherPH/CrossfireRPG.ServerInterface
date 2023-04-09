@@ -11,7 +11,7 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
-    public abstract class DataListManager<T> : DataManager<T>, IEnumerable<T>
+    public abstract class DataListManager<T> : DataObjectManager<T>, IEnumerable<T>
     {
         public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

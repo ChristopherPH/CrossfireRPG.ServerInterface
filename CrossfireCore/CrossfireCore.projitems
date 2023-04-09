@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\ClientTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Defaults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageBuilder_Account.cs" />
