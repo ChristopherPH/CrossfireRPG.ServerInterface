@@ -9,17 +9,38 @@ using System.Linq;
 
 namespace Crossfire.Managers
 {
-    public class FaceManager : Manager
+    public class FaceManager : DataManager
     {
         public FaceManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
-            Connection.OnStatusChanged += _Connection_OnStatusChanged;
             Handler.Image2 += _Handler_Image2;
             Handler.Face2 += _Handler_Face2;
         }
 
         static Logger _Logger = new Logger(nameof(FaceManager));
+
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => false;
+
+        protected override void ClearData()
+        {
+            lock (_FaceLock)
+            {
+                _Faces.Clear();
+            }
+
+            lock (_MissingLock)
+            {
+                _MissingFaces.Clear();
+            }
+
+            lock (_ActionLock)
+            {
+                _FaceAvailableActions.Clear();
+            }
+        }
+
         private Dictionary<UInt32, FaceInfo> _Faces { get; } = new Dictionary<UInt32, FaceInfo>();
         private List<UInt32> _MissingFaces = new List<UInt32>();
         private List<KeyValuePair<UInt32, Action<Image>>> _FaceAvailableActions = new List<KeyValuePair<uint, Action<Image>>>();
@@ -115,24 +136,6 @@ namespace Crossfire.Managers
         public void SetFace(Int32 Face, Action<Image> FaceAvailable)
         {
             SetFace((UInt32)Face, FaceAvailable);
-        }
-
-        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
-        {
-            lock (_FaceLock)
-            {
-                _Faces.Clear();
-            }
-
-            lock (_MissingLock)
-            {
-                _MissingFaces.Clear();
-            }
-
-            lock (_ActionLock)
-            {
-                _FaceAvailableActions.Clear();
-            }
         }
 
         private void _Handler_Image2(object sender, MessageHandler.Image2EventArgs e)

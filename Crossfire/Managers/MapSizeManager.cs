@@ -8,17 +8,18 @@ using System.Drawing;
 
 namespace Crossfire.Managers
 {
-    public class MapSizeManager : Manager
+    public class MapSizeManager : DataManager
     {
         public MapSizeManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
-            Connection.OnStatusChanged += _Connection_OnStatusChanged;
-
             Handler.Setup += Handler_Setup;
         }
 
         static Logger _Logger = new Logger(nameof(MapSizeManager));
+
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => false;
 
         public event EventHandler<MapSizeEventArgs> MapSizeChanged;
 
@@ -39,20 +40,17 @@ namespace Crossfire.Managers
 
         private object _QueueLock = new object();
 
-        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        protected override void ClearData()
         {
-            if (e.Status == ConnectionStatuses.Disconnected)
+            lock (_QueueLock)
             {
-                lock (_QueueLock)
-                {
-                    _RequestedMapSizes.Clear();
-                }
-
-                MaximumMapWidth = 0;
-                MaximumMapHeight = 0;
-                CurrentMapWidth = 0;
-                CurrentMapHeight = 0;
+                _RequestedMapSizes.Clear();
             }
+
+            MaximumMapWidth = 0;
+            MaximumMapHeight = 0;
+            CurrentMapWidth = 0;
+            CurrentMapHeight = 0;
         }
 
         /// <summary>

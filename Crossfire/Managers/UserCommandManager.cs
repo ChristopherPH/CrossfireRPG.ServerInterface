@@ -7,19 +7,23 @@ using System.Linq;
 
 namespace Crossfire.Managers
 {
-    public class UserCommandManager : Manager
+    public class UserCommandManager : DataManager
     {
         public UserCommandManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
-            Connection.OnStatusChanged += _Connection_OnStatusChanged;
             Handler.CompletedCommand += Handler_CompletedCommand;
         }
 
+        static Logger _Logger = new Logger(nameof(UserCommandManager));
+
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => false;
+
         private List<UInt16> _WaitingIDs = new List<UInt16>();
         private object _WaitLock = new object();
-        static Logger _Logger = new Logger(nameof(UserCommandManager));
         private Dictionary<string, List<CommandHandlerInfo>> _UserCommands = new Dictionary<string, List<CommandHandlerInfo>>();
+
         public IEnumerable<string> UserCommands => _UserCommands.Keys.OrderBy(x => x);
         public IEnumerable<KeyValuePair<string, string>> UserCommandDescriptions => _UserCommands
             .Select(x => new KeyValuePair<string, string>(x.Key, x.Value[0].Description))
@@ -29,7 +33,7 @@ namespace Crossfire.Managers
 
         public event EventHandler<UserCommandEventArgs> OnUserCommand;
 
-        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
+        protected override void ClearData()
         {
             lock (_WaitLock)
                 _WaitingIDs.Clear();

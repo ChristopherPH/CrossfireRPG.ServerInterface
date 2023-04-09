@@ -6,16 +6,18 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.ServerInterface
 {
-    public class InfoManager : Manager
+    public class InfoManager : DataManager
     {
-        static Logger _Logger = new Logger(nameof(InfoManager));
-
         public InfoManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
-            Connection.OnStatusChanged += _Connection_OnStatusChanged;
             Handler.ReplyInfo += Handler_ReplyInfo;
         }
+
+        static Logger _Logger = new Logger(nameof(InfoManager));
+
+        protected override bool ClearDataOnConnectionDisconnect => true;
+        protected override bool ClearDataOnNewPlayer => false;
 
         public event EventHandler<InfoAvailableEventArgs> InfoAvailable;
 
@@ -236,7 +238,7 @@ namespace CrossfireCore.ServerInterface
             Builder.SendRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
         }
 
-        public void ClearInfo()
+        protected override void ClearData()
         {
             Motd = string.Empty;
             News = string.Empty;
@@ -251,11 +253,6 @@ namespace CrossfireCore.ServerInterface
             NewCharacterInfo = new NewCharInfo();
             ImageInfo = new ImageInformation();
             ImageSums.Clear();
-        }
-
-        private void _Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
-        {
-            ClearInfo();
         }
 
         private void Handler_ReplyInfo(object sender, MessageHandler.ReplyInfoEventArgs e)
