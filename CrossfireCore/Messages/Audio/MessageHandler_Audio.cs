@@ -56,8 +56,20 @@ namespace CrossfireCore.ServerInterface
             /// 0-100
             /// </summary>
             public byte Volume { get; set; }
+
+            /// <summary>
+            /// Type of sound (used as a base folder name for sound file)
+            /// </summary>
             public byte SoundType { get; set; }
+
+            /// <summary>
+            /// Name of sound
+            /// </summary>
             public string SubType { get; set; }
+
+            /// <summary>
+            /// Source of sound (object or player race)
+            /// </summary>
             public string Name { get; set; }
         }
     }
