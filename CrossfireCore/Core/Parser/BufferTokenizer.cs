@@ -54,7 +54,7 @@ namespace CrossfireCore.ServerInterface
             if (start == offset)
                 throw new BufferTokenizerException("String cannot start on a separator");
 
-            var str = Encoding.ASCII.GetString(buffer, start, offset - start);
+            var str = Encoding.UTF8.GetString(buffer, start, offset - start);
             if (string.IsNullOrEmpty(str))
                 throw new BufferTokenizerException("String is empty");
 
@@ -314,7 +314,7 @@ namespace CrossfireCore.ServerInterface
         /// <returns>String of requested size</returns>
         public static string GetBytesAsString(byte[] buffer, ref int offset, int length)
         {
-            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, length));
+            return Encoding.UTF8.GetString(GetBytes(buffer, ref offset, length));
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace CrossfireCore.ServerInterface
         /// <returns>String</returns>
         public static string GetRemainingBytesAsString(byte[] buffer, ref int offset, int end)
         {
-            return Encoding.ASCII.GetString(GetBytes(buffer, ref offset, end - offset));
+            return Encoding.UTF8.GetString(GetBytes(buffer, ref offset, end - offset));
         }
     }
 
