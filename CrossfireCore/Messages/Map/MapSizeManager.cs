@@ -7,6 +7,9 @@ using System.ComponentModel;
 
 namespace CrossfireCore.Managers
 {
+    /// <summary>
+    /// Manager to handle changing the map size
+    /// </summary>
     public class MapSizeManager : DataManager
     {
         public MapSizeManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
@@ -165,6 +168,7 @@ namespace CrossfireCore.Managers
             {
                 _RequestedMapSizes.Enqueue(new MapSizeEventArgs(width, height));
             }
+
             return true;
         }
 
@@ -187,6 +191,8 @@ namespace CrossfireCore.Managers
 
             lock (_QueueLock)
             {
+                //If no map size was requested, then we've receieved an unsolicited
+                //mapsize response, or have more than one MapSizeManager.
                 if (_RequestedMapSizes.Count == 0)
                     return false;
 
@@ -263,8 +269,7 @@ namespace CrossfireCore.Managers
                 _Logger.Warning("Setup: Requested mapsize {0}x{1} rejected, server suggested mapsize {2}x{3}",
                     RequestedMapSize.Width, RequestedMapSize.Height, serverWidth, serverHeight);
 
-                //TODO: Fix the server to return minimum sizes, but in the mean time, reset the size to
-                //      what the server returned so we are working with something valid
+                //Reset the size to what the server returned so we are working with something valid
                 SetMapSize(serverWidth, serverHeight);
             }
 
