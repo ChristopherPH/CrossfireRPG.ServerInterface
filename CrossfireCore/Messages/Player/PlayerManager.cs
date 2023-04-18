@@ -1,4 +1,5 @@
 ﻿using Common;
+using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
 

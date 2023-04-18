@@ -1,4 +1,5 @@
-﻿using CrossfireCore.ServerInterface;
+﻿using CrossfireCore.ServerConfig;
+using CrossfireCore.ServerInterface;
 using System;
 
 namespace CrossfireCore.Managers

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore
+namespace CrossfireCore.ServerConfig
 {
     public static class ClientTypes
     {

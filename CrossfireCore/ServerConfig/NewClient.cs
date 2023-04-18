@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace CrossfireCore
+namespace CrossfireCore.ServerConfig
 {
     public static partial class NewClient
     {

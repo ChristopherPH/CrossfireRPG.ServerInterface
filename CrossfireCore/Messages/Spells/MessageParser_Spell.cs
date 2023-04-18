@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrossfireCore.ServerConfig;
+using System;
 
 namespace CrossfireCore.ServerInterface
 {

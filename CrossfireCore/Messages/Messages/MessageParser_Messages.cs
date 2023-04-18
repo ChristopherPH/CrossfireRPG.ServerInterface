@@ -1,4 +1,6 @@
-﻿namespace CrossfireCore.ServerInterface
+﻿using CrossfireCore.ServerConfig;
+
+namespace CrossfireCore.ServerInterface
 {
     public partial class MessageParser
     {

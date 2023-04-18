@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\ClientTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Defaults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataManager.cs" />

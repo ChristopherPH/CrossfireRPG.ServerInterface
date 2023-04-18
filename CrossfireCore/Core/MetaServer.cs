@@ -1,4 +1,5 @@
 ﻿using Common;
+using CrossfireCore.ServerConfig;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace CrossfireCore
         static Logger _Logger = new Logger(nameof(MetaServer));
 
         public string HostName { get; set; }
-        public int Port { get; set; } = Defaults.ServerPort;
+        public int Port { get; set; } = Config.ServerPort;
         public string HtmlComment { get; set; }
         public string TextComment { get; set; }
         public string ArchBase { get; set; }
