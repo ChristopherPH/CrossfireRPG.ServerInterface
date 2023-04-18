@@ -30,7 +30,7 @@ namespace CrossfireCore.ServerInterface
         public string Host { get; private set; } = string.Empty;
         public int Port { get; private set; } = 0;
 
-        public bool Connect(string Host = DefaultServerHost, int Port = ServerConfig.Config.ServerPort)
+        public bool Connect(string Host = DefaultServerHost, int Port = ServerConfig.Config.CSPORT)
         {
             Disconnect();
 

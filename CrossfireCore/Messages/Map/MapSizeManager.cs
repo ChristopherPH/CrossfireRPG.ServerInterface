@@ -1,4 +1,5 @@
 ﻿using Common;
+using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
@@ -55,43 +56,43 @@ namespace CrossfireCore.Managers
         /// Default map width for clients that don't support the [setup mapsize] command
         /// (generally 11 unless server has been modified)
         /// </summary>
-        [DefaultValue(11)]
-        public int DefaultMapWidth { get; set; } = 11;
+        [DefaultValue(Config.MAP_CLIENT_X_DEFAULT)]
+        public int DefaultMapWidth { get; set; } = Config.MAP_CLIENT_X_DEFAULT;
 
         /// <summary>
         /// Default map height for clients that don't support the [setup mapsize] command
         /// (generally 11 unless server has been modified)
         /// </summary>
-        [DefaultValue(11)]
-        public int DefaultMapHeight { get; set; } = 11;
+        [DefaultValue(Config.MAP_CLIENT_Y_DEFAULT)]
+        public int DefaultMapHeight { get; set; } = Config.MAP_CLIENT_Y_DEFAULT;
 
         /// <summary>
         /// Maximum map width the server supports
         /// (generally 25 unless server has been modified)
         /// </summary>
-        [DefaultValue(25)]
-        public int MaximumMapWidth { get; private set; } = 0;
+        [DefaultValue(Config.MAP_CLIENT_X)]
+        public int MaximumMapWidth { get; private set; } = Config.MAP_CLIENT_X;
 
         /// <summary>
         /// Maximum map height the server supports
         /// (generally 25 unless server has been modified)
         /// </summary>
-        [DefaultValue(25)]
-        public int MaximumMapHeight { get; private set; } = 0;
+        [DefaultValue(Config.MAP_CLIENT_Y)]
+        public int MaximumMapHeight { get; private set; } = Config.MAP_CLIENT_Y;
 
         /// <summary>
         /// Minimum map width the server supports
         /// (generally 9 unless server has been modified)
         /// </summary>
-        [DefaultValue(9)]
-        public int MinimumMapWidth { get; set; } = 9;
+        [DefaultValue(Config.MAP_CLIENT_X_MINIMUM)]
+        public int MinimumMapWidth { get; set; } = Config.MAP_CLIENT_X_MINIMUM;
 
         /// <summary>
         /// Minimum map height the server supports
         /// (generally 9 unless server has been modified)
         /// </summary>
-        [DefaultValue(9)]
-        public int MinimumMapHeight { get; set; } = 9;
+        [DefaultValue(Config.MAP_CLIENT_Y_MINIMUM)]
+        public int MinimumMapHeight { get; set; } = Config.MAP_CLIENT_Y_MINIMUM;
 
         /// <summary>
         /// Current Map Width
@@ -196,7 +197,8 @@ namespace CrossfireCore.Managers
             if (string.IsNullOrWhiteSpace(mapsize) || (mapsize == "FALSE"))
             {
                 //technically we know the servers default is 11, but that is never sent by the server
-                _Logger.Warning("Setup: mapsize setup command failed, assume mapsize is fixed at 11x11");
+                _Logger.Warning("Setup: mapsize setup command failed, assume mapsize is fixed at {0}x{1}",
+                    DefaultMapWidth, DefaultMapHeight);
                 SetMapSizeToDefault();
                 return false;
             }
@@ -205,7 +207,8 @@ namespace CrossfireCore.Managers
             var match = System.Text.RegularExpressions.Regex.Match(mapsize, @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
             if (!match.Success)
             {
-                _Logger.Warning("Setup: mapsize setup response is invalid, setting mapsize to 11x11: {0}", mapsize);
+                _Logger.Warning("Setup: mapsize setup response is invalid, setting mapsize to {0}x{1}: {2}",
+                    DefaultMapWidth, DefaultMapHeight, mapsize);
                 SetMapSizeToDefault();
                 return false;
             }
