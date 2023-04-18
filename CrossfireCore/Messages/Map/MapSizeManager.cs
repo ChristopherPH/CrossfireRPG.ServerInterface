@@ -1,12 +1,10 @@
 ﻿using Common;
-using CrossfireCore.Managers;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 
-namespace Crossfire.Managers
+namespace CrossfireCore.Managers
 {
     public class MapSizeManager : DataManager
     {
@@ -107,7 +105,7 @@ namespace Crossfire.Managers
 
         private int WantedWidth;
         private int WantedHeight;
-        Queue<Size> _RequestedMapSizes = new Queue<Size>();
+        private Queue<MapSizeEventArgs> _RequestedMapSizes = new Queue<MapSizeEventArgs>();
 
         /// <summary>
         /// Call this to setup the map size once the Version command has been processed
@@ -128,14 +126,6 @@ namespace Crossfire.Managers
 
             if ((WantedWidth > 0) && (WantedHeight > 0))
                 SetMapSizeInternal(WantedWidth, WantedHeight);
-        }
-
-        /// <summary>
-        /// Sets the Map Size to the given Width/Height
-        /// </summary>
-        public bool SetMapSize(Size mapsize)
-        {
-            return SetMapSize(mapsize.Width, mapsize.Height);
         }
 
         /// <summary>
@@ -172,7 +162,7 @@ namespace Crossfire.Managers
             //response
             lock (_QueueLock)
             {
-                _RequestedMapSizes.Enqueue(new Size(width, height));
+                _RequestedMapSizes.Enqueue(new MapSizeEventArgs(width, height));
             }
             return true;
         }
@@ -186,13 +176,13 @@ namespace Crossfire.Managers
 
                 _Logger.Info("Set current mapsize to default ({0}x{1})", CurrentMapWidth, CurrentMapHeight);
 
-                OnMapSizeChanged(new MapSizeEventArgs() { MapSize = new Size(CurrentMapWidth, CurrentMapHeight) });
+                OnMapSizeChanged(new MapSizeEventArgs(CurrentMapWidth, CurrentMapHeight));
             }
         }
 
         private bool HandleMapSize(string mapsize)
         {
-            Size RequestedMapSize;
+            MapSizeEventArgs RequestedMapSize;
 
             lock (_QueueLock)
             {
@@ -243,7 +233,7 @@ namespace Crossfire.Managers
 
                 _Logger.Info("Setup: Set current mapsize to {0}x{1}", CurrentMapWidth, CurrentMapHeight);
 
-                OnMapSizeChanged(new MapSizeEventArgs() { MapSize = new Size(CurrentMapWidth, CurrentMapHeight) });
+                OnMapSizeChanged(RequestedMapSize);
                 return true;
             }
 
@@ -281,6 +271,20 @@ namespace Crossfire.Managers
 
     public class MapSizeEventArgs : EventArgs
     {
-        public Size MapSize { get; set; }
+        public MapSizeEventArgs(int Width, int Height)
+        {
+            this.Width = Width;
+            this.Height = Height;
+        }
+
+        /// <summary>
+        /// Width of Map
+        /// </summary>
+        public int Width { get; private set; } = 0;
+
+        /// <summary>
+        /// Height of Map
+        /// </summary>
+        public int Height { get; private set; } = 0;
     }
 }

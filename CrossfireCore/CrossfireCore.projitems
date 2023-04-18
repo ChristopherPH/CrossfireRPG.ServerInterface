@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\ItemManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\MessageBuilder_Items.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\KnowledgeDataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MapSizeManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Map\MessageBuilder_Map.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Messages\MessageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Misc\MessageBuilder_Misc.cs" />
