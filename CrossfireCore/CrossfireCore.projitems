@@ -9,8 +9,8 @@
     <Import_RootNamespace>CrossfireCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Core\ClientTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Defaults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\ClientTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Defaults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataManager.cs" />
@@ -38,10 +38,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageParser_Info.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\SpellDataManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\NewServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\CommandParserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\MetaServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\NewClient_MessageTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewClient_MessageTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageHandler_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Audio\MessageHandler_Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageParser_Account.cs" />
@@ -71,7 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Messenger\MessageBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\NewClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MultiCommandEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\InfoManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\SingleCommandEventArgs.cs" />
@@ -81,5 +81,6 @@
     <Folder Include="$(MSBuildThisFileDirectory)Core\Net\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Messenger\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Parser\" />
+    <Folder Include="$(MSBuildThisFileDirectory)ServerConfig\" />
   </ItemGroup>
 </Project>
