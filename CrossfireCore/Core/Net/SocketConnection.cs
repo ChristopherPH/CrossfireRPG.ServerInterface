@@ -208,9 +208,13 @@ namespace CrossfireCore.ServerInterface
             if ((_client != null) && _client.Connected)
             {
                 _client.Close();
+                _Logger.Info("Disconnected");
+            }
+            else
+            {
+                _Logger.Debug("Disconnected (but wasn't connected)");
             }
 
-            _Logger.Info("Disconnected");
             SetConnectionStatus(ConnectionStatuses.Disconnected);
 
             Cleanup();
