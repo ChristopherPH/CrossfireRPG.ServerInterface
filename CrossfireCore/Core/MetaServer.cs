@@ -51,6 +51,8 @@ namespace CrossfireCore
                 string line;
                 int lineNumber = 0;
 
+                _Logger.Info($"Metaserver: {URL}");
+
                 try
                 {
                     using (var client = new WebClient())
@@ -68,7 +70,7 @@ namespace CrossfireCore
                     {
                         lineNumber++;
 
-                        _Logger.Info("{0}: {1}", lineNumber, line);
+                        _Logger.Debug("{0}: {1}", lineNumber, line);
 
                         if (line == "START_SERVER_DATA")
                         {
