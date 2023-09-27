@@ -54,17 +54,17 @@ namespace CrossfireCore.ServerInterface
 
         public class AnimationEventArgs : SingleCommandEventArgs
         {
-            public ushort AnimationNumber { get; set; }
+            public UInt16 AnimationNumber { get; set; }
 
             /// <summary>
             /// Currently unused
             /// </summary>
-            public ushort AnimationFlags { get; set; }
+            public UInt16 AnimationFlags { get; set; }
 
             /// <summary>
             /// Animation faces (frames of animation)
             /// </summary>
-            public ushort[] AnimationFaces { get; set; }
+            public UInt16[] AnimationFaces { get; set; }
         }
 
         public class Face2EventArgs : SingleCommandEventArgs
