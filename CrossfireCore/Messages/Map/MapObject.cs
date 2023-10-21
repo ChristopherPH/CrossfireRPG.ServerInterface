@@ -351,7 +351,17 @@ namespace CrossfireCore.ManagedObjects
         {
             WorldX = 0;
             WorldY = 0;
+            ClearDarkness();
+            ClearLayers();
+        }
+
+        public void ClearDarkness()
+        {
             Darkness = 0;
+        }
+
+        public void ClearLayers()
+        {
             Layers = new MapLayer[ServerConfig.Map.MAP_LAYERS];
 
             for (int i = 0; i < Layers.Length; i++)
