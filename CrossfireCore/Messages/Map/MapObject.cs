@@ -338,6 +338,9 @@ namespace CrossfireCore.ManagedObjects
         [XmlIgnore]
         public bool Visible { get; set; } = false;
 
+        [XmlIgnore]
+        public bool OutOfBounds { get; set; } = false;
+
 #if MAPOBJECT_SERIALIZATION
         public MapLayer[] Layers { get; set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
 #else

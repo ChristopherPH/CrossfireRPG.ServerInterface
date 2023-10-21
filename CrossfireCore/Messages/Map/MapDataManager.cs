@@ -208,6 +208,9 @@ namespace CrossfireCore.Managers
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
+            var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
+                (e.X >= CurrentMapWidth) || (e.Y >= CurrentMapHeight);
+
             lock (_mapDataLock)
             {
                 //Get pre-existing cell at x/y
@@ -215,10 +218,14 @@ namespace CrossfireCore.Managers
                 if (cell != null)
                 {
                     //if the pre-existing cell is invisible, it means
-                    //that it has gone out of view. However, we've now
-                    //gotten a face, so we need to clear the cell data
-                    //so we can start fresh
-                    if (!cell.Visible)
+                    //that it has gone out of view.
+                    //Since we've now gotten a face, so we need to clear
+                    //the cell data like the server would so we can start
+                    //the tile fresh.
+                    //However, if the cell was originally out of bounds,
+                    //then the server would not have ever cleared the tile
+                    //so we can ignore this.
+                    if (!cell.Visible && !OutOfBounds)
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
@@ -256,6 +263,10 @@ namespace CrossfireCore.Managers
                     cell.NeedsUpdate = true;
                 }
 
+                //If the face is out of the visible map area, mark it as
+                //out of bounds, and note the server doesn't send a clear command
+                //for this data.
+                cell.OutOfBounds = OutOfBounds;
                 cell.Visible = true;
             }
 
@@ -268,6 +279,9 @@ namespace CrossfireCore.Managers
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
+            var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
+                (e.X >= CurrentMapWidth) || (e.Y >= CurrentMapHeight);
+
             lock (_mapDataLock)
             {
                 //Get pre-existing cell at x/y
@@ -275,10 +289,14 @@ namespace CrossfireCore.Managers
                 if (cell != null)
                 {
                     //if the pre-existing cell is invisible, it means
-                    //that it has gone out of view. However, we've now
-                    //gotten a face, so we need to clear the cell data
-                    //so we can start fresh
-                    if (!cell.Visible)
+                    //that it has gone out of view.
+                    //Since we've now gotten a face, so we need to clear
+                    //the cell data like the server would so we can start
+                    //the tile fresh.
+                    //However, if the cell was originally out of bounds,
+                    //then the server would not have ever cleared the tile
+                    //so we can ignore this.
+                    if (!cell.Visible && !OutOfBounds)
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
@@ -314,6 +332,10 @@ namespace CrossfireCore.Managers
                     cell.NeedsUpdate = true;
                 }
 
+                //If the face is out of the visible map area, mark it as
+                //out of bounds, and note the server doesn't send a clear command
+                //for this data.
+                cell.OutOfBounds = OutOfBounds;
                 cell.Visible = true;
             }
 
