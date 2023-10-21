@@ -210,8 +210,33 @@ namespace CrossfireCore.Managers
 
             lock (_mapDataLock)
             {
-                var cell = MapObject.GetOrCreateCell(worldX, worldY);
+                //Get pre-existing cell at x/y
+                var cell = MapObject.GetCell(worldX, worldY);
+                if (cell != null)
+                {
+                    //if the pre-existing cell is invisible, it means
+                    //that it has gone out of view. However, we've now
+                    //gotten a face, so we need to clear the cell data
+                    //so we can start fresh
+                    if (!cell.Visible)
+                    {
+                        cell.ClearDarkness();
+                        cell.ClearLayers();
+                        cell.NeedsUpdate = true;
+                    }
+                }
+                else //cell doesn't exist, create a new cell
+                {
+                    cell = new MapCell()
+                    {
+                        WorldX = worldX,
+                        WorldY = worldY,
+                    };
 
+                    MapObject.SetCell(cell);
+                }
+
+                //add or set face layer
                 var layer = new MapLayer()
                 {
                     Face = e.Face,
@@ -245,8 +270,32 @@ namespace CrossfireCore.Managers
 
             lock (_mapDataLock)
             {
-                var cell = MapObject.GetOrCreateCell(worldX, worldY);
+                //Get pre-existing cell at x/y
+                var cell = MapObject.GetCell(worldX, worldY);
+                if (cell != null)
+                {
+                    //if the pre-existing cell is invisible, it means
+                    //that it has gone out of view. However, we've now
+                    //gotten a face, so we need to clear the cell data
+                    //so we can start fresh
+                    if (!cell.Visible)
+                    {
+                        cell.ClearDarkness();
+                        cell.ClearLayers();
+                    }
+                }
+                else //cell doesn't exist, create a new cell
+                {
+                    cell = new MapCell()
+                    {
+                        WorldX = worldX,
+                        WorldY = worldY,
+                    };
 
+                    MapObject.SetCell(cell);
+                }
+
+                //add or set animation layer
                 var layer = new MapLayer()
                 {
                     IsAnimation = true,
@@ -278,7 +327,41 @@ namespace CrossfireCore.Managers
             var worldY = e.Y + _mapScrollY;
 
             lock (_mapDataLock)
-                MapObject.GetOrCreateCell(worldX, worldY).Darkness = e.Darkness;
+            {
+                //Get pre-existing cell at x/y
+                var cell = MapObject.GetCell(worldX, worldY);
+                if (cell != null)
+                {
+                    //if the pre-existing cell is invisible, it means
+                    //that it has gone out of view. However, we've now
+                    //gotten a face, so we need to clear the cell data
+                    //so we can start fresh
+                    if (!cell.Visible)
+                    {
+                        cell.ClearDarkness();
+                        cell.ClearLayers();
+                        cell.NeedsUpdate = true;
+                    }
+                }
+                else //cell doesn't exist, create a new cell
+                {
+                    cell = new MapCell()
+                    {
+                        WorldX = worldX,
+                        WorldY = worldY,
+                    };
+
+                    MapObject.SetCell(cell);
+                }
+
+                if (cell.Darkness != e.Darkness)
+                {
+                    cell.Darkness = e.Darkness;
+                    cell.NeedsUpdate = true;
+                }
+
+                cell.Visible = true;
+            }
 
             //TODO: invalidate the tile instead of the whole map
             OnDataChanged(ModificationTypes.Updated, MapObject, null);
@@ -293,8 +376,18 @@ namespace CrossfireCore.Managers
 
             lock (_mapDataLock)
             {
-                var cell = MapObject.GetOrCreateCell(worldX, worldY);
-                cell.Visible = false;
+                var cell = MapObject.GetCell(worldX, worldY);
+
+                if (cell != null)
+                {
+                    //instead of removing the cell, set its visibility
+                    //to false indicating it is out of the viewport and
+                    //part of fog of war. When we recieve a new face or
+                    //animation for this cell the visibility will be set
+                    //to true as it will be back in the viewport.
+                    cell.Visible = false;
+                }
+
             }
 
             //TODO: invalidate the tile instead of the whole map
@@ -309,7 +402,14 @@ namespace CrossfireCore.Managers
             //_Logger.Warning($"Map: Cell {worldX}/{worldY} clear layer {e.Layer}");
 
             lock (_mapDataLock)
-                MapObject.GetOrCreateCell(worldX, worldY).GetLayer(e.Layer).ClearLayer();
+            {
+                var cell = MapObject.GetCell(worldX, worldY);
+
+                if (cell != null)
+                {
+                    cell.GetLayer(e.Layer).ClearLayer();
+                }
+            }
 
             //TODO: invalidate the tile instead of the whole map
             OnDataChanged(ModificationTypes.Updated, MapObject, null);
