@@ -161,7 +161,7 @@ namespace CrossfireCore.Managers
             {
                 var cell = MapObject.GetOrCreateCell(worldX, worldY);
 
-                cell.NeedsUpdate = false;
+                cell.Updated = false;
             }
         }
 
@@ -175,9 +175,9 @@ namespace CrossfireCore.Managers
             {
                 var cell = MapObject.GetOrCreateCell(worldX, worldY);
 
-                if (cell.NeedsUpdate)
+                if (cell.Updated)
                 {
-                    cell.NeedsUpdate = false;
+                    cell.Updated = false;
                 }
             }
         }
@@ -229,7 +229,7 @@ namespace CrossfireCore.Managers
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
-                        cell.NeedsUpdate = true;
+                        cell.Updated = true;
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -260,7 +260,7 @@ namespace CrossfireCore.Managers
                 {
                     //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
                     cell.Layers[e.Layer] = layer;
-                    cell.NeedsUpdate = true;
+                    cell.Updated = true;
                 }
 
                 //If the face is out of the visible map area, mark it as
@@ -329,7 +329,7 @@ namespace CrossfireCore.Managers
                 {
                     //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
                     cell.Layers[e.Layer] = layer;
-                    cell.NeedsUpdate = true;
+                    cell.Updated = true;
                 }
 
                 //If the face is out of the visible map area, mark it as
@@ -362,7 +362,7 @@ namespace CrossfireCore.Managers
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
-                        cell.NeedsUpdate = true;
+                        cell.Updated = true;
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -379,7 +379,7 @@ namespace CrossfireCore.Managers
                 if (cell.Darkness != e.Darkness)
                 {
                     cell.Darkness = e.Darkness;
-                    cell.NeedsUpdate = true;
+                    cell.Updated = true;
                 }
 
                 cell.Visible = true;

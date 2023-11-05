@@ -381,8 +381,11 @@ namespace CrossfireCore.ManagedObjects
         public void EndUpdate() { }
 #endif
 
+        /// <summary>
+        /// Flag indicating a map2 command has updated this cell
+        /// </summary>
         [XmlIgnore]
-        public bool NeedsUpdate;
+        public bool Updated;
 
         public override string ToString()
         {
