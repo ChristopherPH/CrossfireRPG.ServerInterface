@@ -36,17 +36,31 @@ namespace CrossfireCore.Managers
         static Logger _Logger = new Logger(nameof(MapDataManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
-        public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated |
-            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
+        public override ModificationTypes SupportedModificationTypes =>
+            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd |
+            ModificationTypes.Added |   //Raised after a map has been populated for the first time
+            ModificationTypes.Updated | //Raised when a map has been updated
+            ModificationTypes.Cleared;  //Raised when a map has been cleared
 
         /// <summary>
         /// Managed Map Object
         /// </summary>
         public MapObject MapObject { get; } = new MapObject();
 
+        /// <summary>
+        /// Number of MapCells updated when ModificationTypes.Updated is raised
+        /// </summary>
+        public int UpdatedCellCount { get; private set; } = 0;
+
+        /// <summary>
+        /// Raised before the existing map is cleared
+        /// </summary>
         public event EventHandler<DataUpdatedEventArgs> BeforeMapClear;
-        public event EventHandler<DataUpdatedEventArgs> AfterNewMap;
-        public event EventHandler<DataUpdatedEventArgs> AfterMapUpdated;
+
+        /// <summary>
+        /// Raised when a map has been updated
+        /// </summary>
+        public event EventHandler<MapCellUpdatedEventArgs> MapCellUpdated;
 
         //Private variables
         object _mapDataLock = new object();
@@ -56,6 +70,7 @@ namespace CrossfireCore.Managers
             new Dictionary<ushort, SynchronizedAnimation>();
         int _mapScrollX = 0;
         int _mapScrollY = 0;
+        bool _mapScrollUpdatedMap = false;
         int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
         int CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
         List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
@@ -68,6 +83,8 @@ namespace CrossfireCore.Managers
             lock (_mapDataLock)
                 MapObject.ClearMap();
 
+            UpdatedCellCount = 0;
+
             _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
 
@@ -77,7 +94,7 @@ namespace CrossfireCore.Managers
             CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
             _smoothFaces.Clear();
 
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
+            OnDataChanged(ModificationTypes.Cleared, MapObject);
         }
 
         private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
@@ -94,10 +111,12 @@ namespace CrossfireCore.Managers
                     MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
                 }
 
+                UpdatedCellCount = 0;
+
                 _synchronizedAnimations.Clear();
                 _mapScrollX = _mapScrollY = 0;
 
-                OnDataChanged(ModificationTypes.Updated, MapObject, null);
+                OnDataChanged(ModificationTypes.Cleared, MapObject);
             }
         }
 
@@ -121,7 +140,6 @@ namespace CrossfireCore.Managers
             //so we need to adjust the viewport after the map has been
             //created
             MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
-            OnAfterNewMap();
         }
 
         private void Handler_Animation(object sender, MessageHandler.AnimationEventArgs e)
@@ -131,6 +149,9 @@ namespace CrossfireCore.Managers
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
         {
+            UpdatedCellCount = 0;
+            _mapScrollUpdatedMap = false;
+
             //Got a map2 command
             StartMultiCommand();
         }
@@ -141,14 +162,21 @@ namespace CrossfireCore.Managers
             EndMultiCommand();
 
             //If this is the end of the first map2 after
-            //a newmap, then notify
+            //a newmap, then notify map was added
             if (_populatingNewMap)
             {
                 _populatingNewMap = false;
-                OnAfterNewMap();
+
+                //Notify a new map was added
+                OnDataChanged(ModificationTypes.Added, MapObject);
             }
 
-            OnAfterMapUpdated();
+            //Notify map was updated
+            if ((UpdatedCellCount > 0) || _mapScrollUpdatedMap)
+                OnDataChanged(ModificationTypes.Updated, MapObject);
+
+            UpdatedCellCount = 0;
+            _mapScrollUpdatedMap = false;
         }
 
         private void Handler_MapBeginLocation(object sender, MessageHandler.MapLocationEventArgs e)
@@ -159,9 +187,10 @@ namespace CrossfireCore.Managers
 
             lock (_mapDataLock)
             {
-                var cell = MapObject.GetOrCreateCell(worldX, worldY);
-
-                cell.Updated = false;
+                //If there is an existing cell, mark it as not yet updated.
+                var cell = MapObject.GetCell(worldX, worldY);
+                if (cell != null)
+                    cell.Updated = false;
             }
         }
 
@@ -173,11 +202,13 @@ namespace CrossfireCore.Managers
 
             lock (_mapDataLock)
             {
-                var cell = MapObject.GetOrCreateCell(worldX, worldY);
-
-                if (cell.Updated)
+                //If there is an existing cell, and it was updated, notify listeners
+                var cell = MapObject.GetCell(worldX, worldY);
+                if ((cell != null) && cell.Updated)
                 {
+                    OnMapCellUpdated(cell);
                     cell.Updated = false;
+                    UpdatedCellCount++;
                 }
             }
         }
@@ -193,6 +224,8 @@ namespace CrossfireCore.Managers
                 MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
             }
 
+            UpdatedCellCount = 0;
+
             _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
 
@@ -200,7 +233,7 @@ namespace CrossfireCore.Managers
             //of this map
             _populatingNewMap = true;
 
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
+            OnDataChanged(ModificationTypes.Cleared, MapObject);
         }
 
         private void Handler_MapFace(object sender, MessageHandler.MapFaceEventArgs e)
@@ -269,9 +302,6 @@ namespace CrossfireCore.Managers
                 cell.OutOfBounds = OutOfBounds;
                 cell.Visible = true;
             }
-
-            //TODO: invalidate the tile instead of the whole map
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_MapAnimation(object sender, MessageHandler.MapAnimationEventArgs e)
@@ -289,13 +319,14 @@ namespace CrossfireCore.Managers
                 if (cell != null)
                 {
                     //if the pre-existing cell is invisible, it means
-                    //that it has gone out of view.
+                    //that it had gone out of view.
                     //Since we've now gotten a face, so we need to clear
-                    //the cell data like the server would so we can start
-                    //the tile fresh.
+                    //the cell data like the server expects, so we can start
+                    //the cell fresh.
                     //However, if the cell was originally out of bounds,
                     //then the server would not have ever cleared the tile
-                    //so we can ignore this.
+                    //so we can ignore this. (The server doesn't remember
+                    //when it sends OOB data so it doesn't ever clear it.)
                     if (!cell.Visible && !OutOfBounds)
                     {
                         cell.ClearDarkness();
@@ -338,9 +369,6 @@ namespace CrossfireCore.Managers
                 cell.OutOfBounds = OutOfBounds;
                 cell.Visible = true;
             }
-
-            //TODO: invalidate the tile instead of the whole map
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_MapDarkness(object sender, MessageHandler.MapDarknessEventArgs e)
@@ -384,9 +412,6 @@ namespace CrossfireCore.Managers
 
                 cell.Visible = true;
             }
-
-            //TODO: invalidate the tile instead of the whole map
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_MapClear(object sender, MessageHandler.MapLocationEventArgs e)
@@ -408,12 +433,9 @@ namespace CrossfireCore.Managers
                     //animation for this cell the visibility will be set
                     //to true as it will be back in the viewport.
                     cell.Visible = false;
+                    cell.Updated = true;
                 }
-
             }
-
-            //TODO: invalidate the tile instead of the whole map
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_MapClearLayer(object sender, MessageHandler.MapLocationLayerEventArgs e)
@@ -430,11 +452,9 @@ namespace CrossfireCore.Managers
                 if (cell != null)
                 {
                     cell.GetLayer(e.Layer).ClearLayer();
+                    cell.Updated = true;
                 }
             }
-
-            //TODO: invalidate the tile instead of the whole map
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_MapScroll(object sender, MessageHandler.MapLocationEventArgs e)
@@ -448,44 +468,42 @@ namespace CrossfireCore.Managers
             MapObject.PlayerX += e.X;
             MapObject.PlayerY += e.Y;
 
-            bool updated = false;
-
-            //any items that were not visible prior to this mapscroll, but
-            //became visible after the map scroll should be marked as invisible
-            //(invisible data is used for fog of war data)
-            //so that we can remove them if we have other map data for the
-            //co-ordinates
-            //Basically the server doesn't expect these items to exist
+            //any cells that were visible prior to this mapscroll, but
+            //became invisible after the map scroll should be marked
+            //so that we can update them if we get new map data for the
+            //co-ordinates. (invisible data is used for fog of war data)
+            //Basically the server doesn't expect these cells to exist
             //so we need to clear them
             lock (_mapDataLock)
             {
                 foreach (var cell in MapObject.Cells)
                 {
-                    var inView = IsMapCellInViewport(cell);
-
-                    if (!inView /* || (!IsMapCellInViewport(cell, oldScrollX, oldScrollY) && inView)*/)
+                    //check if cell has gone out of viewport
+                    if (cell.Visible && !IsMapCellInViewport(cell))
                     {
+                        //mark cell as part of fog of war and notify any listeners.
+                        //Note that the mapscroll is sent before any cells are
+                        //added/cleared/updated, so we have to manually trigger
+                        //cell updated here (as these cells are now out of the
+                        //viewport and will never be updated)
                         cell.Visible = false;
-                        updated = true;
+
+                        OnMapCellUpdated(cell);
+
+                        _mapScrollUpdatedMap = true;
                     }
                 }
             }
-
-            if (updated)
-                OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
 
         private void Handler_Smooth(object sender, MessageHandler.SmoothEventArgs e)
         {
             _smoothFaces.Add(e);
-            OnDataChanged(ModificationTypes.Updated, MapObject, null);
         }
 
         private void Handler_Tick(object sender, MessageHandler.TickEventArgs e)
         {
-            var Updated = false;
-
             lock (_mapDataLock)
             {
                 foreach (var cell in MapObject.Cells)
@@ -504,18 +522,10 @@ namespace CrossfireCore.Managers
                             continue;
 
                         //TODO: update animation
-                        Updated = true;
+
+                        cell.Updated = true;
                     }
                 }
-            }
-
-            //TODO: invalidate the tile instead of the whole map
-            if (Updated)
-            {
-                OnDataChanged(ModificationTypes.Updated, MapObject, null);
-
-                //TODO: Uncomment once animations are updated
-                //OnAfterMapUpdated();
             }
         }
 
@@ -576,24 +586,23 @@ namespace CrossfireCore.Managers
             });
         }
 
-        private void OnAfterNewMap()
+        private void OnMapCellUpdated(MapCell cell)
         {
-            AfterNewMap?.Invoke(this, new DataUpdatedEventArgs()
-            {
-                Modification = ModificationTypes.Updated,
-                Data = MapObject,
-                UpdatedProperties = null
-            });
+            MapCellUpdated?.Invoke(this,
+                new MapCellUpdatedEventArgs(cell));
+        }
+    }
+
+    public class MapCellUpdatedEventArgs : EventArgs
+    {
+        public MapCellUpdatedEventArgs(MapCell mapCell)
+        {
+            MapCell = mapCell;
         }
 
-        private void OnAfterMapUpdated()
-        {
-            AfterMapUpdated?.Invoke(this, new DataUpdatedEventArgs()
-            {
-                Modification = ModificationTypes.Updated,
-                Data = MapObject,
-                UpdatedProperties = null
-            });
-        }
+        public MapCell MapCell { get; }
+        public int WorldX => MapCell.WorldX;
+        public int WorldY => MapCell.WorldY;
+        public bool Visible => MapCell.Visible;
     }
 }
