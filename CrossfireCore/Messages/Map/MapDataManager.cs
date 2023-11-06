@@ -48,19 +48,20 @@ namespace CrossfireCore.Managers
         public MapObject MapObject { get; } = new MapObject();
 
         /// <summary>
-        /// Number of MapCells updated when ModificationTypes.Updated is raised
-        /// </summary>
-        public int UpdatedCellCount { get; private set; } = 0;
-
-        /// <summary>
         /// Raised before the existing map is cleared
         /// </summary>
         public event EventHandler<DataUpdatedEventArgs> BeforeMapClear;
 
         /// <summary>
-        /// Raised when a map has been updated
+        /// Raised when a map cell has been updated
         /// </summary>
         public event EventHandler<MapCellUpdatedEventArgs> MapCellUpdated;
+
+        /// <summary>
+        /// Raised when the map has been updated : Occurs when ModificationTypes.Updated
+        /// is raised, but this event contains additional data
+        /// </summary>
+        public event EventHandler<MapUpdatedEventArgs> MapUpdated;
 
         //Private variables
         object _mapDataLock = new object();
@@ -70,10 +71,13 @@ namespace CrossfireCore.Managers
             new Dictionary<ushort, SynchronizedAnimation>();
         int _mapScrollX = 0;
         int _mapScrollY = 0;
-        bool _mapScrollUpdatedMap = false;
         int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
         int CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
         List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
+
+        //Private variables for creating map updated args
+        List<MapCellLocation> _updatedLocations = new List<MapCellLocation>();
+        bool _mapScrollUpdatedMap = false;
 
         protected override void ClearData()
         {
@@ -82,8 +86,6 @@ namespace CrossfireCore.Managers
             //Items to clear on new player
             lock (_mapDataLock)
                 MapObject.ClearMap();
-
-            UpdatedCellCount = 0;
 
             _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
@@ -110,8 +112,6 @@ namespace CrossfireCore.Managers
                     MapObject.ClearMap();
                     MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
                 }
-
-                UpdatedCellCount = 0;
 
                 _synchronizedAnimations.Clear();
                 _mapScrollX = _mapScrollY = 0;
@@ -149,7 +149,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
         {
-            UpdatedCellCount = 0;
+            _updatedLocations.Clear();
             _mapScrollUpdatedMap = false;
 
             //Got a map2 command
@@ -172,10 +172,22 @@ namespace CrossfireCore.Managers
             }
 
             //Notify map was updated
-            if ((UpdatedCellCount > 0) || _mapScrollUpdatedMap)
-                OnDataChanged(ModificationTypes.Updated, MapObject);
+            if ((_updatedLocations.Count > 0) || _mapScrollUpdatedMap)
+            {
+                var args = new MapUpdatedEventArgs()
+                {
+                    Modification = ModificationTypes.Updated,
+                    Data = MapObject,
+                    UpdatedProperties = null,
+                    MapScrolled = _mapScrollUpdatedMap,
+                    CellLocations = new List<MapCellLocation>(_updatedLocations)
+                };
 
-            UpdatedCellCount = 0;
+                OnDataChanged(args);
+                OnMapUpdated(args);
+            }
+
+            _updatedLocations.Clear();
             _mapScrollUpdatedMap = false;
         }
 
@@ -207,8 +219,8 @@ namespace CrossfireCore.Managers
                 if ((cell != null) && cell.Updated)
                 {
                     OnMapCellUpdated(cell);
+                    _updatedLocations.Add(new MapCellLocation(worldX, worldY));
                     cell.Updated = false;
-                    UpdatedCellCount++;
                 }
             }
         }
@@ -223,8 +235,6 @@ namespace CrossfireCore.Managers
                 MapObject.ClearMap();
                 MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
             }
-
-            UpdatedCellCount = 0;
 
             _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
@@ -487,9 +497,8 @@ namespace CrossfireCore.Managers
                         //cell updated here (as these cells are now out of the
                         //viewport and will never be updated)
                         cell.Visible = false;
-
                         OnMapCellUpdated(cell);
-
+                        _updatedLocations.Add(new MapCellLocation(cell.WorldX, cell.WorldY));
                         _mapScrollUpdatedMap = true;
                     }
                 }
@@ -591,6 +600,11 @@ namespace CrossfireCore.Managers
             MapCellUpdated?.Invoke(this,
                 new MapCellUpdatedEventArgs(cell));
         }
+
+        private void OnMapUpdated(MapUpdatedEventArgs args)
+        {
+            MapUpdated?.Invoke(this, args);
+        }
     }
 
     public class MapCellUpdatedEventArgs : EventArgs
@@ -604,5 +618,24 @@ namespace CrossfireCore.Managers
         public int WorldX => MapCell.WorldX;
         public int WorldY => MapCell.WorldY;
         public bool Visible => MapCell.Visible;
+    }
+
+    public class MapCellLocation
+    {
+        public MapCellLocation(int worldX, int worldY)
+        {
+            WorldX = worldX;
+            WorldY = worldY;
+        }
+
+        public int WorldX { get; }
+        public int WorldY { get; }
+    }
+
+    public class MapUpdatedEventArgs : DataObjectManager<MapObject>.DataUpdatedEventArgs
+    {
+        public List<MapCellLocation> CellLocations { get; set; } = new List<MapCellLocation>();
+
+        public bool MapScrolled { get; set; }
     }
 }
