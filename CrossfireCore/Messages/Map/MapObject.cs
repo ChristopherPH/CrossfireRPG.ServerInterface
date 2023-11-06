@@ -347,6 +347,9 @@ namespace CrossfireCore.ManagedObjects
         public MapLayer[] Layers { get; private set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
 #endif
 
+        /// <summary>
+        /// 0=dark, 255=light
+        /// </summary>
         [XmlIgnore]
         public int Darkness { get; set; } = 0;
 
