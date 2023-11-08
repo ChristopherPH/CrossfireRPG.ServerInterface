@@ -143,7 +143,7 @@ namespace CrossfireCore.Managers
 
             _Logger.Info("Added {0}", item);
 
-            if (item.IsOpen && (item != OpenContainer)) //avoid issue with picking up an open containter
+            if (item.IsOpen && (item != OpenContainer)) //avoid issue with picking up an open container
             {
                 if (OpenContainer != null)
                 {
