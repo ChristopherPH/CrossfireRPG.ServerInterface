@@ -120,6 +120,37 @@ namespace CrossfireCore.ServerInterface
             public int LastFace { get; set; } = 0;
             public int Checksum { get; set; } = 0;
             public List<ImageSet> ImageSets { get; } = new List<ImageSet>();
+
+            public bool GetFaceSetGeometry(int faceset, out int width, out int height)
+            {
+                foreach (var set in ImageSets)
+                {
+                    if (faceset == set.ID)
+                    {
+                        //match pattern of (number)x(number) with allowed whitespace and case
+                        //insensitive x
+                        var match = System.Text.RegularExpressions.Regex.Match(set.Geometry,
+                            @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
+
+                        if (!match.Success)
+                        {
+                            width = 0;
+                            height = 0;
+                            return false;
+                        }
+
+                        //we know we've captured digits so we can assume int.Parse() won't fail here,
+                        //hence no error checking
+                        width = int.Parse(match.Groups[1].Value);
+                        height = int.Parse(match.Groups[2].Value);
+                        return true;
+                    }
+                }
+
+                width = 0;
+                height = 0;
+                return false;
+            }
         }
 
         public class ImageSet
