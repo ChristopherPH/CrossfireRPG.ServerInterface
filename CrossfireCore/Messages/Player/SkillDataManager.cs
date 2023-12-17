@@ -25,6 +25,8 @@ namespace CrossfireCore.Managers
                     SkillID = e.Skill,
                     Level = e.Level,
                     Value = e.Value,
+                    OldLevel = e.Level,
+                    OldValue = e.Value,
                 });
             }
             else
@@ -46,6 +48,8 @@ namespace CrossfireCore.Managers
                         rc = new string[] { nameof(Skill.Value) };
                     }
 
+                    data.OldLevel = data.Level;
+                    data.OldValue = data.Value;
                     data.Level = e.Level;
                     data.Value = e.Value;
                     return rc;
@@ -59,5 +63,7 @@ namespace CrossfireCore.Managers
         public int SkillID { get; set; }
         public Byte Level { get; set; }
         public UInt64 Value { get; set; }
+        public Byte OldLevel { get; set; }
+        public UInt64 OldValue { get; set; }
     }
 }
