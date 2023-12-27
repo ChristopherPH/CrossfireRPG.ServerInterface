@@ -8,96 +8,66 @@ namespace CrossfireCore.ServerInterface
         /// Applies an object (Ready/Wield/Wear/Activate/Open/Close/Read/Eat/Use/...)
         /// </summary>
         /// <param name="tag"></param>
-        public bool SendApply(string tag)
+        /// <returns>true if protocol message sent</returns>
+        public bool SendApply(Int32 tag)
         {
             using (var ba = new BufferAssembler("apply"))
             {
-                ba.AddString(tag);
+                //Apply expects a signed Int32
+                //Note that due to pseudo objects having the high bit of an 32bit int set,
+                //on an x86 server a negative value must be sent for the server to be able
+                //to parse said high bit.
+                ba.AddIntAsString(tag);
 
                 return SendMessage(ba);
             }
         }
 
         /// <summary>
-        /// Always apply an object and never unapply it when already applied.
+        /// Examines an object
         /// </summary>
-        public bool SendApplyOnly(string tag)
-        {
-            using (var ba = new BufferAssembler("apply"))
-            {
-                ba.AddString("-a");
-                ba.AddSpace();
-                ba.AddString(tag);
-
-                return SendMessage(ba);
-            }
-        }
-
-        /// <summary>
-        /// Always unapply an object and never apply it when already unapplied.
-        /// </summary>
-        public bool SendApplyUnapply(string tag)
-        {
-            using (var ba = new BufferAssembler("apply"))
-            {
-                ba.AddString("-u");
-                ba.AddSpace();
-                ba.AddString(tag);
-
-                return SendMessage(ba);
-            }
-        }
-
-        /// <summary>
-        /// Always open a container regardless of previous state.
-        /// </summary>
-        public bool SendApplyOpen(string tag)
-        {
-            using (var ba = new BufferAssembler("apply"))
-            {
-                ba.AddString("-o");
-                ba.AddSpace();
-                ba.AddString(tag);
-
-                return SendMessage(ba);
-            }
-        }
-
-        /// <summary>
-        /// Apply an item on the ground or in the active container, but not one in the characters main inventory.
-        /// </summary>
-        public bool SendApplyGroundContainer(string tag)
-        {
-            using (var ba = new BufferAssembler("apply"))
-            {
-                ba.AddString("-b");
-                ba.AddSpace();
-                ba.AddString(tag);
-
-                return SendMessage(ba);
-            }
-        }
-
-        public bool SendExamine(string tag)
+        /// <param name="tag"></param>
+        /// <returns>true if protocol message sent</returns>
+        public bool SendExamine(Int32 tag)
         {
             using (var ba = new BufferAssembler("examine"))
             {
-                ba.AddString(tag);
+                //Examine expects a signed Int32
+                //Note that due to pseudo objects having the high bit of an 32bit int set,
+                //on an x86 server a negative value must be sent for the server to be able
+                //to parse said high bit.
+                ba.AddIntAsString(tag);
 
                 return SendMessage(ba);
             }
         }
 
-        public bool SendMove(string to, string tag, string nrof = "0")
+        /// <summary>
+        /// Moves item(s)
+        /// </summary>
+        /// <param name="to">Destination item tag (container, player), 0=move to ground</param>
+        /// <param name="tag">Object tag to move</param>
+        /// <param name="nrof">Number of items to move, 0=all</param>
+        /// <returns>true if protocol message sent</returns>
+        public bool SendMove(Int32 to, Int32 tag, Int32 nrof = 0)
         {
             using (var ba = new BufferAssembler("move"))
             {
-                ba.AddString("{0} {1} {2}", to, tag, nrof);
+                ba.AddIntAsString(to);
+                ba.AddSpace();
+                ba.AddIntAsString(tag);
+                ba.AddSpace();
+                ba.AddIntAsString(nrof);
 
                 return SendMessage(ba);
             }
         }
 
+        /// <summary>
+        /// Locks an item in the players inventory
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>true if protocol message sent</returns>
         public bool SendLock(UInt32 tag)
         {
             using (var ba = new BufferAssembler("lock"))
@@ -109,6 +79,11 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        /// <summary>
+        /// Unlocks an item in the players inventory
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>true if protocol message sent</returns>
         public bool SendUnlock(UInt32 tag)
         {
             using (var ba = new BufferAssembler("lock"))
@@ -120,6 +95,11 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
+        /// <summary>
+        /// Marks an item in the players inventory
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>true if protocol message sent</returns>
         public bool SendMark(UInt32 tag)
         {
             using (var ba = new BufferAssembler("mark"))
