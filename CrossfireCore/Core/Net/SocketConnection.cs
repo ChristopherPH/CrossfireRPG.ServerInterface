@@ -225,7 +225,7 @@ namespace CrossfireCore.ServerInterface
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Message));
 
-            var messageBytes = Encoding.ASCII.GetBytes(Message);
+            var messageBytes = Encoding.UTF8.GetBytes(Message);
 
             return SendMessage(messageBytes);
         }
@@ -238,7 +238,7 @@ namespace CrossfireCore.ServerInterface
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Message));
 
-            var messageBytes = Encoding.ASCII.GetBytes(Message);
+            var messageBytes = Encoding.UTF8.GetBytes(Message);
 
             return SendMessage(messageBytes);
         }

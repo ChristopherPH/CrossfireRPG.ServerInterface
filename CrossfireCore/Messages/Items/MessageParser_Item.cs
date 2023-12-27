@@ -58,12 +58,12 @@ namespace CrossfireCore.ServerInterface
 
                 if (item_name_offset < item_name_bytes.Length)
                 {
-                    item_name = Encoding.ASCII.GetString(item_name_bytes, 0, item_name_offset);
-                    item_name_plural = Encoding.ASCII.GetString(item_name_bytes, item_name_offset + 1, item_name_bytes.Length - 1 - item_name_offset);
+                    item_name = Encoding.UTF8.GetString(item_name_bytes, 0, item_name_offset);
+                    item_name_plural = Encoding.UTF8.GetString(item_name_bytes, item_name_offset + 1, item_name_bytes.Length - 1 - item_name_offset);
                 }
                 else
                 {
-                    item_name = Encoding.ASCII.GetString(item_name_bytes, 0, item_name_bytes.Length);
+                    item_name = Encoding.UTF8.GetString(item_name_bytes, 0, item_name_bytes.Length);
                     item_name_plural = item_name;
                 }
 
@@ -126,12 +126,12 @@ namespace CrossfireCore.ServerInterface
 
                     if (update_item_name_offset < update_item_name_bytes.Length)
                     {
-                        update_item_name = Encoding.ASCII.GetString(update_item_name_bytes, 0, update_item_name_offset);
-                        update_item_name_plural = Encoding.ASCII.GetString(update_item_name_bytes, update_item_name_offset + 1, update_item_name_bytes.Length - 1 - update_item_name_offset);
+                        update_item_name = Encoding.UTF8.GetString(update_item_name_bytes, 0, update_item_name_offset);
+                        update_item_name_plural = Encoding.UTF8.GetString(update_item_name_bytes, update_item_name_offset + 1, update_item_name_bytes.Length - 1 - update_item_name_offset);
                     }
                     else
                     {
-                        update_item_name = Encoding.ASCII.GetString(update_item_name_bytes, 0, update_item_name_bytes.Length);
+                        update_item_name = Encoding.UTF8.GetString(update_item_name_bytes, 0, update_item_name_bytes.Length);
                         update_item_name_plural = update_item_name;
                     }
 

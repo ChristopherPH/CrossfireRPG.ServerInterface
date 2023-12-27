@@ -18,7 +18,7 @@ namespace CrossfireCore.ServerInterface
                 throw new ArgumentException("Invalid Parameter", nameof(Command));
 
             this.Command = Command;
-            var commandBytes = Encoding.ASCII.GetBytes(Command);
+            var commandBytes = Encoding.UTF8.GetBytes(Command);
             commandBuffer.Write(commandBytes, 0, commandBytes.Length);
 
             if (AddSpaceAfterCommand)
@@ -93,7 +93,7 @@ namespace CrossfireCore.ServerInterface
             if (string.IsNullOrEmpty(s))
                 throw new ArgumentException("Invalid Parameter", nameof(s));
 
-            var bytes = Encoding.ASCII.GetBytes(s);
+            var bytes = Encoding.UTF8.GetBytes(s);
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
@@ -109,7 +109,7 @@ namespace CrossfireCore.ServerInterface
 
             AddByte((byte)s.Length);
 
-            var bytes = Encoding.ASCII.GetBytes(s);
+            var bytes = Encoding.UTF8.GetBytes(s);
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
