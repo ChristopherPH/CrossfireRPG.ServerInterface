@@ -65,7 +65,6 @@ namespace CrossfireCore.ServerInterface
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
-        //TODO: verify 
         public void AddInt32(Int32 i)
         {
             var bytes = new byte[4];
@@ -78,7 +77,7 @@ namespace CrossfireCore.ServerInterface
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
-        public void AddIntAsString(int i)
+        public void AddIntAsString(Int32 i)
         {
             AddString(i.ToString());
         }
@@ -90,6 +89,7 @@ namespace CrossfireCore.ServerInterface
 
         public void AddString(string s)
         {
+            //Do not allow empty strings
             if (string.IsNullOrEmpty(s))
                 throw new ArgumentException("Invalid Parameter", nameof(s));
 
@@ -104,12 +104,17 @@ namespace CrossfireCore.ServerInterface
 
         public void AddLengthPrefixedString(string s)
         {
-            if ((s == null) || (s.Length > byte.MaxValue))
+            //Allow a 0 byte length prefixed string
+            if (s == null)
                 throw new ArgumentException("Invalid Parameter", nameof(s));
 
-            AddByte((byte)s.Length);
-
             var bytes = Encoding.UTF8.GetBytes(s);
+
+            if (bytes.Length > byte.MaxValue)
+                throw new ArgumentException("Invalid Parameter", nameof(s));
+
+            AddByte((byte)bytes.Length);
+
             commandBuffer.Write(bytes, 0, bytes.Length);
         }
 
