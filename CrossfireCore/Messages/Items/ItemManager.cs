@@ -565,7 +565,7 @@ namespace CrossfireCore.Managers
             if (item == null)
                 return;
 
-            Builder.SendMove(_PlayerTag.ToString(), item.Tag.ToString(), count.ToString());
+            Builder.SendMove((Int32)_PlayerTag, (Int32)item.Tag, count);
         }
 
         public void MoveItemToGround(Item item, int count = 0)
@@ -573,7 +573,7 @@ namespace CrossfireCore.Managers
             if (item == null)
                 return;
 
-            Builder.SendMove("0", item.Tag.ToString(), count.ToString());
+            Builder.SendMove(0, (Int32)item.Tag, count);
         }
 
         public void MoveItemToContainer(Item item, Item container, int count = 0)
@@ -581,7 +581,7 @@ namespace CrossfireCore.Managers
             if (item == null || container == null)
                 return;
 
-            Builder.SendMove(container.Tag.ToString(), item.Tag.ToString(), count.ToString());
+            Builder.SendMove((Int32)container.Tag, (Int32)item.Tag, count);
         }
 
         public void MoveItemToOpenContainer(Item item, int count = 0)
