@@ -74,6 +74,18 @@ namespace CrossfireCore.Managers
                 OpenContainer = null;
             }
 
+            //Log what items are being cleared. Technically the server should be deleting
+            //all player items between characters, but it doesn't seem to get all of them
+            if (this.Count > 0)
+            {
+                _Logger.Debug("Begin clear ItemManager");
+
+                foreach (var item in this)
+                    _Logger.Debug("Clearing {0}", item);
+
+                _Logger.Debug("End clear ItemManager");
+            }
+
             base.ClearData();
         }
 
@@ -168,6 +180,9 @@ namespace CrossfireCore.Managers
                 //applied containers with items inside, that we haven't opened in this session.
                 //The server has not sent the items to the client, but sends a removal message
                 //when quitting.
+                //We will also get these messages when deleting a character, as the player list
+                //is sent before the deletion of inventory. The item manager will be cleared on
+                //a seeing the player list.
                 _Logger.Warning("Trying to delete invalid object {0}", e.ObjectTag);
                 return;
             }
