@@ -71,11 +71,7 @@ namespace CrossfireCore.ServerInterface
             }
             catch (SocketException ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorCode = ex.ErrorCode,
-                    ErrorMessage = ex.Message,
-                });
+                RaiseOnError(ex.ErrorCode, ex.Message);
 
                 //at this point, we didn't set our connection status,
                 //and never got a valid socket, so just clean up
@@ -85,10 +81,7 @@ namespace CrossfireCore.ServerInterface
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
+                RaiseOnError(ex.Message);
 
                 Cleanup();
                 return false;
@@ -140,21 +133,14 @@ namespace CrossfireCore.ServerInterface
                         break;
                 }
 
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorCode = ex.ErrorCode,
-                    ErrorMessage = msg
-                });
+                RaiseOnError(ex.ErrorCode, msg);
 
                 Disconnect();
                 return;
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
+                RaiseOnError(ex.Message);
 
                 Disconnect();
                 return;
@@ -289,10 +275,7 @@ namespace CrossfireCore.ServerInterface
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
+                RaiseOnError(ex.Message);
 
                 Disconnect();
                 return;
@@ -325,10 +308,7 @@ namespace CrossfireCore.ServerInterface
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
+                RaiseOnError(ex.Message);
 
                 Disconnect();
             }
@@ -365,20 +345,13 @@ namespace CrossfireCore.ServerInterface
 
                         //use socket error message instead of System.IO.IOException error message
                         default:
-                            OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                            {
-                                ErrorCode = se.ErrorCode,
-                                ErrorMessage = se.Message
-                            });
+                            RaiseOnError(se.ErrorCode, se.Message);
                             break;
                     }
                 }
                 else
                 {
-                    OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                    {
-                        ErrorMessage = ex.Message
-                    });
+                    RaiseOnError(ex.Message);
                 }
 
                 Disconnect();
@@ -386,10 +359,7 @@ namespace CrossfireCore.ServerInterface
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(this, new ConnectionErrorEventArgs()
-                {
-                    ErrorMessage = ex.Message
-                });
+                RaiseOnError(ex.Message);
 
                 Disconnect();
                 return;
@@ -407,11 +377,10 @@ namespace CrossfireCore.ServerInterface
             //collect buffer data
             so.bufferLen += bytesRead;
 
-            var args = new ConnectionPacketEventArgs();
-            args.Packet = new byte[bytesRead];
-            Array.Copy(so.buffer, args.Packet, bytesRead);
+            var tmpBuffer = new byte[bytesRead];
+            Array.Copy(so.buffer, tmpBuffer, bytesRead);
 
-            OnPacket?.Invoke(this, args);
+            RaiseOnPacket(tmpBuffer);
 
             WaitForBytes(so);
         }
@@ -421,16 +390,42 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<ConnectionPacketEventArgs> OnPacket;
         public event EventHandler<ConnectionErrorEventArgs> OnError;
 
-        protected void SetConnectionStatus(ConnectionStatuses Status)
+        protected void RaiseOnStatusChanged(ConnectionStatuses Status)
+        {
+            OnStatusChanged?.Invoke(this, new ConnectionStatusEventArgs()
+            {
+                Status = Status
+            });
+        }
+
+        protected virtual void RaiseOnPacket(byte[] Packet)
+        {
+            OnPacket?.Invoke(this, new ConnectionPacketEventArgs()
+            {
+                Packet = Packet
+            });
+        }
+
+        protected virtual void RaiseOnError(int ErrorCode, string ErrorMessage)
+        {
+            OnError?.Invoke(this, new ConnectionErrorEventArgs()
+            {
+                ErrorCode = ErrorCode,
+                ErrorMessage = ErrorMessage
+            });
+        }
+
+        protected void RaiseOnError(string ErrorMessage)
+        {
+            RaiseOnError(0, ErrorMessage);
+        }
+
+        protected virtual void SetConnectionStatus(ConnectionStatuses Status)
         {
             if (ConnectionStatus != Status)
             {
                 ConnectionStatus = Status;
-
-                OnStatusChanged?.Invoke(this, new ConnectionStatusEventArgs()
-                {
-                    Status = Status,
-                });
+                RaiseOnStatusChanged(Status);
             }
         }
 
