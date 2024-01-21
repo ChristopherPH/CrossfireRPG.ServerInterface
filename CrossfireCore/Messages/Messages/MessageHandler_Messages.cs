@@ -40,13 +40,13 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class DrawInfoEventArgs : SingleCommandEventArgs
+        public class DrawInfoEventArgs : MessageHandlerEventArgs
         {
             public NewClient.NewDrawInfo Color { get; set; }
             public string Message { get; set; }
         }
 
-        public class DrawExtInfoEventArgs : SingleCommandEventArgs
+        public class DrawExtInfoEventArgs : MessageHandlerEventArgs
         {
             public NewClient.NewDrawInfo Flags { get; set; }
             public NewClient.MsgTypes MessageType { get; set; }
@@ -54,7 +54,7 @@ namespace CrossfireCore.ServerInterface
             public string Message { get; set; }
         }
 
-        public class FailureEventArgs : SingleCommandEventArgs
+        public class FailureEventArgs : MessageHandlerEventArgs
         {
             public string ProtocolCommand { get; set; }
             public string FailureString { get; set; }

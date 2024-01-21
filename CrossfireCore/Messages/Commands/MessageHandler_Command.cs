@@ -25,13 +25,13 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class CompletedCommandEventArgs : SingleCommandEventArgs
+        public class CompletedCommandEventArgs : MessageHandlerEventArgs
         {
             public UInt16 Packet { get; set; }
             public UInt32 Time { get; set; }
         }
 
-        public class QueryEventArgs : SingleCommandEventArgs
+        public class QueryEventArgs : MessageHandlerEventArgs
         {
             public int Flags { get; set; }
             public string QueryText { get; set; }

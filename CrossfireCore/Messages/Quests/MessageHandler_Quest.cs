@@ -44,7 +44,7 @@ namespace CrossfireCore.ServerInterface
             EndQuests?.Invoke(this, EventArgs.Empty);
         }
 
-        public class AddQuestEventArgs : MultiCommandEventArgs
+        public class AddQuestEventArgs : BatchEventArgs
         {
             public UInt32 Code { get; set; }
             public string Title { get; set; }
@@ -55,7 +55,7 @@ namespace CrossfireCore.ServerInterface
             public string Step { get; set; }
         }
 
-        public class UpdateQuestEventArgs : SingleCommandEventArgs
+        public class UpdateQuestEventArgs : MessageHandlerEventArgs
         {
             public UInt32 Code { get; set; }
             public byte End { get; set; }

@@ -52,7 +52,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class AnimationEventArgs : SingleCommandEventArgs
+        public class AnimationEventArgs : MessageHandlerEventArgs
         {
             public UInt16 AnimationNumber { get; set; }
 
@@ -67,7 +67,7 @@ namespace CrossfireCore.ServerInterface
             public UInt16[] AnimationFaces { get; set; }
         }
 
-        public class Face2EventArgs : SingleCommandEventArgs
+        public class Face2EventArgs : MessageHandlerEventArgs
         {
             public UInt16 Face { get; set; }
             public byte FaceSet { get; set; }
@@ -75,14 +75,14 @@ namespace CrossfireCore.ServerInterface
             public string FileName { get; set; }
         }
 
-        public class Image2EventArgs : SingleCommandEventArgs
+        public class Image2EventArgs : MessageHandlerEventArgs
         {
             public UInt32 ImageFace { get; set; }
             public byte ImageFaceSet { get; set; }
             public byte[] ImageData { get; set; }
         }
 
-        public class MagicMapEventArgs : SingleCommandEventArgs
+        public class MagicMapEventArgs : MessageHandlerEventArgs
         {
             public int Width { get; set; }
             public int Height { get; set; }

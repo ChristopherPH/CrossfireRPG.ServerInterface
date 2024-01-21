@@ -49,7 +49,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class AddSpellEventArgs : MultiCommandEventArgs
+        public class AddSpellEventArgs : BatchEventArgs
         {
             public UInt32 SpellTag { get; set; }
             public Int16 Level { get; set; }
@@ -66,14 +66,14 @@ namespace CrossfireCore.ServerInterface
             public string Requirements { get; set; }
         }
 
-        public class UpdateSpellEventArgs : MultiCommandEventArgs
+        public class UpdateSpellEventArgs : BatchEventArgs
         {
             public UInt32 SpellTag { get; set; }
             public NewClient.UpdateSpellTypes UpdateType { get; set; }
             public Int64 UpdateValue { get; set; }
         }
 
-        public class DeleteSpellEventArgs : SingleCommandEventArgs
+        public class DeleteSpellEventArgs : MessageHandlerEventArgs
         {
             public UInt32 SpellTag { get; set; }
         }

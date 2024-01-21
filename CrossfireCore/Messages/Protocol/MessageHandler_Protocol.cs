@@ -44,13 +44,13 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class SetupEventArgs : MultiCommandEventArgs
+        public class SetupEventArgs : BatchEventArgs
         {
             public string SetupCommand { get; set; }
             public string SetupValue { get; set; }
         }
 
-        public class VersionEventArgs : SingleCommandEventArgs
+        public class VersionEventArgs : MessageHandlerEventArgs
         {
             public int ClientToServerProtocolVersion { get; set; }
             public int ServerToClientProtocolVersion { get; set; }

@@ -30,12 +30,12 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class MusicEventArgs : SingleCommandEventArgs
+        public class MusicEventArgs : MessageHandlerEventArgs
         {
             public string Song { get; set; }
         }
 
-        public class SoundEventArgs : SingleCommandEventArgs
+        public class SoundEventArgs : MessageHandlerEventArgs
         {
             /// <summary>
             /// Relative To Player

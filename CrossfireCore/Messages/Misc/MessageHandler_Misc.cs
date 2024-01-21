@@ -23,12 +23,12 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class PickupEventArgs : SingleCommandEventArgs
+        public class PickupEventArgs : MessageHandlerEventArgs
         {
             public UInt32 Flags { get; set; }
         }
 
-        public class TickEventArgs : SingleCommandEventArgs
+        public class TickEventArgs : MessageHandlerEventArgs
         {
             public UInt32 TickCount { get; set; }
         }

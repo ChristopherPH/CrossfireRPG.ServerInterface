@@ -114,7 +114,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class Item2EventArgs : MultiCommandEventArgs
+        public class Item2EventArgs : BatchEventArgs
         {
             public UInt32 item_location { get; set; }
             public UInt32 item_tag { get; set; }
@@ -129,7 +129,7 @@ namespace CrossfireCore.ServerInterface
             public UInt16 item_type { get; set; }
         }
 
-        public class UpdateItemEventArgs : MultiCommandEventArgs
+        public class UpdateItemEventArgs : BatchEventArgs
         {
             public UpdateItemEventArgs(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, byte Value)
             {
@@ -219,17 +219,17 @@ namespace CrossfireCore.ServerInterface
             }
         }
 
-        public class BeginEndUpdateItemUpdateEventArgs : SingleCommandEventArgs
+        public class BeginEndUpdateItemUpdateEventArgs : MessageHandlerEventArgs
         {
             public UInt32 ObjectTag { get; set; }
         }
 
-        public class DeleteItemEventArgs : MultiCommandEventArgs
+        public class DeleteItemEventArgs : BatchEventArgs
         {
             public UInt32 ObjectTag { get; set; }
         }
 
-        public class DeleteInventoryEventArgs : SingleCommandEventArgs
+        public class DeleteInventoryEventArgs : MessageHandlerEventArgs
         {
             public int ObjectTag { get; set; }
         }

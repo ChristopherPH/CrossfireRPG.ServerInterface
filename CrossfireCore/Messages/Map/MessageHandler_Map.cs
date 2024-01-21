@@ -123,7 +123,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class MapFaceEventArgs : SingleCommandEventArgs
+        public class MapFaceEventArgs : MessageHandlerEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
@@ -132,7 +132,7 @@ namespace CrossfireCore.ServerInterface
             public byte Smooth { get; set; }
         }
 
-        public class MapAnimationEventArgs : SingleCommandEventArgs
+        public class MapAnimationEventArgs : MessageHandlerEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
@@ -143,27 +143,27 @@ namespace CrossfireCore.ServerInterface
             public byte Smooth { get; set; }
         }
 
-        public class MapDarknessEventArgs : SingleCommandEventArgs
+        public class MapDarknessEventArgs : MessageHandlerEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
             public byte Darkness { get; set; }
         }
 
-        public class MapLocationEventArgs : SingleCommandEventArgs
+        public class MapLocationEventArgs : MessageHandlerEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
         }
 
-        public class MapLocationLayerEventArgs : SingleCommandEventArgs
+        public class MapLocationLayerEventArgs : MessageHandlerEventArgs
         {
             public int X { get; set; }
             public int Y { get; set; }
             public int Layer { get; set; }
         }
 
-        public class SmoothEventArgs : SingleCommandEventArgs
+        public class SmoothEventArgs : MessageHandlerEventArgs
         {
             /// <summary>
             /// Face to Smooth

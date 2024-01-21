@@ -72,7 +72,7 @@ namespace CrossfireCore.ServerInterface
             EndStats?.Invoke(this, EventArgs.Empty);
         }
 
-        public class PlayerEventArgs : SingleCommandEventArgs
+        public class PlayerEventArgs : MessageHandlerEventArgs
         {
             public UInt32 tag { get; set; }
             public float weight { get; set; }
@@ -80,14 +80,14 @@ namespace CrossfireCore.ServerInterface
             public string PlayerName { get; set; }
         }
 
-        public class SkillEventArgs : MultiCommandEventArgs
+        public class SkillEventArgs : BatchEventArgs
         {
             public int Skill { get; set; }
             public Byte Level { get; set; }
             public UInt64 Value { get; set; }
         }
 
-        public class StatEventArgs : MultiCommandEventArgs
+        public class StatEventArgs : BatchEventArgs
         {
             public StatEventArgs(NewClient.CharacterStats Stat, sbyte Value)
             {

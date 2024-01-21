@@ -24,7 +24,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class AccountPlayerEventArgs : MultiCommandEventArgs
+        public class AccountPlayerEventArgs : BatchEventArgs
         {
             public int PlayerCount { get; set; }
             public int PlayerNumber { get; set; }

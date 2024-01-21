@@ -15,7 +15,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class ReplyInfoEventArgs : SingleCommandEventArgs
+        public class ReplyInfoEventArgs : MessageHandlerEventArgs
         {
             public string Request { get; set; }
             public byte[] Reply { get; set; }

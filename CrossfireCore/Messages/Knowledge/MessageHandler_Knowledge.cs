@@ -17,7 +17,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        public class AddKnowledgeEventArgs : MultiCommandEventArgs
+        public class AddKnowledgeEventArgs : BatchEventArgs
         {
             public UInt32 ID { get; set; }
             public string Type { get; set; }
