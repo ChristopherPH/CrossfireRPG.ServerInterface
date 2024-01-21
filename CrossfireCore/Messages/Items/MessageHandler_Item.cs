@@ -1,26 +1,30 @@
 ﻿using CrossfireCore.ServerConfig;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireCore.ServerInterface
 {
     public partial class MessageHandler
     {
         public event EventHandler<Item2EventArgs> Item2;
-        public event EventHandler<EventArgs> BeginItem2;
-        public event EventHandler<EventArgs> EndItem2;
+        public event EventHandler<BeginBatchEventArgs> BeginItem2;
+        public event EventHandler<EndBatchEventArgs> EndItem2;
         public event EventHandler<UpdateItemEventArgs> UpdateItem;
         public event EventHandler<BeginEndUpdateItemUpdateEventArgs> BeginUpdateItem;
         public event EventHandler<BeginEndUpdateItemUpdateEventArgs> EndUpdateItem;
         public event EventHandler<DeleteItemEventArgs> DeleteItem;
-        public event EventHandler<EventArgs> BeginDeleteItem;
-        public event EventHandler<EventArgs> EndDeleteItem;
+        public event EventHandler<BeginBatchEventArgs> BeginDeleteItem;
+        public event EventHandler<EndBatchEventArgs> EndDeleteItem;
         public event EventHandler<DeleteInventoryEventArgs> DeleteInventory;
+
+        private Queue<Item2EventArgs> _Item2BatchEvents = new Queue<Item2EventArgs>();
+        private Queue<DeleteItemEventArgs> _DeleteItemBatchEvents = new Queue<DeleteItemEventArgs>();
 
         protected override void HandleItem2(uint item_location, uint item_tag, uint item_flags,
             float item_weight, uint item_face, string item_name, string item_name_plural,
             ushort item_anim, byte item_animspeed, uint item_nrof, ushort item_type)
         {
-            Item2?.Invoke(this, new Item2EventArgs()
+            _Item2BatchEvents.Enqueue(new Item2EventArgs()
             {
                 item_location = item_location,
                 item_tag = item_tag,
@@ -38,12 +42,27 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleBeginItem2()
         {
-            BeginItem2?.Invoke(this, EventArgs.Empty);
+            _Item2BatchEvents.Clear();
         }
 
         protected override void HandleEndItem2()
         {
-            EndItem2?.Invoke(this, EventArgs.Empty);
+            var BatchNumber = 0;
+            var BatchCount = _Item2BatchEvents.Count;
+
+            BeginItem2?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
+
+            while (_Item2BatchEvents.Count > 0)
+            {
+                var args = _Item2BatchEvents.Dequeue();
+                args.BatchNumber = BatchNumber++;
+                args.BatchCount = BatchCount;
+                Item2?.Invoke(this, args);
+            }
+
+            _Item2BatchEvents.Clear();
+
+            EndItem2?.Invoke(this, new EndBatchEventArgs() { BatchCount = BatchNumber });
         }
 
         protected override void HandleUpdateItem(UInt32 ObjectTag, NewClient.UpdateTypes UpdateType, byte UpdateValue)
@@ -90,7 +109,7 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleDeleteItem(uint ObjectTag)
         {
-            DeleteItem?.Invoke(this, new DeleteItemEventArgs()
+            _DeleteItemBatchEvents.Enqueue(new DeleteItemEventArgs()
             {
                 ObjectTag = ObjectTag
             });
@@ -98,12 +117,27 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleBeginDeleteItem()
         {
-            BeginDeleteItem?.Invoke(this, EventArgs.Empty);
+            _DeleteItemBatchEvents.Clear();
         }
 
         protected override void HandleEndDeleteItem()
         {
-            EndDeleteItem?.Invoke(this, EventArgs.Empty);
+            var BatchNumber = 0;
+            var BatchCount = _DeleteItemBatchEvents.Count;
+
+            BeginDeleteItem?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
+
+            while (_DeleteItemBatchEvents.Count > 0)
+            {
+                var args = _DeleteItemBatchEvents.Dequeue();
+                args.BatchNumber = BatchNumber++;
+                args.BatchCount = BatchCount;
+                DeleteItem?.Invoke(this, args);
+            }
+
+            _DeleteItemBatchEvents.Clear();
+
+            EndDeleteItem?.Invoke(this, new EndBatchEventArgs() { BatchCount = BatchNumber });
         }
 
         protected override void HandleDeleteInventory(int ObjectTag)
