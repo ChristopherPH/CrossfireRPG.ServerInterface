@@ -541,9 +541,11 @@ namespace CrossfireCore.Managers
             if (item == null)
                 return null;
 
+            //item is on ground, therefore not in a container
             if (item.IsOnGround)
                 return null;
 
+            //item is on player, therefore not in a container
             if ((_PlayerTag == 0) || (item.LocationTag == _PlayerTag))
                 return null;
 
