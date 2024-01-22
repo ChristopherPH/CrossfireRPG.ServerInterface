@@ -10,7 +10,7 @@ namespace CrossfireCore.ServerInterface
     public class BatchEventArgs : MessageHandlerEventArgs
     {
         /// <summary>
-        /// 0 based event number between BeginBatch and EndBatch events
+        /// 1 based event number between BeginBatch and EndBatch events
         /// </summary>
         public int BatchNumber { get; set; } = 0;
 
@@ -19,8 +19,8 @@ namespace CrossfireCore.ServerInterface
         /// </summary>
         public int BatchCount { get; set; } = 0;
 
-        public bool IsFirstBatchEvent => BatchNumber == 0;
-        public bool IsLastBatchEvent => (BatchNumber + 1) == BatchCount;
+        public bool IsFirstBatchEvent => BatchNumber == 1;
+        public bool IsLastBatchEvent => BatchNumber == BatchCount;
         public bool OnlyOneMessage => IsFirstBatchEvent && IsLastBatchEvent;
     }
 

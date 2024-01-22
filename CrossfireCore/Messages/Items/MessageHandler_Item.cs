@@ -47,7 +47,7 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleEndItem2()
         {
-            var BatchNumber = 0;
+            var BatchNumber = 1;
             var BatchCount = _Item2BatchEvents.Count;
 
             BeginItem2?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
@@ -122,7 +122,7 @@ namespace CrossfireCore.ServerInterface
 
         protected override void HandleEndDeleteItem()
         {
-            var BatchNumber = 0;
+            var BatchNumber = 1;
             var BatchCount = _DeleteItemBatchEvents.Count;
 
             BeginDeleteItem?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
