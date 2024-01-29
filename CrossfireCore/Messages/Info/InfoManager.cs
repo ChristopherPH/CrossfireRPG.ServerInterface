@@ -270,7 +270,7 @@ namespace CrossfireCore.ServerInterface
             Builder.SendRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
         }
 
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             Motd = string.Empty;
             News = string.Empty;

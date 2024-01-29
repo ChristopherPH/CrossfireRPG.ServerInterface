@@ -64,7 +64,7 @@ namespace CrossfireCore.Managers
             });
         }
 
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             if (OpenContainer != null)
             {
@@ -86,7 +86,7 @@ namespace CrossfireCore.Managers
                 _Logger.Debug("End clear ItemManager");
             }
 
-            base.ClearData();
+            base.ClearData(disconnected);
         }
 
         private void _Handler_Item2(object sender, MessageHandler.Item2EventArgs e)

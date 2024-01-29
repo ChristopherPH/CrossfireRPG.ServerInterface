@@ -79,7 +79,7 @@ namespace CrossfireCore.Managers
         List<MapCellLocation> _updatedLocations = new List<MapCellLocation>();
         bool _mapScrollUpdatedMap = false;
 
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             OnBeforeMapClear();
 

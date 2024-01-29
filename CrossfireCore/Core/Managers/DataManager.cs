@@ -33,18 +33,18 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Custom function that clears all the data for the manager
         /// </summary>
-        protected abstract void ClearData();
+        protected abstract void ClearData(bool disconnected);
 
         private void Connection_OnStatusChanged(object sender, ConnectionStatusEventArgs e)
         {
             if (e.Status == ConnectionStatuses.Disconnected)
-                ClearData();
+                ClearData(true);
         }
 
         private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
         {
             if (e.tag == 0)
-                ClearData();
+                ClearData(false);
         }
     }
 }

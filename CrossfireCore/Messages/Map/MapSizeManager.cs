@@ -42,7 +42,7 @@ namespace CrossfireCore.Managers
 
         private object _QueueLock = new object();
 
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             lock (_QueueLock)
             {

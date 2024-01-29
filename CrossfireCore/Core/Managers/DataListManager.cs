@@ -269,7 +269,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to remove data
         /// </summary>
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             if (Datas.Count > 0)
             {

@@ -25,7 +25,7 @@ namespace CrossfireCore.Managers
 
         public Player Player { get; private set; } = new Player();
 
-        protected override void ClearData()
+        protected override void ClearData(bool disconnected)
         {
             Player = new Player();
             OnDataChanged(ModificationTypes.Updated, Player, null);
