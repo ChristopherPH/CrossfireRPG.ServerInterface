@@ -1,9 +1,10 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class KnowledgeDataManager : DataListManager<KnowledgeData>
+    public class KnowledgeDataManager : DataListManager<KnowledgeData, List<KnowledgeData>>
     {
         public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

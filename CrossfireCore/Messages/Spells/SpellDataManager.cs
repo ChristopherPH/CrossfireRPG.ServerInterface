@@ -1,10 +1,11 @@
 ﻿using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class SpellDataManager : DataListManager<Spell>
+    public class SpellDataManager : DataListManager<Spell, List<Spell>>
     {
         public SpellDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

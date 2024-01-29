@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace CrossfireCore.Managers
 {
-    public class ItemManager : DataListManager<Item>
+    public class ItemManager : DataListManager<Item, List<Item>>
     {
         public ItemManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

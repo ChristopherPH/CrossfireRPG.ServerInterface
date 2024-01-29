@@ -1,9 +1,10 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class QuestDataManager : DataListManager<Quest>
+    public class QuestDataManager : DataListManager<Quest, List<Quest>>
     {
         public QuestDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)

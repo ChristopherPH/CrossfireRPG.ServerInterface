@@ -11,8 +11,10 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
-    public abstract class DataListManager<TDataObject> : DataObjectManager<TDataObject>, IEnumerable<TDataObject>
+    public abstract class DataListManager<TDataObject, TDataList> :
+        DataObjectManager<TDataObject>, IEnumerable<TDataObject>
         where TDataObject : DataObject
+        where TDataList : IList<TDataObject>, new()
     {
         public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -28,7 +30,7 @@ namespace CrossfireCore.Managers
             base.SupportedModificationTypes | DataModificationTypes.Cleared |
                 DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
-        private List<TDataObject> Datas { get; } = new List<TDataObject>();
+        private TDataList DataObjects { get; } = new TDataList();
 
         public TDataObject this[int index]
         {
@@ -36,12 +38,12 @@ namespace CrossfireCore.Managers
             {
                 lock (_Lock)
                 {
-                    return Datas[index];
+                    return DataObjects[index];
                 }
             }
         }
 
-        public int Count => Datas.Count;
+        public int Count => DataObjects.Count;
 
         private object _Lock = new object();
 
@@ -51,7 +53,7 @@ namespace CrossfireCore.Managers
             {
                 //HACK: return a copy of the list so we don't get "Collection was modified;
                 //      enumeration operation may not execute"
-                return Datas.ToList().GetEnumerator();
+                return DataObjects.ToList().GetEnumerator();
             }
         }
 
@@ -67,7 +69,7 @@ namespace CrossfireCore.Managers
 
         public bool Contains(Predicate<TDataObject> Match)
         {
-            return Datas.FindIndex(Match) == -1 ? false : true;
+            return DataObjects.FindIndex(Match) == -1 ? false : true;
         }
 
         public TDataObject GetData(int index)
@@ -77,31 +79,31 @@ namespace CrossfireCore.Managers
 
             lock (_Lock)
             {
-                return Datas[index];
+                return DataObjects[index];
             }
         }
 
         public TDataObject GetData(Predicate<TDataObject> Match)
         {
-            var index = Datas.FindIndex(Match);
+            var index = DataObjects.FindIndex(Match);
             if (index == -1)
                 return default;
 
             lock (_Lock)
             {
-                return Datas[index];
+                return DataObjects[index];
             }
         }
 
         public TDataObject GetData(Predicate<TDataObject> Match, out int Index)
         {
-            Index = Datas.FindIndex(Match);
+            Index = DataObjects.FindIndex(Match);
             if (Index == -1)
                 return default;
 
             lock (_Lock)
             {
-                return Datas[Index];
+                return DataObjects[Index];
             }
         }
 
@@ -112,18 +114,18 @@ namespace CrossfireCore.Managers
 
             lock (_Lock)
             {
-                return Datas.IndexOf(Data);
+                return DataObjects.IndexOf(Data);
             }
         }
 
         public int GetIndex(Predicate<TDataObject> Match)
         {
-            return Datas.FindIndex(Match);
+            return DataObjects.FindIndex(Match);
         }
 
         public int GetIndex(Predicate<TDataObject> Match, out TDataObject Data)
         {
-            var index = Datas.FindIndex(Match);
+            var index = DataObjects.FindIndex(Match);
 
             if (index == -1)
             {
@@ -133,7 +135,7 @@ namespace CrossfireCore.Managers
             {
                 lock (_Lock)
                 {
-                    Data = Datas[index];
+                    Data = DataObjects[index];
                 }
             }
 
@@ -142,13 +144,13 @@ namespace CrossfireCore.Managers
 
         protected int AddData(TDataObject Data)
         {
-            var index = Datas.Count;
+            var index = DataObjects.Count;
 
             CheckGroupUpdate();
 
             lock (_Lock)
             {
-                Datas.Add(Data);
+                DataObjects.Add(Data);
             }
 
             OnDataChanged(DataModificationTypes.Added,
@@ -162,7 +164,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected bool UpdateData(Predicate<TDataObject> Match, Func<TDataObject, string[]> UpdateAction)
         {
-            return UpdateData(Datas.FindIndex(Match), UpdateAction);
+            return UpdateData(DataObjects.FindIndex(Match), UpdateAction);
         }
 
         /// <summary>
@@ -179,7 +181,7 @@ namespace CrossfireCore.Managers
             TDataObject data;
             lock (_Lock)
             {
-                data = Datas[index];
+                data = DataObjects[index];
             }
 
             var UpdatedProperties = UpdateAction(data);
@@ -209,7 +211,7 @@ namespace CrossfireCore.Managers
 
             lock (_Lock)
             {
-                Datas[index] = Data;
+                DataObjects[index] = Data;
             }
 
             OnDataChanged(DataModificationTypes.Updated,
@@ -225,7 +227,7 @@ namespace CrossfireCore.Managers
         /// <returns></returns>
         protected bool RemoveData(Predicate<TDataObject> Match)
         {
-            return RemoveData(Datas.FindIndex(Match));
+            return RemoveData(DataObjects.FindIndex(Match));
         }
 
         /// <summary>
@@ -254,7 +256,7 @@ namespace CrossfireCore.Managers
 
             lock (_Lock)
             {
-                data = Datas[index];
+                data = DataObjects[index];
             }
 
             OnDataChanged(DataModificationTypes.Removed,
@@ -262,7 +264,7 @@ namespace CrossfireCore.Managers
 
             lock (_Lock)
             {
-                Datas.RemoveAt(index);
+                DataObjects.RemoveAt(index);
             }
             return true;
         }
@@ -272,13 +274,13 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected override void ClearData(bool disconnected)
         {
-            if (Datas.Count > 0)
+            if (DataObjects.Count > 0)
             {
                 CheckGroupUpdate();
 
                 lock (_Lock)
                 {
-                    Datas.Clear();
+                    DataObjects.Clear();
                 }
 
                 OnDataChanged(DataModificationTypes.Cleared, default, -1);
@@ -396,6 +398,24 @@ namespace CrossfireCore.Managers
                 Index = Index,
                 UpdatedProperties = UpdatedProperties
             });
+        }
+    }
+
+    public static class DataListManagerExtensions
+    {
+        /* HACK: IList<> doesn't have a FindIndex, but List<T> does.
+         */
+        public static int FindIndex<T>(this IList<T> source, Predicate<T> match)
+        {
+            for (int ix = 0; ix < source.Count; ix++)
+            {
+                if (match(source[ix]))
+                {
+                    return ix;
+                }
+            }
+
+            return -1;
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class SkillDataManager : DataListManager<Skill>
+    public class SkillDataManager : DataListManager<Skill, List<Skill>>
     {
         public SkillDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
