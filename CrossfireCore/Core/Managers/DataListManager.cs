@@ -11,7 +11,8 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
-    public abstract class DataListManager<T> : DataObjectManager<T>, IEnumerable<T>
+    public abstract class DataListManager<TDataObject> : DataObjectManager<TDataObject>, IEnumerable<TDataObject>
+        where TDataObject : DataObject
     {
         public DataListManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -27,9 +28,9 @@ namespace CrossfireCore.Managers
             base.SupportedModificationTypes | DataModificationTypes.Cleared |
                 DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
-        private List<T> Datas { get; } = new List<T>();
+        private List<TDataObject> Datas { get; } = new List<TDataObject>();
 
-        public T this[int index]
+        public TDataObject this[int index]
         {
             get
             {
@@ -44,7 +45,7 @@ namespace CrossfireCore.Managers
 
         private object _Lock = new object();
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<TDataObject> GetEnumerator()
         {
             lock (_Lock)
             {
@@ -64,12 +65,12 @@ namespace CrossfireCore.Managers
             }
         }
 
-        public bool Contains(Predicate<T> Match)
+        public bool Contains(Predicate<TDataObject> Match)
         {
             return Datas.FindIndex(Match) == -1 ? false : true;
         }
 
-        public T GetData(int index)
+        public TDataObject GetData(int index)
         {
             if ((index < 0) || (index >= Count))
                 return default;
@@ -80,7 +81,7 @@ namespace CrossfireCore.Managers
             }
         }
 
-        public T GetData(Predicate<T> Match)
+        public TDataObject GetData(Predicate<TDataObject> Match)
         {
             var index = Datas.FindIndex(Match);
             if (index == -1)
@@ -92,7 +93,7 @@ namespace CrossfireCore.Managers
             }
         }
 
-        public T GetData(Predicate<T> Match, out int Index)
+        public TDataObject GetData(Predicate<TDataObject> Match, out int Index)
         {
             Index = Datas.FindIndex(Match);
             if (Index == -1)
@@ -104,7 +105,7 @@ namespace CrossfireCore.Managers
             }
         }
 
-        public int GetIndex(T Data)
+        public int GetIndex(TDataObject Data)
         {
             if (Data == null)
                 return default;
@@ -115,12 +116,12 @@ namespace CrossfireCore.Managers
             }
         }
 
-        public int GetIndex(Predicate<T> Match)
+        public int GetIndex(Predicate<TDataObject> Match)
         {
             return Datas.FindIndex(Match);
         }
 
-        public int GetIndex(Predicate<T> Match, out T Data)
+        public int GetIndex(Predicate<TDataObject> Match, out TDataObject Data)
         {
             var index = Datas.FindIndex(Match);
 
@@ -139,7 +140,7 @@ namespace CrossfireCore.Managers
             return index;
         }
 
-        protected int AddData(T Data)
+        protected int AddData(TDataObject Data)
         {
             var index = Datas.Count;
 
@@ -159,7 +160,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to Update Properties of Data given a match
         /// </summary>
-        protected bool UpdateData(Predicate<T> Match, Func<T, string[]> UpdateAction)
+        protected bool UpdateData(Predicate<TDataObject> Match, Func<TDataObject, string[]> UpdateAction)
         {
             return UpdateData(Datas.FindIndex(Match), UpdateAction);
         }
@@ -167,7 +168,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to Update Properties of Data at a given index
         /// </summary>
-        protected bool UpdateData(int index, Func<T, string[]> UpdateAction)
+        protected bool UpdateData(int index, Func<TDataObject, string[]> UpdateAction)
         {
             if ((index < 0) || (index >= Count))
                 return false;
@@ -175,7 +176,7 @@ namespace CrossfireCore.Managers
             if (UpdateAction == null)
                 return false;
 
-            T data;
+            TDataObject data;
             lock (_Lock)
             {
                 data = Datas[index];
@@ -196,7 +197,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to replace Data at a given index with a new Data
         /// </summary>
-        protected bool UpdateData(int index, T Data)
+        protected bool UpdateData(int index, TDataObject Data)
         {
             if ((index < 0) || (index >= Count))
                 return false;
@@ -222,7 +223,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         /// <param name="Match"></param>
         /// <returns></returns>
-        protected bool RemoveData(Predicate<T> Match)
+        protected bool RemoveData(Predicate<TDataObject> Match)
         {
             return RemoveData(Datas.FindIndex(Match));
         }
@@ -230,7 +231,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to remove data
         /// </summary>
-        protected bool RemoveData(T Data)
+        protected bool RemoveData(TDataObject Data)
         {
             var index = GetIndex(Data);
             if (index == -1)
@@ -249,7 +250,7 @@ namespace CrossfireCore.Managers
 
             CheckGroupUpdate();
 
-            T data;
+            TDataObject data;
 
             lock (_Lock)
             {
@@ -386,9 +387,9 @@ namespace CrossfireCore.Managers
         }
 
         protected virtual void OnDataChanged(DataModificationTypes ModificationType, 
-            T Data, int Index, string[] UpdatedProperties = null)
+            TDataObject Data, int Index, string[] UpdatedProperties = null)
         {
-            OnDataChanged(new DataListUpdatedEventArgs<T>()
+            OnDataChanged(new DataListUpdatedEventArgs<TDataObject>()
             {
                 Modification = ModificationType,
                 Data = Data,

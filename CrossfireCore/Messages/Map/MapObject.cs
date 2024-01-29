@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace CrossfireCore.ManagedObjects
 {
-    public class MapObject
+    public class MapObject : Managers.DataObject
     {
         //private SortedDictionary<MapCoord, MapCell> _cells = new SortedDictionary<MapCoord, MapCell>(new MapCoordComparer());
         //private Dictionary<MapCoord, MapCell> _cells = new Dictionary<MapCoord, MapCell>();

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class Player
+    public class Player : Managers.DataObject
     {
         /// <summary>
         /// Tag of 0 indicates no active player

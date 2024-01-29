@@ -8,7 +8,8 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
-    public abstract class DataObjectManager<T> : DataManager
+    public abstract class DataObjectManager<TDataObject> : DataManager
+        where TDataObject : DataObject
     {
         public DataObjectManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler) { }
@@ -21,12 +22,12 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Event when any data for the managed object changes
         /// </summary>
-        public event EventHandler<DataUpdatedEventArgs<T>> DataChanged;
+        public event EventHandler<DataUpdatedEventArgs<TDataObject>> DataChanged;
 
         protected virtual void OnDataChanged(DataModificationTypes ModificationType,
-            T Data, string[] UpdatedProperties = null)
+            TDataObject Data, string[] UpdatedProperties = null)
         {
-            DataChanged?.Invoke(this, new DataUpdatedEventArgs<T>()
+            DataChanged?.Invoke(this, new DataUpdatedEventArgs<TDataObject>()
             {
                 Modification = ModificationType,
                 Data = Data,
@@ -34,7 +35,7 @@ namespace CrossfireCore.Managers
             });
         }
 
-        protected virtual void OnDataChanged(DataUpdatedEventArgs<T> dataUpdatedEventArgs)
+        protected virtual void OnDataChanged(DataUpdatedEventArgs<TDataObject> dataUpdatedEventArgs)
         {
             DataChanged?.Invoke(this, dataUpdatedEventArgs);
         }
@@ -42,7 +43,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to trigger a Updated event
         /// </summary>
-        protected virtual void OnPropertyChanged(T Data, string UpdatedProperty)
+        protected virtual void OnPropertyChanged(TDataObject Data, string UpdatedProperty)
         {
             OnDataChanged(DataModificationTypes.Updated, Data, new string[] { UpdatedProperty });
         }

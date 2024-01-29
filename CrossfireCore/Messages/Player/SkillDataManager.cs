@@ -58,7 +58,7 @@ namespace CrossfireCore.Managers
         }
     }
 
-    public class Skill
+    public class Skill : DataObject
     {
         public int SkillID { get; set; }
         public Byte Level { get; set; }

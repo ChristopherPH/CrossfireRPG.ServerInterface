@@ -633,7 +633,7 @@ namespace CrossfireCore.Managers
         Player,
     }
 
-    public class Item
+    public class Item : DataObject
     {
         /// <summary>
         /// Tag of item

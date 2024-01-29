@@ -55,7 +55,7 @@ namespace CrossfireCore.Managers
         }
     }
 
-    public class Quest
+    public class Quest : DataObject
     {
         public UInt32 QuestID { get; set; }
         public UInt32 ParentID { get; set; }

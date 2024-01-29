@@ -69,7 +69,7 @@ namespace CrossfireCore.Managers
         }
     }
 
-    public class Spell
+    public class Spell : DataObject
     {
         public UInt32 SpellTag { get; set; }
         public Int16 Level { get; set; }

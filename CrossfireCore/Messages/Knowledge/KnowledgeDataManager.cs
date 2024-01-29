@@ -28,7 +28,7 @@ namespace CrossfireCore.Managers
         }
     }
 
-    public class KnowledgeData
+    public class KnowledgeData : DataObject
     {
         public UInt32 KnowledgeID { get; set; }
         public string Type { get; set; }
