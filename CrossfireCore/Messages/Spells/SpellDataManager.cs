@@ -16,8 +16,8 @@ namespace CrossfireCore.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
-        public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
-            ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed;
+        public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
+            DataModificationTypes.Added | DataModificationTypes.Updated | DataModificationTypes.Removed;
 
         private void Handler_AddSpell(object sender, MessageHandler.AddSpellEventArgs e)
         {

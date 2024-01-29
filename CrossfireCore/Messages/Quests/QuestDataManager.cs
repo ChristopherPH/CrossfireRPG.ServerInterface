@@ -16,9 +16,9 @@ namespace CrossfireCore.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
-        public override ModificationTypes SupportedModificationTypes =>
-            base.SupportedModificationTypes | ModificationTypes.Added | ModificationTypes.Updated |
-            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
+        public override DataModificationTypes SupportedModificationTypes =>
+            base.SupportedModificationTypes | DataModificationTypes.Added | DataModificationTypes.Updated |
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         private void Handler_AddQuest(object sender, MessageHandler.AddQuestEventArgs e)
         {

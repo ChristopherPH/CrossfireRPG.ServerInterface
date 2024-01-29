@@ -13,8 +13,8 @@ namespace CrossfireCore.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
-        public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
-            ModificationTypes.Added | ModificationTypes.Updated;
+        public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
+            DataModificationTypes.Added | DataModificationTypes.Updated;
 
         private void Handler_Skills(object sender, MessageHandler.SkillEventArgs e)
         {

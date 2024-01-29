@@ -1,6 +1,5 @@
 ﻿using CrossfireCore.ServerInterface;
 using System;
-using System.Linq;
 
 namespace CrossfireCore.Managers
 {
@@ -17,17 +16,17 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Setup property to indicate what events the manager will trigger
         /// </summary>
-        public virtual ModificationTypes SupportedModificationTypes => ModificationTypes.None;
+        public virtual DataModificationTypes SupportedModificationTypes => DataModificationTypes.None;
 
         /// <summary>
         /// Event when any data for the managed object changes
         /// </summary>
-        public event EventHandler<DataUpdatedEventArgs> DataChanged;
+        public event EventHandler<DataUpdatedEventArgs<T>> DataChanged;
 
-        protected virtual void OnDataChanged(ModificationTypes ModificationType,
+        protected virtual void OnDataChanged(DataModificationTypes ModificationType,
             T Data, string[] UpdatedProperties = null)
         {
-            DataChanged?.Invoke(this, new DataUpdatedEventArgs()
+            DataChanged?.Invoke(this, new DataUpdatedEventArgs<T>()
             {
                 Modification = ModificationType,
                 Data = Data,
@@ -35,7 +34,7 @@ namespace CrossfireCore.Managers
             });
         }
 
-        protected virtual void OnDataChanged(DataUpdatedEventArgs dataUpdatedEventArgs)
+        protected virtual void OnDataChanged(DataUpdatedEventArgs<T> dataUpdatedEventArgs)
         {
             DataChanged?.Invoke(this, dataUpdatedEventArgs);
         }
@@ -45,7 +44,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected virtual void OnPropertyChanged(T Data, string UpdatedProperty)
         {
-            OnDataChanged(ModificationTypes.Updated, Data, new string[] { UpdatedProperty });
+            OnDataChanged(DataModificationTypes.Updated, Data, new string[] { UpdatedProperty });
         }
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected virtual void StartMultiCommand()
         {
-            OnDataChanged(ModificationTypes.MultiCommandStart, default);
+            OnDataChanged(DataModificationTypes.MultiCommandStart, default);
         }
 
         /// <summary>
@@ -61,45 +60,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected virtual void EndMultiCommand()
         {
-            OnDataChanged(ModificationTypes.MultiCommandEnd, default);
-        }
-
-
-        [Flags]
-        public enum ModificationTypes
-        {
-            None = 0x00,
-
-            Added = 0x01,
-            Updated = 0x02,
-            Removed = 0x04,
-            Cleared = 0x08,
-
-            MultiCommandStart = 0x10,
-            MultiCommandEnd = 0x20,
-            GroupUpdateStart = 0x40,
-            GroupUpdateEnd = 0x80,
-        }
-
-        public class DataUpdatedEventArgs : EventArgs
-        {
-            public ModificationTypes Modification { get; set; }
-            public T Data { get; set; } = default;
-
-            /// <summary>
-            /// List of properties that were updated, null indicates all/unknown properties, so best to update everything
-            /// </summary>
-            public string[] UpdatedProperties { get; set; } = null;
-
-            public bool WasUpdated(string Property)
-            {
-                return (UpdatedProperties == null) || UpdatedProperties.Contains(Property);
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0}[{1}]: {2}", Data.GetType().Name, Modification, Data);
-            }
+            OnDataChanged(DataModificationTypes.MultiCommandEnd, default);
         }
     }
 }

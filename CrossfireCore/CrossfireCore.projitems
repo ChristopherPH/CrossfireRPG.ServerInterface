@@ -9,6 +9,8 @@
     <Import_RootNamespace>CrossfireCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataModificationTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\ClientTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />

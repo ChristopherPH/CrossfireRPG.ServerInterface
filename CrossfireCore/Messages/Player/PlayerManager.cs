@@ -20,15 +20,15 @@ namespace CrossfireCore.Managers
         static Logger _Logger = new Logger(nameof(PlayerManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
-        public override ModificationTypes SupportedModificationTypes => ModificationTypes.Updated |
-            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
+        public override DataModificationTypes SupportedModificationTypes => DataModificationTypes.Updated |
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         public Player Player { get; private set; } = new Player();
 
         protected override void ClearData(bool disconnected)
         {
             Player = new Player();
-            OnDataChanged(ModificationTypes.Updated, Player, null);
+            OnDataChanged(DataModificationTypes.Updated, Player, null);
         }
 
         private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)

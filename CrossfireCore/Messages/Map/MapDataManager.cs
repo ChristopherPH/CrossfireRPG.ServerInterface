@@ -36,11 +36,11 @@ namespace CrossfireCore.Managers
         static Logger _Logger = new Logger(nameof(MapDataManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
-        public override ModificationTypes SupportedModificationTypes =>
-            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd |
-            ModificationTypes.Added |   //Raised after a map has been populated for the first time
-            ModificationTypes.Updated | //Raised when a map has been updated
-            ModificationTypes.Cleared;  //Raised when a map has been cleared
+        public override DataModificationTypes SupportedModificationTypes =>
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd |
+            DataModificationTypes.Added |   //Raised after a map has been populated for the first time
+            DataModificationTypes.Updated | //Raised when a map has been updated
+            DataModificationTypes.Cleared;  //Raised when a map has been cleared
 
         /// <summary>
         /// Managed Map Object
@@ -50,7 +50,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Raised before the existing map is cleared
         /// </summary>
-        public event EventHandler<DataUpdatedEventArgs> BeforeMapClear;
+        public event EventHandler<DataUpdatedEventArgs<MapObject>> BeforeMapClear;
 
         /// <summary>
         /// Raised when a map cell has been updated
@@ -96,7 +96,7 @@ namespace CrossfireCore.Managers
             CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
             _smoothFaces.Clear();
 
-            OnDataChanged(ModificationTypes.Cleared, MapObject);
+            OnDataChanged(DataModificationTypes.Cleared, MapObject);
         }
 
         private void Handler_Player(object sender, MessageHandler.PlayerEventArgs e)
@@ -116,7 +116,7 @@ namespace CrossfireCore.Managers
                 _synchronizedAnimations.Clear();
                 _mapScrollX = _mapScrollY = 0;
 
-                OnDataChanged(ModificationTypes.Cleared, MapObject);
+                OnDataChanged(DataModificationTypes.Cleared, MapObject);
             }
         }
 
@@ -168,7 +168,7 @@ namespace CrossfireCore.Managers
                 _populatingNewMap = false;
 
                 //Notify a new map was added
-                OnDataChanged(ModificationTypes.Added, MapObject);
+                OnDataChanged(DataModificationTypes.Added, MapObject);
             }
 
             //Notify map was updated
@@ -176,7 +176,7 @@ namespace CrossfireCore.Managers
             {
                 var args = new MapUpdatedEventArgs()
                 {
-                    Modification = ModificationTypes.Updated,
+                    Modification = DataModificationTypes.Updated,
                     Data = MapObject,
                     UpdatedProperties = null,
                     MapScrolled = _mapScrollUpdatedMap,
@@ -243,7 +243,7 @@ namespace CrossfireCore.Managers
             //of this map
             _populatingNewMap = true;
 
-            OnDataChanged(ModificationTypes.Cleared, MapObject);
+            OnDataChanged(DataModificationTypes.Cleared, MapObject);
         }
 
         private void Handler_MapFace(object sender, MessageHandler.MapFaceEventArgs e)
@@ -587,9 +587,9 @@ namespace CrossfireCore.Managers
 
         private void OnBeforeMapClear()
         {
-            BeforeMapClear?.Invoke(this, new DataUpdatedEventArgs()
+            BeforeMapClear?.Invoke(this, new DataUpdatedEventArgs<MapObject>()
             {
-                Modification = ModificationTypes.Updated,
+                Modification = DataModificationTypes.Updated,
                 Data = MapObject,
                 UpdatedProperties = null
             });
@@ -632,7 +632,7 @@ namespace CrossfireCore.Managers
         public int WorldY { get; }
     }
 
-    public class MapUpdatedEventArgs : DataObjectManager<MapObject>.DataUpdatedEventArgs
+    public class MapUpdatedEventArgs : DataUpdatedEventArgs<MapObject>
     {
         public List<MapCellLocation> CellLocations { get; set; } = new List<MapCellLocation>();
 

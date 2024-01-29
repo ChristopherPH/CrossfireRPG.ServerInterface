@@ -28,9 +28,9 @@ namespace CrossfireCore.Managers
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
-        public override ModificationTypes SupportedModificationTypes => base.SupportedModificationTypes |
-            ModificationTypes.Added | ModificationTypes.Updated | ModificationTypes.Removed |
-            ModificationTypes.MultiCommandStart | ModificationTypes.MultiCommandEnd;
+        public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes |
+            DataModificationTypes.Added | DataModificationTypes.Updated | DataModificationTypes.Removed |
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         private UInt32 _PlayerTag = 0;
         static Logger _Logger = new Logger(nameof(ItemManager));
@@ -394,7 +394,7 @@ namespace CrossfireCore.Managers
             }
 
             if (UpdatedProperties != null)
-                OnDataChanged(ModificationTypes.Updated, item, ix, UpdatedProperties);
+                OnDataChanged(DataModificationTypes.Updated, item, ix, UpdatedProperties);
             else
                 _Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
 
@@ -445,7 +445,7 @@ namespace CrossfireCore.Managers
                     item.Location = newLocation;
                     item.IsInContainer = newInContainer;
 
-                    OnDataChanged(ModificationTypes.Updated,
+                    OnDataChanged(DataModificationTypes.Updated,
                         item, ix, new string[] { nameof(Item.Location), nameof(Item.IsInContainer) });
                 }
             }

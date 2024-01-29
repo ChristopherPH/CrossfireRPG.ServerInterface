@@ -23,9 +23,9 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Setup property to indicate what events the manager will trigger
         /// </summary>
-        public override ModificationTypes SupportedModificationTypes => 
-            base.SupportedModificationTypes | ModificationTypes.Cleared |
-                ModificationTypes.GroupUpdateStart | ModificationTypes.GroupUpdateEnd;
+        public override DataModificationTypes SupportedModificationTypes =>
+            base.SupportedModificationTypes | DataModificationTypes.Cleared |
+                DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
         private List<T> Datas { get; } = new List<T>();
 
@@ -150,7 +150,7 @@ namespace CrossfireCore.Managers
                 Datas.Add(Data);
             }
 
-            OnDataChanged(ModificationTypes.Added,
+            OnDataChanged(DataModificationTypes.Added,
                 Data, index);
 
             return index;
@@ -187,7 +187,7 @@ namespace CrossfireCore.Managers
 
             CheckGroupUpdate();
 
-            OnDataChanged(ModificationTypes.Updated,
+            OnDataChanged(DataModificationTypes.Updated,
                 data, index, UpdatedProperties);
 
             return true;
@@ -211,7 +211,7 @@ namespace CrossfireCore.Managers
                 Datas[index] = Data;
             }
 
-            OnDataChanged(ModificationTypes.Updated,
+            OnDataChanged(DataModificationTypes.Updated,
                 Data, index);
 
             return true;
@@ -256,7 +256,7 @@ namespace CrossfireCore.Managers
                 data = Datas[index];
             }
 
-            OnDataChanged(ModificationTypes.Removed,
+            OnDataChanged(DataModificationTypes.Removed,
                 data, index);
 
             lock (_Lock)
@@ -280,18 +280,18 @@ namespace CrossfireCore.Managers
                     Datas.Clear();
                 }
 
-                OnDataChanged(ModificationTypes.Cleared, default, -1);
+                OnDataChanged(DataModificationTypes.Cleared, default, -1);
             }
         }
 
         protected override void StartMultiCommand()
         {
-            OnDataChanged(ModificationTypes.MultiCommandStart, default, -1);
+            OnDataChanged(DataModificationTypes.MultiCommandStart, default, -1);
         }
 
         protected override void EndMultiCommand()
         {
-            OnDataChanged(ModificationTypes.MultiCommandEnd, default, -1);
+            OnDataChanged(DataModificationTypes.MultiCommandEnd, default, -1);
         }
 
         /* HACK: Group updates based on received socket data
@@ -357,7 +357,7 @@ namespace CrossfireCore.Managers
                 {
                     InGroupUpdate = true;
 
-                    OnDataChanged(ModificationTypes.GroupUpdateStart, default, -1);
+                    OnDataChanged(DataModificationTypes.GroupUpdateStart, default, -1);
                 }
             }
             else //in group update
@@ -367,8 +367,8 @@ namespace CrossfireCore.Managers
                 if ((GroupUpdateForceRestartThreshold > GroupUpdateStartThreshold) &&
                     (GroupUpdateCounter >= GroupUpdateForceRestartThreshold))
                 {
-                    OnDataChanged(ModificationTypes.GroupUpdateEnd, default, -1);
-                    OnDataChanged(ModificationTypes.GroupUpdateStart, default, -1);
+                    OnDataChanged(DataModificationTypes.GroupUpdateEnd, default, -1);
+                    OnDataChanged(DataModificationTypes.GroupUpdateStart, default, -1);
                     GroupUpdateCounter = GroupUpdateStartThreshold;
                 }
             }
@@ -378,28 +378,23 @@ namespace CrossfireCore.Managers
         {
             if (InGroupUpdate)
             {
-                OnDataChanged(ModificationTypes.GroupUpdateEnd, default, -1);
+                OnDataChanged(DataModificationTypes.GroupUpdateEnd, default, -1);
 
                 InGroupUpdate = false;
                 GroupUpdateCounter = -1; //mark as no group possible
             }
         }
 
-        protected virtual void OnDataChanged(ModificationTypes ModificationType, 
+        protected virtual void OnDataChanged(DataModificationTypes ModificationType, 
             T Data, int Index, string[] UpdatedProperties = null)
         {
-            OnDataChanged(new DataListUpdatedEventArgs()
+            OnDataChanged(new DataListUpdatedEventArgs<T>()
             {
                 Modification = ModificationType,
                 Data = Data,
                 Index = Index,
                 UpdatedProperties = UpdatedProperties
             });
-        }
-
-        public class DataListUpdatedEventArgs : DataUpdatedEventArgs
-        {
-            public int Index { get; set; } = -1;
         }
     }
 }
