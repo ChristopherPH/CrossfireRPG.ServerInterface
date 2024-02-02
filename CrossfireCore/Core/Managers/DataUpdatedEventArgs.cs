@@ -3,10 +3,10 @@ using System.Linq;
 
 namespace CrossfireCore.Managers
 {
-    public class DataUpdatedEventArgs<T> : EventArgs
+    public class DataUpdatedEventArgs<TDataObject> : EventArgs
     {
         public DataModificationTypes Modification { get; set; }
-        public T Data { get; set; } = default;
+        public TDataObject Data { get; set; } = default;
 
         /// <summary>
         /// List of properties that were updated, null indicates all/unknown properties, so best to update everything

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class SpellDataManager : DataListManager<Spell, List<Spell>>
+    public class SpellDataManager : DataListManager<UInt32, Spell, List<Spell>>
     {
         public SpellDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -22,7 +22,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_AddSpell(object sender, MessageHandler.AddSpellEventArgs e)
         {
-            AddData(new Spell()
+            AddDataObject(e.SpellTag, new Spell()
             {
                 SpellTag = e.SpellTag,
                 Level = e.Level,
@@ -42,7 +42,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_UpdateSpell(object sender, MessageHandler.UpdateSpellEventArgs e)
         {
-            UpdateData(x => x.SpellTag == e.SpellTag, (data) =>
+            UpdateDataObject(e.SpellTag, (data) =>
             {
                 switch (e.UpdateType)
                 {
@@ -66,7 +66,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_DeleteSpell(object sender, MessageHandler.DeleteSpellEventArgs e)
         {
-            RemoveData(x => x.SpellTag == e.SpellTag);
+            RemoveDataObject(e.SpellTag);
         }
     }
 

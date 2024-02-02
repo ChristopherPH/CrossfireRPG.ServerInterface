@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class QuestDataManager : DataListManager<Quest, List<Quest>>
+    public class QuestDataManager : DataListManager<UInt32, Quest, List<Quest>>
     {
         public QuestDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -23,7 +23,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_AddQuest(object sender, MessageHandler.AddQuestEventArgs e)
         {
-            AddData(new Quest()
+            AddDataObject(e.Code, new Quest()
             {
                 QuestID = e.Code,
                 ParentID = e.Parent,
@@ -37,7 +37,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_UpdateQuest(object sender, MessageHandler.UpdateQuestEventArgs e)
         {
-            UpdateData(x => x.QuestID == e.Code, (data) =>
+            UpdateDataObject(e.Code, (data) =>
             {
                 data.Step = e.Step;
                 data.End = e.End;

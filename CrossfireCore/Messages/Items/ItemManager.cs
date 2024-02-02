@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace CrossfireCore.Managers
 {
-    public class ItemManager : DataListManager<Item, List<Item>>
+    public class ItemManager : DataListManager<UInt32, Item, List<Item>>
     {
         public ItemManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -49,7 +49,7 @@ namespace CrossfireCore.Managers
 
         public Item GetItemByTag(UInt32 ItemTag)
         {
-            return GetData(x => x.Tag == ItemTag);
+            return GetDataObject(ItemTag);
         }
 
         public event EventHandler<ContainerModifiedEventArgs> ContainerChanged;
@@ -69,14 +69,14 @@ namespace CrossfireCore.Managers
             if (OpenContainer != null)
             {
                 OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                    OpenContainer, this.GetIndex(OpenContainer));
+                    OpenContainer, this.GetDataObjectIndex(OpenContainer));
 
                 OpenContainer = null;
             }
 
             //Log what items are being cleared. Technically the server should be deleting
             //all player items between characters, but it doesn't seem to get all of them
-            if (this.Count > 0)
+            if (this.DataObjectCount > 0)
             {
                 _Logger.Debug("Begin clear ItemManager");
 
@@ -109,7 +109,7 @@ namespace CrossfireCore.Managers
             item.Location = GetLocation(item.LocationTag, out var inContainer);
             item.IsInContainer = inContainer;
 
-            var ix = this.GetIndex(x => x.Tag == e.item_tag, out var existingItem);
+            var ix = this.GetDataObjectIndex(e.item_tag, out var existingItem);
             if (ix != -1)
             {
                 var UpdatedProperties = new List<string>();
@@ -146,11 +146,11 @@ namespace CrossfireCore.Managers
                 _Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
                     string.Join(", ", UpdatedProperties));
 
-                UpdateData(ix, item);
+                UpdateDataObject(e.item_tag, UpdatedProperties.ToArray());
             }
             else
             {
-                ix = AddData(item);
+                ix = AddDataObject(e.item_tag, item);
             }
 
             _Logger.Info("Added {0}", item);
@@ -162,7 +162,7 @@ namespace CrossfireCore.Managers
                     _Logger.Warning("Container {0} was already open when received new open container {1}", OpenContainer, item);
 
                     OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                        OpenContainer, this.GetIndex(OpenContainer));
+                        OpenContainer, this.GetDataObjectIndex(OpenContainer));
                 }
 
                 OpenContainer = item;
@@ -173,7 +173,7 @@ namespace CrossfireCore.Managers
 
         private void _Handler_DeleteItem(object sender, MessageHandler.DeleteItemEventArgs e)
         {
-            var ix = this.GetIndex(x => x.Tag == e.ObjectTag, out var item);
+            var ix = this.GetDataObjectIndex(e.ObjectTag, out var item);
             if (ix == -1)
             {
                 //We will get these messages when applying a bed to reality, when we have
@@ -196,7 +196,7 @@ namespace CrossfireCore.Managers
 
             _Logger.Info("Deleted {0}", item);
 
-            this.RemoveData(ix);
+            this.RemoveDataObject(e.ObjectTag);
         }
 
         private void _Handler_DeleteInventory(object sender, MessageHandler.DeleteInventoryEventArgs e)
@@ -235,11 +235,11 @@ namespace CrossfireCore.Managers
                     if (item == OpenContainer)
                     {
                         OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                            item, this.GetIndex(item));
+                            item, this.GetDataObjectIndex(item));
                         OpenContainer = null;
                     }
 
-                    this.RemoveData(item);
+                    this.RemoveDataObject(item.Tag);
                 }
 
                 _Logger.Debug("End delete inventory");
@@ -252,7 +252,7 @@ namespace CrossfireCore.Managers
            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
 
-            var ix = this.GetIndex(x => x.Tag == e.ObjectTag, out var item);
+            var ix = this.GetDataObjectIndex(e.ObjectTag, out var item);
             if (ix == -1)
             {
                 _Logger.Warning("Trying to update invalid object {0}", e.ObjectTag);
@@ -417,7 +417,7 @@ namespace CrossfireCore.Managers
                         _Logger.Warning("Container {0} was already open when received updated open container {1}", OpenContainer, item);
     
                         OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                            OpenContainer, this.GetIndex(OpenContainer));
+                            OpenContainer, this.GetDataObjectIndex(OpenContainer));
                     }
 
                     OpenContainer = item;
@@ -434,9 +434,9 @@ namespace CrossfireCore.Managers
             if (_PlayerTag == 0)
                 return;
 
-            for (int ix = 0; ix < this.Count; ix++)
+            for (int ix = 0; ix < this.DataObjectCount; ix++)
             {
-                var item = GetData(ix);
+                var item = GetDataObjectByIndex(ix);
 
                 var newLocation = GetLocation(item.LocationTag, out var newInContainer);
 

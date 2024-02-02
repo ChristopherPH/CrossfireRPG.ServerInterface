@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class KnowledgeDataManager : DataListManager<KnowledgeData, List<KnowledgeData>>
+    public class KnowledgeDataManager : DataListManager<UInt32, KnowledgeData, List<KnowledgeData>>
     {
         public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -19,7 +19,7 @@ namespace CrossfireCore.Managers
 
         private void Handler_AddKnowledge(object sender, MessageHandler.AddKnowledgeEventArgs e)
         {
-            AddData(new KnowledgeData()
+            AddDataObject(e.ID, new KnowledgeData()
             {
                 KnowledgeID = e.ID,
                 Type = e.Type,

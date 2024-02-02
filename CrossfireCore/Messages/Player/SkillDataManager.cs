@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
-    public class SkillDataManager : DataListManager<Skill, List<Skill>>
+    public class SkillDataManager : DataListManager<int, Skill, List<Skill>>
     {
         public SkillDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
@@ -19,9 +19,9 @@ namespace CrossfireCore.Managers
 
         private void Handler_Skills(object sender, MessageHandler.SkillEventArgs e)
         {
-            if (!Contains(x => x.SkillID == e.Skill))
+            if (!ContainsKey(e.Skill))
             {
-                AddData(new Skill()
+                AddDataObject(e.Skill, new Skill()
                 {
                     SkillID = e.Skill,
                     Level = e.Level,
@@ -32,7 +32,7 @@ namespace CrossfireCore.Managers
             }
             else
             {
-                UpdateData(x => x.SkillID == e.Skill, (data) =>
+                UpdateDataObject(e.Skill, (data) =>
                 {
                     string[] rc = null;
 

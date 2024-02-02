@@ -11,7 +11,7 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
-    public abstract class DataListManager<TDataObject, TDataList> :
+    public abstract class DataListManager<TDataKey, TDataObject, TDataList> :
         DataObjectManager<TDataObject>, IEnumerable<TDataObject>
         where TDataObject : DataObject
         where TDataList : IList<TDataObject>, new()
@@ -30,168 +30,152 @@ namespace CrossfireCore.Managers
             base.SupportedModificationTypes | DataModificationTypes.Cleared |
                 DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
-        private TDataList DataObjects { get; } = new TDataList();
+        private TDataList _DataObjects { get; } = new TDataList();
+        private readonly Dictionary<TDataKey, TDataObject> _DataLookup = new Dictionary<TDataKey, TDataObject>();
+        private readonly object _DataObjectLock = new object();
 
-        public TDataObject this[int index]
+
+        public TDataObject this[TDataKey DataKey]
         {
-            get
-            {
-                lock (_Lock)
-                {
-                    return DataObjects[index];
-                }
-            }
+            get => GetDataObject(DataKey);
         }
 
-        public int Count => DataObjects.Count;
+        public bool ContainsKey(TDataKey DataKey)
+        {
+            return GetDataObject(DataKey) != null;
+        }
 
-        private object _Lock = new object();
+        public TDataObject GetDataObject(TDataKey DataKey)
+        {
+            lock (_DataObjectLock)
+            {
+                if (_DataLookup.TryGetValue(DataKey, out var dataObject))
+                    return dataObject;
+            }
+
+            return null;
+        }
+
+        public int GetDataObjectIndex(TDataKey DataKey, out TDataObject DataObject)
+        {
+            lock (_DataObjectLock)
+            {
+                if (_DataLookup.TryGetValue(DataKey, out DataObject))
+                    return _DataObjects.IndexOf(DataObject);
+            }
+
+            return -1;
+        }
+
+        public int GetDataObjectIndex(TDataKey DataKey)
+        {
+            return GetDataObjectIndex(DataKey, out _);
+        }
 
         public IEnumerator<TDataObject> GetEnumerator()
         {
-            lock (_Lock)
-            {
-                //HACK: return a copy of the list so we don't get "Collection was modified;
-                //      enumeration operation may not execute"
-                return DataObjects.ToList().GetEnumerator();
-            }
+            //HACK: return a copy of the list so we don't get "Collection was modified;
+            //      enumeration operation may not execute" as we cannot lock an Enumerator
+            return _DataObjects.ToList().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            lock (_Lock)
+            return this.GetEnumerator();
+        }
+
+        public int DataObjectCount => _DataObjects.Count;
+
+        public int GetDataObjectIndex(TDataObject DataObject)
+        {
+            lock (_DataObjectLock)
             {
-                //HACK: return a copy of the list so we don't get "Collection was modified;
-                //      enumeration operation may not execute"
-                return this.ToList().GetEnumerator();
+                return _DataObjects.IndexOf(DataObject);
             }
         }
 
-        public bool Contains(Predicate<TDataObject> Match)
+        public TDataObject GetDataObjectByIndex(int index)
         {
-            return DataObjects.FindIndex(Match) == -1 ? false : true;
-        }
+            if ((index < 0) || (index >= DataObjectCount))
+                return null;
 
-        public TDataObject GetData(int index)
-        {
-            if ((index < 0) || (index >= Count))
-                return default;
-
-            lock (_Lock)
+            lock (_DataObjectLock)
             {
-                return DataObjects[index];
+                return _DataObjects[index];
             }
         }
 
-        public TDataObject GetData(Predicate<TDataObject> Match)
+        protected virtual int InsertDataObject(TDataKey dataKey, int index, TDataObject DataObject)
         {
-            var index = DataObjects.FindIndex(Match);
-            if (index == -1)
-                return default;
+            if (DataObject == null)
+                return -1;
 
-            lock (_Lock)
+            //Allow insert to after last item
+            if ((index < 0) || (index > _DataObjects.Count))
+                return -1;
+
+            var existingDataObject = GetDataObject(dataKey);
+            if (existingDataObject != null)
             {
-                return DataObjects[index];
+                return ReplaceDataObject(dataKey, DataObject);
             }
-        }
-
-        public TDataObject GetData(Predicate<TDataObject> Match, out int Index)
-        {
-            Index = DataObjects.FindIndex(Match);
-            if (Index == -1)
-                return default;
-
-            lock (_Lock)
-            {
-                return DataObjects[Index];
-            }
-        }
-
-        public int GetIndex(TDataObject Data)
-        {
-            if (Data == null)
-                return default;
-
-            lock (_Lock)
-            {
-                return DataObjects.IndexOf(Data);
-            }
-        }
-
-        public int GetIndex(Predicate<TDataObject> Match)
-        {
-            return DataObjects.FindIndex(Match);
-        }
-
-        public int GetIndex(Predicate<TDataObject> Match, out TDataObject Data)
-        {
-            var index = DataObjects.FindIndex(Match);
-
-            if (index == -1)
-            {
-                Data = default;
-            }
-            else
-            {
-                lock (_Lock)
-                {
-                    Data = DataObjects[index];
-                }
-            }
-
-            return index;
-        }
-
-        protected int AddData(TDataObject Data)
-        {
-            var index = DataObjects.Count;
 
             CheckGroupUpdate();
-
-            lock (_Lock)
+            
+            lock (_DataObjectLock)
             {
-                DataObjects.Add(Data);
+                _DataObjects.Insert(index, DataObject);
+                _DataLookup[dataKey] = DataObject;
+                index = _DataObjects.IndexOf(DataObject);
             }
 
             OnDataChanged(DataModificationTypes.Added,
-                Data, index);
+                DataObject, index);
 
             return index;
         }
 
-        /// <summary>
-        /// Helper function to Update Properties of Data given a match
-        /// </summary>
-        protected bool UpdateData(Predicate<TDataObject> Match, Func<TDataObject, string[]> UpdateAction)
+        protected virtual int AddDataObject(TDataKey dataKey, TDataObject DataObject)
         {
-            return UpdateData(DataObjects.FindIndex(Match), UpdateAction);
+            return InsertDataObject(dataKey, _DataObjects.Count, DataObject);
         }
 
         /// <summary>
         /// Helper function to Update Properties of Data at a given index
         /// </summary>
-        protected bool UpdateData(int index, Func<TDataObject, string[]> UpdateAction)
+        protected bool UpdateDataObject(TDataKey dataKey, Func<TDataObject, string[]> UpdateAction)
         {
-            if ((index < 0) || (index >= Count))
+            var dataObject = GetDataObject(dataKey);
+            if (dataObject == null)
                 return false;
 
-            if (UpdateAction == null)
+            return UpdateDataObject(GetDataObject(dataKey), UpdateAction(dataObject));
+        }
+
+        protected bool UpdateDataObject(TDataKey dataKey, string[] UpdatedProperties)
+        {
+            return UpdateDataObject(GetDataObject(dataKey), UpdatedProperties);
+        }
+
+        protected virtual bool UpdateDataObject(TDataObject dataObject, string[] UpdatedProperties)
+        {
+            int index;
+
+            if (dataObject == null)
                 return false;
 
-            TDataObject data;
-            lock (_Lock)
-            {
-                data = DataObjects[index];
-            }
-
-            var UpdatedProperties = UpdateAction(data);
             if (UpdatedProperties == null)
                 return false;
+
+            lock (_DataObjectLock)
+            {
+                index = _DataObjects.IndexOf(dataObject);
+            }
 
             CheckGroupUpdate();
 
             OnDataChanged(DataModificationTypes.Updated,
-                data, index, UpdatedProperties);
+                dataObject, index, UpdatedProperties);
 
             return true;
         }
@@ -199,74 +183,75 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// Helper function to replace Data at a given index with a new Data
         /// </summary>
-        protected bool UpdateData(int index, TDataObject Data)
+        protected virtual int ReplaceDataObject(TDataKey dataKey, TDataObject DataObject)
         {
-            if ((index < 0) || (index >= Count))
-                return false;
+            if (DataObject == null)
+                return -1;
 
-            if (Data == null)
-                return false;
+            var existingDataObject = GetDataObject(dataKey);
+            if (existingDataObject == null)
+            {
+                return AddDataObject(dataKey, DataObject);
+            }
+
+            int index;
 
             CheckGroupUpdate();
 
-            lock (_Lock)
+            lock (_DataObjectLock)
             {
-                DataObjects[index] = Data;
+                index = _DataObjects.IndexOf(DataObject);
+                _DataObjects[index] = DataObject;
+                _DataLookup[dataKey] = DataObject;
             }
 
             OnDataChanged(DataModificationTypes.Updated,
-                Data, index);
+                DataObject, index);
 
-            return true;
+            return index;
         }
 
-        /// <summary>
-        /// Helper function to remove data given a match
-        /// </summary>
-        /// <param name="Match"></param>
-        /// <returns></returns>
-        protected bool RemoveData(Predicate<TDataObject> Match)
-        {
-            return RemoveData(DataObjects.FindIndex(Match));
-        }
-
-        /// <summary>
-        /// Helper function to remove data
-        /// </summary>
-        protected bool RemoveData(TDataObject Data)
-        {
-            var index = GetIndex(Data);
-            if (index == -1)
-                return false;
-
-            return RemoveData(index);
-        }
 
         /// <summary>
         /// Helper function to remove data at a specified index
         /// </summary>
-        protected bool RemoveData(int index)
+        protected virtual int RemoveDataObject(TDataKey dataKey)
         {
-            if ((index < 0) || (index >= Count))
-                return false;
+            var dataObject = GetDataObject(dataKey);
+            if (dataObject == null)
+                return -1;
 
             CheckGroupUpdate();
 
-            TDataObject data;
+            int index;
 
-            lock (_Lock)
+            lock (_DataObjectLock)
             {
-                data = DataObjects[index];
+                index = _DataObjects.IndexOf(dataObject);
+                _DataObjects.Remove(dataObject);
+                _DataLookup.Remove(dataKey);
             }
 
             OnDataChanged(DataModificationTypes.Removed,
-                data, index);
+                dataObject, index);
 
-            lock (_Lock)
+            return index;
+        }
+
+        protected virtual void ClearDataObjects()
+        {
+            if (_DataObjects.Count > 0)
             {
-                DataObjects.RemoveAt(index);
+                CheckGroupUpdate();
+
+                lock (_DataObjectLock)
+                {
+                    _DataObjects.Clear();
+                    _DataLookup.Clear();
+                }
+
+                OnDataChanged(DataModificationTypes.Cleared, default, -1);
             }
-            return true;
         }
 
         /// <summary>
@@ -274,17 +259,7 @@ namespace CrossfireCore.Managers
         /// </summary>
         protected override void ClearData(bool disconnected)
         {
-            if (DataObjects.Count > 0)
-            {
-                CheckGroupUpdate();
-
-                lock (_Lock)
-                {
-                    DataObjects.Clear();
-                }
-
-                OnDataChanged(DataModificationTypes.Cleared, default, -1);
-            }
+            ClearDataObjects();
         }
 
         protected override void StartMultiCommand()
@@ -398,24 +373,6 @@ namespace CrossfireCore.Managers
                 Index = Index,
                 UpdatedProperties = UpdatedProperties
             });
-        }
-    }
-
-    public static class DataListManagerExtensions
-    {
-        /* HACK: IList<> doesn't have a FindIndex, but List<T> does.
-         */
-        public static int FindIndex<T>(this IList<T> source, Predicate<T> match)
-        {
-            for (int ix = 0; ix < source.Count; ix++)
-            {
-                if (match(source[ix]))
-                {
-                    return ix;
-                }
-            }
-
-            return -1;
         }
     }
 }
