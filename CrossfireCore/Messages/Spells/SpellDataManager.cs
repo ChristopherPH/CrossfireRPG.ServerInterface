@@ -48,18 +48,15 @@ namespace CrossfireCore.Managers
                 {
                     case NewClient.UpdateSpellTypes.Mana:
                         data.Mana = (short)e.UpdateValue;
-                        return new string[] { nameof(Spell.Mana) };
+                        break;
 
                     case NewClient.UpdateSpellTypes.Grace:
                         data.Grace = (short)e.UpdateValue;
-                        return new string[] { nameof(Spell.Grace) };
+                        break;
 
                     case NewClient.UpdateSpellTypes.Damage:
                         data.Damage = (short)e.UpdateValue;
-                        return new string[] { nameof(Spell.Damage) };
-
-                    default:
-                        return null;
+                        break;
                 }
             });
         }
@@ -75,9 +72,16 @@ namespace CrossfireCore.Managers
         public UInt32 SpellTag { get; set; }
         public Int16 Level { get; set; }
         public Int16 CastingTime { get; set; }
-        public Int16 Mana { get; set; }
-        public Int16 Grace { get; set; }
-        public Int16 Damage { get; set; }
+
+        public Int16 Mana { get => _Mana; set => SetProperty(ref _Mana, value); }
+        private Int16 _Mana;
+
+        public Int16 Grace { get => _Grace; set => SetProperty(ref _Grace, value); }
+        private Int16 _Grace;
+
+        public Int16 Damage { get => _Damage; set => SetProperty(ref _Damage, value); }
+        private Int16 _Damage;
+
         public byte Skill { get; set; }
         public UInt32 Path { get; set; }
         public Int32 Face { get; set; }

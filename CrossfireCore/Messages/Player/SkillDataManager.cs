@@ -32,28 +32,12 @@ namespace CrossfireCore.Managers
             }
             else
             {
-                UpdateDataObject(e.Skill, (data) =>
+                UpdateDataObject(e.Skill, (skillObject) =>
                 {
-                    string[] rc = null;
-
-                    if ((data.Level != e.Level) && (data.Value != e.Value))
-                    {
-                        rc = new string[] { nameof(Skill.Level), nameof(Skill.Value) };
-                    }
-                    else if (data.Level != e.Level)
-                    {
-                        rc = new string[] { nameof(Skill.Level) };
-                    }
-                    else if (data.Value != e.Value)
-                    {
-                        rc = new string[] { nameof(Skill.Value) };
-                    }
-
-                    data.OldLevel = data.Level;
-                    data.OldValue = data.Value;
-                    data.Level = e.Level;
-                    data.Value = e.Value;
-                    return rc;
+                    skillObject.OldLevel = skillObject.Level;
+                    skillObject.OldValue = skillObject.Value;
+                    skillObject.Level = e.Level;
+                    skillObject.Value = e.Value;
                 });
             }
         }
@@ -61,10 +45,39 @@ namespace CrossfireCore.Managers
 
     public class Skill : DataObject
     {
-        public int SkillID { get; set; }
-        public Byte Level { get; set; }
-        public UInt64 Value { get; set; }
-        public Byte OldLevel { get; set; }
-        public UInt64 OldValue { get; set; }
+        public int SkillID
+        {
+            get => _SkillID;
+            set => SetProperty(ref _SkillID, value);
+        }
+        private int _SkillID;
+
+        public Byte Level
+        {
+            get => _Level;
+            set => SetProperty(ref _Level, value);
+        }
+        private Byte _Level;
+
+        public UInt64 Value
+        {
+            get => _Value;
+            set => SetProperty(ref _Value, value);
+        }
+        private UInt64 _Value;
+
+        public Byte OldLevel
+        {
+            get => _OldLevel;
+            set => SetProperty(ref _OldLevel, value);
+        }
+        private Byte _OldLevel;
+
+        public UInt64 OldValue
+        {
+            get => _OldValue;
+            set => SetProperty(ref _OldValue, value);
+        }
+        private UInt64 _OldValue;
     }
 }
