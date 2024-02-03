@@ -11,6 +11,9 @@ namespace CrossfireCore.Managers
     /// Managers are used to combine multiple server messages/events into a single object
     /// with less updates
     /// </summary>
+    /// <typeparam name="TDataKey">Type of key, used for quick lookups of DataObjects</typeparam>
+    /// <typeparam name="TDataObject">Type of DataObject</typeparam>
+    /// <typeparam name="TDataList">Type of List of DataObjects (eg List, BindingList) </typeparam>
     public abstract class DataListManager<TDataKey, TDataObject, TDataList> :
         DataObjectManager<TDataObject>, IEnumerable<TDataObject>
         where TDataObject : DataObject
@@ -31,7 +34,7 @@ namespace CrossfireCore.Managers
                 DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
         private TDataList _DataObjects { get; } = new TDataList();
-        private readonly Dictionary<TDataKey, TDataObject> _DataLookup = new Dictionary<TDataKey, TDataObject>();
+        private readonly Dictionary<TDataKey, TDataObject> _DataObjectCache = new Dictionary<TDataKey, TDataObject>();
         private readonly object _DataObjectLock = new object();
 
 
@@ -40,36 +43,56 @@ namespace CrossfireCore.Managers
             get => GetDataObject(DataKey);
         }
 
+        /// <summary>
+        /// Checks if the DataObject exists in cache with the specified key
+        /// </summary>
+        /// <returns>true if DataObject exists in the cache</returns>
         public bool ContainsKey(TDataKey DataKey)
         {
-            return GetDataObject(DataKey) != null;
+            lock (_DataObjectLock)
+            {
+                return _DataObjectCache.ContainsKey(DataKey);
+            }
         }
 
+        /// <summary>
+        /// Gets the DataObject from cache with the specified key
+        /// </summary>
+        /// <param name="DataKey">Unique key used to look up the DataObject</param>
+        /// <returns>DataObject if exists in the cache</returns>
         public TDataObject GetDataObject(TDataKey DataKey)
         {
             lock (_DataObjectLock)
             {
-                if (_DataLookup.TryGetValue(DataKey, out var dataObject))
+                if (_DataObjectCache.TryGetValue(DataKey, out var dataObject))
                     return dataObject;
             }
 
             return null;
         }
 
-        public int GetDataObjectIndex(TDataKey DataKey, out TDataObject DataObject)
+        /// <summary>
+        /// Gets the DataObject from cache with the specified key, and returns the DataObject index
+        /// Note: If the index of the DataObject is not required, then use GetDataObject(TDataKey) as
+        ///       it is much faster.
+        /// </summary>
+        /// <param name="DataKey">Unique key used to look up the DataObject</param>
+        /// <param name="DataObject">DataObject associated with the key</param>
+        /// <param name="Index">Array Index of DataObject</param>
+        /// <returns>true if DataObject if exists in the cache</returns>
+        public bool GetDataObject(TDataKey DataKey, out TDataObject DataObject, out int Index)
         {
             lock (_DataObjectLock)
             {
-                if (_DataLookup.TryGetValue(DataKey, out DataObject))
-                    return _DataObjects.IndexOf(DataObject);
+                if (_DataObjectCache.TryGetValue(DataKey, out DataObject))
+                {
+                    Index = _DataObjects.IndexOf(DataObject);
+                    return true;
+                }
             }
 
-            return -1;
-        }
-
-        public int GetDataObjectIndex(TDataKey DataKey)
-        {
-            return GetDataObjectIndex(DataKey, out _);
+            Index = -1;
+            return false;
         }
 
         public IEnumerator<TDataObject> GetEnumerator()
@@ -124,8 +147,12 @@ namespace CrossfireCore.Managers
             
             lock (_DataObjectLock)
             {
+                _DataObjectCache[dataKey] = DataObject;
+
+                //Insert or add object, and then re-find the index.
+                //The list might actually be a sorted list, and the
+                //object position may not be where we expect.
                 _DataObjects.Insert(index, DataObject);
-                _DataLookup[dataKey] = DataObject;
                 index = _DataObjects.IndexOf(DataObject);
             }
 
@@ -140,32 +167,39 @@ namespace CrossfireCore.Managers
             return InsertDataObject(dataKey, _DataObjects.Count, DataObject);
         }
 
-        /// <summary>
-        /// Helper function to Update Properties of Data at a given index
-        /// </summary>
-        protected bool UpdateDataObject(TDataKey dataKey, Func<TDataObject, string[]> UpdateAction)
+        protected int UpdateDataObject(TDataKey dataKey, Action<TDataObject> UpdateDataObjectAction)
         {
             var dataObject = GetDataObject(dataKey);
             if (dataObject == null)
-                return false;
+                return -1;
 
-            return UpdateDataObject(GetDataObject(dataKey), UpdateAction(dataObject));
+            dataObject.BeginPropertiesChanged();
+            UpdateDataObjectAction(dataObject);
+
+            return UpdateDataObject(GetDataObject(dataKey), dataObject.EndPropertiesChanged());
         }
 
-        protected bool UpdateDataObject(TDataKey dataKey, string[] UpdatedProperties)
+        protected int UpdateDataObject(TDataKey dataKey, IEnumerable<string> UpdatedProperties)
         {
             return UpdateDataObject(GetDataObject(dataKey), UpdatedProperties);
         }
 
-        protected virtual bool UpdateDataObject(TDataObject dataObject, string[] UpdatedProperties)
+        /// <summary>
+        /// Raises an Update notification with the given changed properties
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <param name="UpdatedProperties"></param>
+        /// <returns></returns>
+        protected virtual int UpdateDataObject(TDataObject dataObject, IEnumerable<string> UpdatedProperties)
         {
             int index;
 
             if (dataObject == null)
-                return false;
+                return -1;
 
-            if (UpdatedProperties == null)
-                return false;
+            //require at least one property changed to trigger an update
+            if ((UpdatedProperties == null) || (UpdatedProperties.Count() == 0))
+                return -1;
 
             lock (_DataObjectLock)
             {
@@ -177,7 +211,7 @@ namespace CrossfireCore.Managers
             OnDataChanged(DataModificationTypes.Updated,
                 dataObject, index, UpdatedProperties);
 
-            return true;
+            return index;
         }
 
         /// <summary>
@@ -202,7 +236,7 @@ namespace CrossfireCore.Managers
             {
                 index = _DataObjects.IndexOf(DataObject);
                 _DataObjects[index] = DataObject;
-                _DataLookup[dataKey] = DataObject;
+                _DataObjectCache[dataKey] = DataObject;
             }
 
             OnDataChanged(DataModificationTypes.Updated,
@@ -229,7 +263,7 @@ namespace CrossfireCore.Managers
             {
                 index = _DataObjects.IndexOf(dataObject);
                 _DataObjects.Remove(dataObject);
-                _DataLookup.Remove(dataKey);
+                _DataObjectCache.Remove(dataKey);
             }
 
             OnDataChanged(DataModificationTypes.Removed,
@@ -247,7 +281,7 @@ namespace CrossfireCore.Managers
                 lock (_DataObjectLock)
                 {
                     _DataObjects.Clear();
-                    _DataLookup.Clear();
+                    _DataObjectCache.Clear();
                 }
 
                 OnDataChanged(DataModificationTypes.Cleared, default, -1);
@@ -364,14 +398,14 @@ namespace CrossfireCore.Managers
         }
 
         protected virtual void OnDataChanged(DataModificationTypes ModificationType, 
-            TDataObject Data, int Index, string[] UpdatedProperties = null)
+            TDataObject Data, int Index, IEnumerable<string> UpdatedProperties = null)
         {
             OnDataChanged(new DataListUpdatedEventArgs<TDataObject>()
             {
                 Modification = ModificationType,
                 Data = Data,
                 Index = Index,
-                UpdatedProperties = UpdatedProperties
+                UpdatedProperties = UpdatedProperties?.ToHashSet()
             });
         }
     }
