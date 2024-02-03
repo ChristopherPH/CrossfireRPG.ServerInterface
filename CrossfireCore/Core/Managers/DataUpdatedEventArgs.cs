@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace CrossfireCore.Managers
 {
@@ -11,7 +11,7 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// List of properties that were updated, null indicates all/unknown properties, so best to update everything
         /// </summary>
-        public string[] UpdatedProperties { get; set; } = null;
+        public ICollection<string> UpdatedProperties { get; set; } = null;
 
         public bool WasUpdated(string Property)
         {
