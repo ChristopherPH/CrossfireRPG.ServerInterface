@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataModificationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Items\Item.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\ClientTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />

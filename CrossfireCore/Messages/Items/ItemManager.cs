@@ -1,5 +1,4 @@
 ﻿using Common;
-using Common.Utility;
 using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
@@ -91,66 +90,66 @@ namespace CrossfireCore.Managers
 
         private void _Handler_Item2(object sender, MessageHandler.Item2EventArgs e)
         {
-            var item = new Item()
+            //If the item already exists, then update it instead.
+            //Note: This happens when picking up items from the ground (locationTag differs)
+            if (GetDataObject(e.item_tag, out var item, out var index))
             {
-                LocationTag = e.item_location,
-                Tag = e.item_tag,
-                Flags = (NewClient.ItemFlags)e.item_flags,
-                Weight = e.item_weight,
-                Face = e.item_face,
-                Name = e.item_name,
-                NamePlural = e.item_name_plural,
-                Animation = e.item_anim,
-                AnimationSpeed = e.item_animspeed,
-                RawNumberOf = e.item_nrof,
-                ClientType = e.item_type,
-            };
+                var oldLocationTag = item.LocationTag;
 
-            item.Location = GetLocation(item.LocationTag, out var inContainer);
-            item.IsInContainer = inContainer;
+                item.BeginPropertiesChanged();
 
-            var ix = this.GetDataObjectIndex(e.item_tag, out var existingItem);
-            if (ix != -1)
-            {
-                var UpdatedProperties = new List<string>();
+                //no need to update item.Tag
+                item.LocationTag = e.item_location;
+                item.Flags = (NewClient.ItemFlags)e.item_flags;
+                item.Weight = e.item_weight;
+                item.Face = e.item_face;
+                item.Name = e.item_name;
+                item.NamePlural = e.item_name_plural;
+                item.Animation = e.item_anim;
+                item.AnimationSpeed = e.item_animspeed;
+                item.RawNumberOf = e.item_nrof;
+                item.ClientType = e.item_type;
 
-                if (item.LocationTag != existingItem.LocationTag)
+                item.Location = GetLocation(item.LocationTag, out var inContainer);
+                item.IsInContainer = inContainer;
+
+                var updatedProperties = item.EndPropertiesChanged();
+
+
+                if ((oldLocationTag != item.LocationTag) && (oldLocationTag == 0))
                 {
-                    UpdatedProperties.Add(nameof(Item.LocationTag)); //LocationTag changes when picking up an item
-                    UpdatedProperties.Add(nameof(Item.Location));
+                    _Logger.Debug("Trying to add existing object {0}, updating instead: {1} (picked up item from ground)", e.item_tag,
+                        string.Join(", ", updatedProperties));
                 }
-                if (item.IsInContainer != existingItem.IsInContainer)
-                    UpdatedProperties.Add(nameof(Item.IsInContainer));
-                if (item.Flags != existingItem.Flags)
-                    UpdatedProperties.Add(nameof(Item.Flags));
-                if (item.Weight != existingItem.Weight)
-                    UpdatedProperties.Add(nameof(Item.Weight));
-                if (item.Face != existingItem.Face)
-                    UpdatedProperties.Add(nameof(Item.Face));
-                if (item.Name != existingItem.Name)
-                    UpdatedProperties.Add(nameof(Item.Name));
-                if (item.NamePlural != existingItem.NamePlural)
-                    UpdatedProperties.Add(nameof(Item.NamePlural));
-                if (item.Animation != existingItem.Animation)
-                    UpdatedProperties.Add(nameof(Item.Animation));
-                if (item.AnimationSpeed != existingItem.AnimationSpeed)
-                    UpdatedProperties.Add(nameof(Item.AnimationSpeed));
-                if (item.RawNumberOf != existingItem.RawNumberOf)
+                else
                 {
-                    UpdatedProperties.Add(nameof(Item.RawNumberOf));
-                    UpdatedProperties.Add(nameof(Item.NumberOf));
+                    _Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
+                        string.Join(", ", updatedProperties));
                 }
-                if (item.ClientType != existingItem.ClientType)
-                    UpdatedProperties.Add(nameof(Item.ClientType));
 
-                _Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
-                    string.Join(", ", UpdatedProperties));
-
-                UpdateDataObject(e.item_tag, UpdatedProperties.ToArray());
+                UpdateDataObject(e.item_tag, updatedProperties);
             }
             else
             {
-                ix = AddDataObject(e.item_tag, item);
+                item = new Item()
+                {
+                    Tag = e.item_tag,
+                    LocationTag = e.item_location,
+                    Flags = (NewClient.ItemFlags)e.item_flags,
+                    Weight = e.item_weight,
+                    Face = e.item_face,
+                    Name = e.item_name,
+                    NamePlural = e.item_name_plural,
+                    Animation = e.item_anim,
+                    AnimationSpeed = e.item_animspeed,
+                    RawNumberOf = e.item_nrof,
+                    ClientType = e.item_type,
+                };
+
+                item.Location = GetLocation(item.LocationTag, out var inContainer);
+                item.IsInContainer = inContainer;
+
+                index = AddDataObject(e.item_tag, item);
             }
 
             _Logger.Info("Added {0}", item);
@@ -167,14 +166,13 @@ namespace CrossfireCore.Managers
 
                 OpenContainer = item;
                 OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Opened,
-                        item, ix);
+                        item, index);
             }
         }
 
         private void _Handler_DeleteItem(object sender, MessageHandler.DeleteItemEventArgs e)
         {
-            var ix = this.GetDataObjectIndex(e.ObjectTag, out var item);
-            if (ix == -1)
+            if (!GetDataObject(e.ObjectTag, out var item, out var index))
             {
                 //We will get these messages when applying a bed to reality, when we have
                 //applied containers with items inside, that we haven't opened in this session.
@@ -190,7 +188,7 @@ namespace CrossfireCore.Managers
             if (item == OpenContainer)
             {
                 OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                    item, ix);
+                    item, index);
                 OpenContainer = null;
             }
 
@@ -252,8 +250,7 @@ namespace CrossfireCore.Managers
            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
 
-            var ix = this.GetDataObjectIndex(e.ObjectTag, out var item);
-            if (ix == -1)
+            if (!GetDataObject(e.ObjectTag, out var item, out var index))
             {
                 _Logger.Warning("Trying to update invalid object {0}", e.ObjectTag);
                 return;
@@ -394,7 +391,7 @@ namespace CrossfireCore.Managers
             }
 
             if (UpdatedProperties != null)
-                OnDataChanged(DataModificationTypes.Updated, item, ix, UpdatedProperties);
+                OnDataChanged(DataModificationTypes.Updated, item, index, UpdatedProperties);
             else
                 _Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
 
@@ -406,7 +403,7 @@ namespace CrossfireCore.Managers
                 if ((item == OpenContainer) && !item.IsOpen)
                 {
                     OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
-                        item, ix);
+                        item, index);
                     OpenContainer = null;
                 }
 
@@ -422,7 +419,7 @@ namespace CrossfireCore.Managers
 
                     OpenContainer = item;
                     OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Opened,
-                            item, ix);
+                            item, index);
                 }
             }
         }
@@ -631,122 +628,5 @@ namespace CrossfireCore.Managers
         Unknown,
         Ground,
         Player,
-    }
-
-    public class Item : DataObject
-    {
-        /// <summary>
-        /// Tag of item
-        /// </summary>
-        public UInt32 Tag { get; set; }
-
-        /// <summary>
-        /// Tag of object that owns Item, 0 if on ground
-        /// </summary>
-        public UInt32 LocationTag { get; set; }
-        public NewClient.ItemFlags Flags { get; set; }
-        public NewClient.ItemFlags FlagsNoPick => Flags & ~NewClient.ItemFlags.NoPick;
-
-
-        /// <summary>
-        /// Item weight in kg
-        /// </summary>
-        public float Weight { get; set; }
-        public UInt32 Face { get; set; }
-        public string Name { get; set; }
-        public string NameCase => Name.ToTitleCase();
-        public string NamePlural { get; set; }
-        public string NamePluralCase => NamePlural.ToTitleCase();
-        public UInt16 Animation { get; set; }
-        public byte AnimationSpeed { get; set; }
-
-        public UInt32 RawNumberOf { get; set; }
-
-        /// <summary>
-        /// Actual number of items, 1 or more
-        /// </summary>
-        public UInt32 NumberOf => RawNumberOf < 1 ? 1 : RawNumberOf;
-
-        /// <summary>
-        /// NumberOf in Words
-        /// </summary>
-        public string NumberOfInWords => NumberOf < _NumberWords.Length ? _NumberWords[NumberOf] : NumberOf.ToString();
-
-        /// <summary>
-        /// NumberOf, but a blank instead of "1"
-        /// </summary>
-        public string NumberOfWithout1 => NumberOf > 1 ? NumberOf.ToString() : "";
-
-        /// <summary>
-        /// NumberOf, but a blank instead of "One"
-        /// </summary>
-        public string NumberOfInWordsWithout1 => NumberOf > 1 ? NumberOfInWords : "";
-
-        static string[] _NumberWords = new string[] { "None", "One", "Two", "Three", "Four", "Five",
-            "Six", "Seven", "Eight", "Nine", "Ten" };
-
-        public UInt16 ClientType { get; set; }
-
-        /* From here, are new item properties and helper functions */
-
-        /// <summary>
-        /// Item weight in kg multiplied by NumberOf
-        /// </summary>
-        public float TotalWeight => !HasWeight ? float.NaN : Weight * NumberOf;
-
-        /// <summary>
-        /// Location of item (this does not test if in container or not)
-        /// </summary>
-        public ItemLocations Location { get; set; }
-
-        /// <summary>
-        /// Check if item is in a container (Container may be on the player or on the ground)
-        /// </summary>
-        public bool IsInContainer { get; set; }
-
-        /// <summary>
-        /// Item is on the ground, and ground only (this does not test for in a container on the ground)
-        /// </summary>
-        public bool IsOnGround => LocationTag == 0;
-        public bool HasWeight => !float.IsNaN(Weight);
-        public bool IsApplied => (Flags & NewClient.ItemFlags.Applied_Mask) > 0;
-        public NewClient.ItemFlags ApplyType => Flags & NewClient.ItemFlags.Applied_Mask;
-        public bool IsUnidentified => Flags.HasFlag(NewClient.ItemFlags.Unidentified);
-        public bool IsUnpaid => Flags.HasFlag(NewClient.ItemFlags.Unpaid);
-        public bool IsMagic => Flags.HasFlag(NewClient.ItemFlags.Magic);
-        public bool IsCursed => Flags.HasFlag(NewClient.ItemFlags.Cursed);
-        public bool IsDamned => Flags.HasFlag(NewClient.ItemFlags.Damned);
-        public bool IsOpen => Flags.HasFlag(NewClient.ItemFlags.Open);
-        public bool IsNoPick => Flags.HasFlag(NewClient.ItemFlags.NoPick);
-        public bool IsLocked => Flags.HasFlag(NewClient.ItemFlags.Locked);
-        public bool IsBlessed => Flags.HasFlag(NewClient.ItemFlags.Blessed);
-        public bool IsRead => Flags.HasFlag(NewClient.ItemFlags.Read);
-
-        public override string ToString()
-        {
-            return string.Format("Item: {0} (Tag={1} Face={2} Flags={3} Location={4} Number={5})",
-                Name, Tag, Face, Flags, LocationTag, RawNumberOf);
-        }
-
-        public object[] FormatArgs => new object[]
-        {
-            NameCase,
-            NamePluralCase,
-            NumberOf,
-            NumberOfInWords,
-            NumberOfWithout1,
-            NumberOfInWordsWithout1,
-            Weight,
-            TotalWeight,
-            Tag,
-            LocationTag,
-            Flags,
-            FlagsNoPick,
-            ClientTypes.GetClientTypeInfo(ClientType, out var clientGroup),
-        };
-
-        public const string FormatHelp = "{0}=Name {1}=PluralName {2}=NumberOf {3}=NumberOfInWords " +
-            "{4}=NumberOfWithout1 {5}=NumberOfInWordsWithout1 {6}=Weight {7}=TotalWeight {8}=Tag " +
-            "{9}=Location {10}=Flags {11}=FlagsNoPick {12}=ClientType";
     }
 }
