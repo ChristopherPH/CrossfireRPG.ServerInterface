@@ -33,10 +33,14 @@ namespace CrossfireCore.Managers
             base.SupportedModificationTypes | DataModificationTypes.Cleared |
                 DataModificationTypes.GroupUpdateStart | DataModificationTypes.GroupUpdateEnd;
 
-        private TDataList _DataObjects { get; } = new TDataList();
+
         private readonly Dictionary<TDataKey, TDataObject> _DataObjectCache = new Dictionary<TDataKey, TDataObject>();
         private readonly object _DataObjectLock = new object();
 
+        /// <summary>
+        /// Direct access to data objects. Note this is not locked.
+        /// </summary>
+        protected TDataList _DataObjects { get; } = new TDataList();
 
         public TDataObject this[TDataKey DataKey]
         {
@@ -247,8 +251,10 @@ namespace CrossfireCore.Managers
 
 
         /// <summary>
-        /// Helper function to remove data at a specified index
+        /// Removes a DataObject given a DataKey
         /// </summary>
+        /// <param name="dataKey">Unique key used to look up the DataObject</param>
+        /// <returns>index of DataObject removed</returns>
         protected virtual int RemoveDataObject(TDataKey dataKey)
         {
             var dataObject = GetDataObject(dataKey);
@@ -262,7 +268,7 @@ namespace CrossfireCore.Managers
             lock (_DataObjectLock)
             {
                 index = _DataObjects.IndexOf(dataObject);
-                _DataObjects.Remove(dataObject);
+                _DataObjects.RemoveAt(index);
                 _DataObjectCache.Remove(dataKey);
             }
 
