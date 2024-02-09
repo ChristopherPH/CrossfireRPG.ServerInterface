@@ -111,6 +111,9 @@ namespace CrossfireCore.Managers
             return this.GetEnumerator();
         }
 
+        /// <summary>
+        /// Number of DataObjects in the DataListManager
+        /// </summary>
         public int DataObjectCount => _DataObjects.Count;
 
         public int GetDataObjectIndex(TDataObject DataObject)
