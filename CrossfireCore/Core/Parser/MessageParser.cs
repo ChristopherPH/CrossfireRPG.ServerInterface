@@ -67,6 +67,11 @@ namespace CrossfireCore.ServerInterface
 
         byte[] _SavedBuffer = null;
 
+#if DEBUG
+        const int messageWarningThreshold = 5;
+        System.Diagnostics.Stopwatch _swMessage = new System.Diagnostics.Stopwatch();
+#endif
+
         private void Connection_OnPacket(object sender, ConnectionPacketEventArgs e)
         {
             ParseBuffer(ref _SavedBuffer, e.Packet, out var ByteCount, out var MessageCount);
@@ -167,8 +172,23 @@ namespace CrossfireCore.ServerInterface
 
                 try
                 {
+#if DEBUG
+                    _swMessage.Restart();
+#endif
+
                     if (!parseCommand.Parser(Message, ref curPos, dataEnd))
                         _Logger.Error("Failed to parse command: {0}", command);
+
+#if DEBUG
+                    _swMessage.Stop();
+
+                    if (_swMessage.ElapsedMilliseconds >= messageWarningThreshold)
+                        _Logger.Warning("Handling command {0} took {1:n0} ms",
+                            command, _swMessage.ElapsedMilliseconds);
+                    else
+                        _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1} => {2:n0} ms",
+                            command, DataLength, _swMessage.ElapsedMilliseconds);
+#endif
                 }
                 catch (BufferTokenizerException ex)
                 {
