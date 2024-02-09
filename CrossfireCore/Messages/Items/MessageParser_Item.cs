@@ -22,6 +22,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleDeleteItem(UInt32 ObjectTag);
         protected abstract void HandleBeginDeleteItem();
         protected abstract void HandleEndDeleteItem();
+
         /// <summary>
         /// Delete items carried in/by the object tag.
         /// Tag of 0 means to delete all items on the space the character is standing on.
