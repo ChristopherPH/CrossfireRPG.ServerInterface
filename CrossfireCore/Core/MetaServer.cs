@@ -16,7 +16,7 @@ namespace CrossfireCore
             @"http://metaserver.us.cross-fire.org/meta_client.php",
         };
 
-        static Logger _Logger = new Logger(nameof(MetaServer));
+        public static Logger Logger { get; } = new Logger(nameof(MetaServer));
 
         public string HostName { get; set; }
         public int Port { get; set; } = Config.CSPORT;
@@ -51,7 +51,7 @@ namespace CrossfireCore
                 string line;
                 int lineNumber = 0;
 
-                _Logger.Info($"Metaserver: {URL}");
+                Logger.Info($"Metaserver: {URL}");
 
                 try
                 {
@@ -60,7 +60,7 @@ namespace CrossfireCore
                 }
                 catch (WebException e)
                 {
-                    _Logger.Error("Failed to get {0}: {1}", URL, e.Message);
+                    Logger.Error("Failed to get {0}: {1}", URL, e.Message);
                     continue;
                 }
 
@@ -70,12 +70,12 @@ namespace CrossfireCore
                     {
                         lineNumber++;
 
-                        _Logger.Debug("{0}: {1}", lineNumber, line);
+                        Logger.Debug("{0}: {1}", lineNumber, line);
 
                         if (line == "START_SERVER_DATA")
                         {
                             if (metaServer != null)
-                                _Logger.Warning("missing START_SERVER_DATA, line {0}", lineNumber);
+                                Logger.Warning("missing START_SERVER_DATA, line {0}", lineNumber);
 
                             metaServer = new MetaServer();
                             continue;
@@ -130,14 +130,14 @@ namespace CrossfireCore
                             case "flags": metaServer.Flags = value; break;
 
                             default:
-                                _Logger.Warning("Unknown key {0} value {1}, line {2}", key, value, lineNumber);
+                                Logger.Warning("Unknown key {0} value {1}, line {2}", key, value, lineNumber);
                                 break;
                         }
                     }
 
                     if (metaServer != null)
                     {
-                        _Logger.Warning("missing END_SERVER_DATA, line {0}", lineNumber);
+                        Logger.Warning("missing END_SERVER_DATA, line {0}", lineNumber);
                     }
                 }
             }

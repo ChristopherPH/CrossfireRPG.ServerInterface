@@ -18,7 +18,7 @@ namespace CrossfireCore.Managers
             Handler.Setup += Handler_Setup;
         }
 
-        static Logger _Logger = new Logger(nameof(MapSizeManager));
+        public static Logger Logger { get; } = new Logger(nameof(MapSizeManager));
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
@@ -142,7 +142,7 @@ namespace CrossfireCore.Managers
             WantedWidth = width;
             WantedHeight = height;
 
-            _Logger.Info("Wanted mapsize is {0}x{1}", width, height);
+            Logger.Info("Wanted mapsize is {0}x{1}", width, height);
 
             //Setup server: Note that older servers don't understand setup command
             //              and if we aren't connected, this will be 0
@@ -179,7 +179,7 @@ namespace CrossfireCore.Managers
                 CurrentMapWidth = DefaultMapWidth;
                 CurrentMapHeight = DefaultMapHeight;
 
-                _Logger.Info("Set current mapsize to default ({0}x{1})", CurrentMapWidth, CurrentMapHeight);
+                Logger.Info("Set current mapsize to default ({0}x{1})", CurrentMapWidth, CurrentMapHeight);
 
                 OnMapSizeChanged(new MapSizeEventArgs(CurrentMapWidth, CurrentMapHeight));
             }
@@ -229,7 +229,7 @@ namespace CrossfireCore.Managers
             if (string.IsNullOrWhiteSpace(mapsize) || (mapsize == "FALSE"))
             {
                 //technically we know the servers default is 11, but that is never sent by the server
-                _Logger.Warning("Setup: mapsize setup command failed, assume mapsize is fixed at {0}x{1}",
+                Logger.Warning("Setup: mapsize setup command failed, assume mapsize is fixed at {0}x{1}",
                     DefaultMapWidth, DefaultMapHeight);
                 SetMapSizeToDefault();
                 return false;
@@ -239,7 +239,7 @@ namespace CrossfireCore.Managers
             var match = System.Text.RegularExpressions.Regex.Match(mapsize, @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
             if (!match.Success)
             {
-                _Logger.Warning("Setup: mapsize setup response is invalid, setting mapsize to {0}x{1}: {2}",
+                Logger.Warning("Setup: mapsize setup response is invalid, setting mapsize to {0}x{1}: {2}",
                     DefaultMapWidth, DefaultMapHeight, mapsize);
                 SetMapSizeToDefault();
                 return false;
@@ -256,7 +256,7 @@ namespace CrossfireCore.Managers
                 MaximumMapWidth = serverWidth;
                 MaximumMapHeight = serverHeight;
 
-                _Logger.Info("Setup: Maximum mapsize is {0}x{1}", MaximumMapWidth, MaximumMapHeight);
+                Logger.Info("Setup: Maximum mapsize is {0}x{1}", MaximumMapWidth, MaximumMapHeight);
                 return true;
             }
 
@@ -266,7 +266,7 @@ namespace CrossfireCore.Managers
                 CurrentMapWidth = serverWidth;
                 CurrentMapHeight = serverHeight;
 
-                _Logger.Info("Setup: Set current mapsize to {0}x{1}", CurrentMapWidth, CurrentMapHeight);
+                Logger.Info("Setup: Set current mapsize to {0}x{1}", CurrentMapWidth, CurrentMapHeight);
 
                 OnMapSizeChanged(RequestedMapSize);
                 return true;
@@ -284,7 +284,7 @@ namespace CrossfireCore.Managers
             //Reset the size to what the server can handle and request again
             if ((RequestedMapSize.Width > serverWidth) || (RequestedMapSize.Height > serverHeight))
             {
-                _Logger.Warning("Setup: Requested mapsize {0}x{1} not supported, server suggested mapsize {2}x{3}",
+                Logger.Warning("Setup: Requested mapsize {0}x{1} not supported, server suggested mapsize {2}x{3}",
                         RequestedMapSize.Width, RequestedMapSize.Height, serverWidth, serverHeight);
 
                 SetMapSize(serverWidth, serverHeight);
@@ -292,7 +292,7 @@ namespace CrossfireCore.Managers
             else if ((RequestedMapSize.Width != serverWidth) || (RequestedMapSize.Height != serverHeight))
             {
                 //technically we know the servers minimum is 9, but that is never sent by the server
-                _Logger.Warning("Setup: Requested mapsize {0}x{1} rejected, server suggested mapsize {2}x{3}",
+                Logger.Warning("Setup: Requested mapsize {0}x{1} rejected, server suggested mapsize {2}x{3}",
                     RequestedMapSize.Width, RequestedMapSize.Height, serverWidth, serverHeight);
 
                 //Reset the size to what the server returned so we are working with something valid

@@ -32,7 +32,7 @@ namespace CrossfireCore.Managers
             DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         private UInt32 _PlayerTag = 0;
-        static Logger _Logger = new Logger(nameof(ItemManager));
+        public static Logger Logger { get; } = new Logger(nameof(ItemManager));
 
         public Item OpenContainer { get; private set; } = null;
         public bool HasOpenContainer => OpenContainer != null;
@@ -77,12 +77,12 @@ namespace CrossfireCore.Managers
             //all player items between characters, but it doesn't seem to get all of them
             if (this.DataObjectCount > 0)
             {
-                _Logger.Debug("Begin clear ItemManager");
+                Logger.Debug("Begin clear ItemManager");
 
                 foreach (var item in this)
-                    _Logger.Debug("Clearing {0}", item);
+                    Logger.Debug("Clearing {0}", item);
 
-                _Logger.Debug("End clear ItemManager");
+                Logger.Debug("End clear ItemManager");
             }
 
             base.ClearData(disconnected);
@@ -118,12 +118,12 @@ namespace CrossfireCore.Managers
 
                 if ((oldLocationTag != item.LocationTag) && (oldLocationTag == 0))
                 {
-                    _Logger.Debug("Trying to add existing object {0}, updating instead: {1} (picked up item from ground)", e.item_tag,
+                    Logger.Debug("Trying to add existing object {0}, updating instead: {1} (picked up item from ground)", e.item_tag,
                         string.Join(", ", updatedProperties));
                 }
                 else
                 {
-                    _Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
+                    Logger.Warning("Trying to add existing object {0}, updating instead: {1}", e.item_tag,
                         string.Join(", ", updatedProperties));
                 }
 
@@ -152,13 +152,13 @@ namespace CrossfireCore.Managers
                 index = AddDataObject(e.item_tag, item);
             }
 
-            _Logger.Info("Added {0}", item);
+            Logger.Info("Added {0}", item);
 
             if (item.IsOpen && (item != OpenContainer)) //avoid issue with picking up an open container
             {
                 if (OpenContainer != null)
                 {
-                    _Logger.Warning("Container {0} was already open when received new open container {1}", OpenContainer, item);
+                    Logger.Warning("Container {0} was already open when received new open container {1}", OpenContainer, item);
 
                     OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
                         OpenContainer, this.GetDataObjectIndex(OpenContainer));
@@ -181,7 +181,7 @@ namespace CrossfireCore.Managers
                 //We will also get these messages when deleting a character, as the player list
                 //is sent before the deletion of inventory. The item manager will be cleared on
                 //a seeing the player list.
-                _Logger.Warning("Trying to delete invalid object {0}", e.ObjectTag);
+                Logger.Warning("Trying to delete invalid object {0}", e.ObjectTag);
                 return;
             }
 
@@ -192,7 +192,7 @@ namespace CrossfireCore.Managers
                 OpenContainer = null;
             }
 
-            _Logger.Info("Deleted {0}", item);
+            Logger.Info("Deleted {0}", item);
 
             this.RemoveDataObject(e.ObjectTag);
         }
@@ -218,17 +218,17 @@ namespace CrossfireCore.Managers
                     location = item.ToString();
             }
 
-            _Logger.Info("Deleting inventory of {0}", location);
+            Logger.Info("Deleting inventory of {0}", location);
 
             var items = this.Where(x => x.LocationTag == (uint)e.ObjectTag).ToList();
             if (items.Count > 0)
             {
-                _Logger.Debug("Begin delete inventory");
+                Logger.Debug("Begin delete inventory");
                 this.StartMultiCommand();
 
                 foreach (var item in items)
                 {
-                    _Logger.Debug("Deleted {0} from {1}", item, location);
+                    Logger.Debug("Deleted {0} from {1}", item, location);
 
                     if (item == OpenContainer)
                     {
@@ -240,7 +240,7 @@ namespace CrossfireCore.Managers
                     this.RemoveDataObject(item.Tag);
                 }
 
-                _Logger.Debug("End delete inventory");
+                Logger.Debug("End delete inventory");
                 this.EndMultiCommand();
             }
         }
@@ -252,11 +252,11 @@ namespace CrossfireCore.Managers
 
             if (!GetDataObject(e.ObjectTag, out var item, out var index))
             {
-                _Logger.Warning("Trying to update invalid object {0}", e.ObjectTag);
+                Logger.Warning("Trying to update invalid object {0}", e.ObjectTag);
                 return;
             }
 
-            _Logger.Info("Update {0} of {1} to ({2}/{3}/{4}/{5}) {6} {7}",
+            Logger.Info("Update {0} of {1} to ({2}/{3}/{4}/{5}) {6} {7}",
                 e.UpdateType, item, e.UpdateValueUInt8, e.UpdateValueUInt16, e.UpdateValueUInt32,
                 e.UpdateValueFloat, e.UpdateString, e.UpdateStringPlural);
 
@@ -279,7 +279,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Location has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Location has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -294,7 +294,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Flags has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Flags has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -309,7 +309,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Weight has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Weight has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -324,7 +324,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Face has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Face has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -340,7 +340,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Name has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Name has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -355,7 +355,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.Animation has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.Animation has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -370,7 +370,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.AnimationSpeed has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.AnimationSpeed has wrong datatype: {0}", e.DataType);
                     }
                     break;
 
@@ -385,7 +385,7 @@ namespace CrossfireCore.Managers
                     }
                     else
                     {
-                        _Logger.Warning("UpdateTypes.NumberOf has wrong datatype: {0}", e.DataType);
+                        Logger.Warning("UpdateTypes.NumberOf has wrong datatype: {0}", e.DataType);
                     }
                     break;
             }
@@ -393,7 +393,7 @@ namespace CrossfireCore.Managers
             if (UpdatedProperties != null)
                 OnDataChanged(DataModificationTypes.Updated, item, index, UpdatedProperties);
             else
-                _Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
+                Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
 
 
             //handle container opened/closed 
@@ -411,7 +411,7 @@ namespace CrossfireCore.Managers
                 {
                     if (OpenContainer != null)
                     {
-                        _Logger.Warning("Container {0} was already open when received updated open container {1}", OpenContainer, item);
+                        Logger.Warning("Container {0} was already open when received updated open container {1}", OpenContainer, item);
     
                         OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
                             OpenContainer, this.GetDataObjectIndex(OpenContainer));
@@ -450,14 +450,14 @@ namespace CrossfireCore.Managers
 
         private void _Handler_BeginItem2(object sender, EventArgs e)
         {
-            _Logger.Debug("Begin add items");
+            Logger.Debug("Begin add items");
 
             StartMultiCommand();
         }
 
         private void _Handler_EndItem2(object sender, EventArgs e)
         {
-            _Logger.Debug("End add items");
+            Logger.Debug("End add items");
 
             EndMultiCommand();
         }
@@ -467,7 +467,7 @@ namespace CrossfireCore.Managers
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
 
-            _Logger.Debug("Begin update item");
+            Logger.Debug("Begin update item");
 
             StartMultiCommand();
         }
@@ -478,7 +478,7 @@ namespace CrossfireCore.Managers
             if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
 
-            _Logger.Debug("End update item");
+            Logger.Debug("End update item");
 
             EndMultiCommand();
         }
@@ -486,14 +486,14 @@ namespace CrossfireCore.Managers
 
         private void _Handler_BeginDeleteItem(object sender, EventArgs e)
         {
-            _Logger.Debug("Begin delete items");
+            Logger.Debug("Begin delete items");
 
             StartMultiCommand();
         }
 
         private void _Handler_EndDeleteItem(object sender, EventArgs e)
         {
-            _Logger.Debug("End delete items");
+            Logger.Debug("End delete items");
 
             EndMultiCommand();
         }

@@ -11,7 +11,7 @@ namespace CrossfireCore.ServerInterface
     /// </summary>
     public abstract partial class MessageParser
     {
-        static Logger _Logger = new Logger(nameof(MessageParser));
+        public static Logger Logger { get; } = new Logger(nameof(MessageParser));
 
         /// <summary>
         /// CrossfireCore.ServerInterface can send protocol messages up to and including version:
@@ -166,9 +166,9 @@ namespace CrossfireCore.ServerInterface
             //run command parser
             if (_CommandHandler.TryGetValue(command, out var parseCommand))
             {
-                _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1}", command, DataLength);
+                Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1}", command, DataLength);
                 if (dataEnd - curPos > 0) //if there is data after the command
-                    _Logger.Debug("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                    Logger.Debug("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
 
                 try
                 {
@@ -177,47 +177,47 @@ namespace CrossfireCore.ServerInterface
 #endif
 
                     if (!parseCommand.Parser(Message, ref curPos, dataEnd))
-                        _Logger.Error("Failed to parse command: {0}", command);
+                        Logger.Error("Failed to parse command: {0}", command);
 
 #if DEBUG
                     _swMessage.Stop();
 
                     if (_swMessage.ElapsedMilliseconds >= messageWarningThreshold)
-                        _Logger.Warning("Handling command {0} took {1:n0} ms",
+                        Logger.Warning("Handling command {0} took {1:n0} ms",
                             command, _swMessage.ElapsedMilliseconds);
                     else
-                        _Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1} => {2:n0} ms",
+                        Logger.Log(parseCommand.Level, "S->C: command={0}, datalength={1} => {2:n0} ms",
                             command, DataLength, _swMessage.ElapsedMilliseconds);
 #endif
                 }
                 catch (BufferTokenizerException ex)
                 {
-                    _Logger.Error("Failed to tokenize buffer: {0}: {1}",
+                    Logger.Error("Failed to tokenize buffer: {0}: {1}",
                         command, ex.Message);
                 }
                 catch (MessageParserException ex)
                 {
-                    _Logger.Error("Failed to parse command: {0}: {1}",
+                    Logger.Error("Failed to parse command: {0}: {1}",
                         command, ex.Message);
                 }
             }
             else
             {
-                _Logger.Warning("Unhandled Command: {0}", command);
-                _Logger.Info("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                Logger.Warning("Unhandled Command: {0}", command);
+                Logger.Info("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
                 return;
             }
 
             //log excess data
             if (curPos < dataEnd)
             {
-                _Logger.Warning("Excess data for command {0}: {1} bytes",
+                Logger.Warning("Excess data for command {0}: {1} bytes",
                     command, dataEnd - curPos);
-                _Logger.Info("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
+                Logger.Info("\n{0}", HexDump.Utils.HexDump(Message, curPos, dataEnd - curPos));
             }
             else if (curPos > dataEnd)
             {
-                _Logger.Warning("Used too much data for command {0}: {1}",
+                Logger.Warning("Used too much data for command {0}: {1}",
                     command, curPos - dataEnd);
             }
         }

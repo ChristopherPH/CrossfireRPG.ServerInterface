@@ -15,7 +15,7 @@ namespace CrossfireCore.ServerInterface
             Handler.ReplyInfo += Handler_ReplyInfo;
         }
 
-        static Logger _Logger = new Logger(nameof(InfoManager));
+        public static Logger Logger { get; } = new Logger(nameof(InfoManager));
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
@@ -334,7 +334,7 @@ namespace CrossfireCore.ServerInterface
                         if (Skills.TryGetValue(SkillID, out var skill))
                             skill.Description = SkillDescription;
                         else
-                            _Logger.Warning("Unknown ReplyInfo {0} Skill {1} {2}", e.Request, SkillID, SkillDescription);
+                            Logger.Warning("Unknown ReplyInfo {0} Skill {1} {2}", e.Request, SkillID, SkillDescription);
                     }
                     break;
 
@@ -699,7 +699,7 @@ namespace CrossfireCore.ServerInterface
                                 break;
 
                             default:
-                                _Logger.Warning("Unknown newcharinfo: {0}", newcharinfo_line);
+                                Logger.Warning("Unknown newcharinfo: {0}", newcharinfo_line);
                                 break;
                         }
                     }
@@ -749,7 +749,7 @@ namespace CrossfireCore.ServerInterface
                         var image_sums_num = BufferTokenizer.GetInt16(e.Reply, ref offset);
 
                         if (image_sums_cur != image_sums_num)
-                            _Logger.Warning("image_sums mismatch: cur num {0} != num {1}", 
+                            Logger.Warning("image_sums mismatch: cur num {0} != num {1}",
                                 image_sums_cur, image_sums_num);
 
                         var image_sums_ckcum = BufferTokenizer.GetInt32(e.Reply, ref offset);
@@ -770,19 +770,19 @@ namespace CrossfireCore.ServerInterface
                     }
 
                     if (image_sums_cur - 1 != image_sums_stop)
-                        _Logger.Warning("image_sums mismatch: cur num {0} != stop {1}",
+                        Logger.Warning("image_sums mismatch: cur num {0} != stop {1}",
                             image_sums_cur - 1, image_sums_stop);
                     break;
 
                 default:
-                    _Logger.Warning("Unknown ReplyInfo {0}:\n{1}",
+                    Logger.Warning("Unknown ReplyInfo {0}:\n{1}",
                         e.Request, HexDump.Utils.HexDump(e.Reply));
                     return;
             }
 
             if (offset < end)
             {
-                _Logger.Warning("Excess Data for ReplyInfo {0}:\n{1}",
+                Logger.Warning("Excess Data for ReplyInfo {0}:\n{1}",
                     e.Request, HexDump.Utils.HexDump(e.Reply, offset));
             }
 

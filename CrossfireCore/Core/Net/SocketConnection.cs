@@ -7,7 +7,7 @@ namespace CrossfireCore.ServerInterface
 {
     public class SocketConnection
     {
-        static Logger _Logger = new Logger(nameof(SocketConnection));
+        public static Logger Logger { get; } = new Logger(nameof(SocketConnection));
 
         const string DefaultServerHost = "127.0.0.1";
 
@@ -87,7 +87,7 @@ namespace CrossfireCore.ServerInterface
                 return false;
             }
 
-            _Logger.Info("Connecting to {0}:{1}", Host, Port);
+            Logger.Info("Connecting to {0}:{1}", Host, Port);
 
             this.Host = Host;
             this.Port = Port;
@@ -163,7 +163,7 @@ namespace CrossfireCore.ServerInterface
             WaitForBytes(new StateObject(client, _stream));
 
             //notify connected
-            _Logger.Info("Connected");
+            Logger.Info("Connected");
             SetConnectionStatus(ConnectionStatuses.Connected);
         }
 
@@ -194,11 +194,11 @@ namespace CrossfireCore.ServerInterface
             if ((_client != null) && _client.Connected)
             {
                 _client.Close();
-                _Logger.Info("Disconnected");
+                Logger.Info("Disconnected");
             }
             else
             {
-                _Logger.Debug("Disconnected (but wasn't connected)");
+                Logger.Debug("Disconnected (but wasn't connected)");
             }
 
             SetConnectionStatus(ConnectionStatuses.Disconnected);
@@ -252,7 +252,7 @@ namespace CrossfireCore.ServerInterface
             _stream.BeginWrite(lengthBytes, 0, lengthBytes.Length, BeginSendCallback, _stream);
             _stream.BeginWrite(Message, 0, Message.Length, BeginSendCallback, _stream);
 
-            _Logger.Debug("Write {0} bytes\n{1}", 
+            Logger.Debug("Write {0} bytes\n{1}",
                 messageLength, HexDump.Utils.HexDump(Message));
 
             return true;
@@ -371,7 +371,7 @@ namespace CrossfireCore.ServerInterface
                 return;
             }
 
-            _Logger.Debug("Read {0} bytes\n{1}", bytesRead,
+            Logger.Debug("Read {0} bytes\n{1}", bytesRead,
                 HexDump.Utils.HexDump(so.buffer, so.bufferLen, bytesRead));
 
             //collect buffer data

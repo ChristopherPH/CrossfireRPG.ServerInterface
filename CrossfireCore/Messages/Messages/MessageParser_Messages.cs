@@ -44,7 +44,7 @@ namespace CrossfireCore.ServerInterface
             var failure_string = BufferTokenizer.GetRemainingBytesAsString(Message, ref DataOffset, DataEnd);
 
             HandleFailure(protocol_command, failure_string);
-            _Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
+            Logger.Error("Failure: {0} {1}", protocol_command, failure_string);
 
             return true;
         }

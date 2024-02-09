@@ -8,7 +8,7 @@ namespace CrossfireCore.ServerInterface
     /// </summary>
     public partial class MessageBuilder
     {
-        static Logger _Logger = new Logger(nameof(MessageBuilder));
+        public static Logger Logger { get; } = new Logger(nameof(MessageBuilder));
 
         /// <summary>
         /// CrossfireCore.ServerInterface can receive and understand protocol
@@ -32,10 +32,10 @@ namespace CrossfireCore.ServerInterface
             if (ba == null)
                 return false;
 
-            _Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
+            Logger.Info("C->S: cmd={0}, datalen={1}", ba.Command, ba.DataLength);
 
             var bytes = ba.GetBytes();
-            _Logger.Debug("\n{0}", HexDump.Utils.HexDump(bytes));
+            Logger.Debug("\n{0}", HexDump.Utils.HexDump(bytes));
 
             return _Connection.SendMessage(bytes);
         }
@@ -51,7 +51,7 @@ namespace CrossfireCore.ServerInterface
 
             message = message.Trim();
 
-            _Logger.Info("C->S: message={0}", message);
+            Logger.Info("C->S: message={0}", message);
 
             return _Connection.SendMessage(message);
         }

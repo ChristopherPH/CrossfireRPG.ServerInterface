@@ -33,7 +33,7 @@ namespace CrossfireCore.Managers
             Handler.MapScroll += Handler_MapScroll;
         }
 
-        static Logger _Logger = new Logger(nameof(MapDataManager));
+        public static Logger Logger { get; } = new Logger(nameof(MapDataManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
         public override DataModificationTypes SupportedModificationTypes =>
@@ -295,7 +295,7 @@ namespace CrossfireCore.Managers
 
                 if (layer.Face == 0)
                 {
-                    _Logger.Warning($"Map: Cell {worldX}/{worldY} layer " +
+                    Logger.Warning($"Map: Cell {worldX}/{worldY} layer " +
                         $"{e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
                 }
 
