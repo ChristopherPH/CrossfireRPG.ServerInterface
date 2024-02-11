@@ -1,15 +1,15 @@
 ﻿using Common;
-using CrossfireCore.ManagedObjects;
+using CrossfireCore.Managers.MapSizeManagement;
 using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.MapManagement
 {
-    public class MapDataManager : DataObjectManager<MapObject>
+    public class MapManager : DataObjectManager<MapObject>
     {
-        public MapDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+        public MapManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
             //Individual events
@@ -33,7 +33,7 @@ namespace CrossfireCore.Managers
             Handler.MapScroll += Handler_MapScroll;
         }
 
-        public static Logger Logger { get; } = new Logger(nameof(MapDataManager));
+        public static Logger Logger { get; } = new Logger(nameof(MapManager));
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => false;
         public override DataModificationTypes SupportedModificationTypes =>

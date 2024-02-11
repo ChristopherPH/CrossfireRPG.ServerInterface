@@ -1,11 +1,11 @@
 ﻿using Common;
 using Common.Utility;
-using CrossfireCore.Managers;
 using CrossfireCore.ServerConfig;
+using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireCore.Managers.InfoManagement
 {
     public class InfoManager : DataManager
     {
@@ -27,7 +27,7 @@ namespace CrossfireCore.ServerInterface
         public string News { get; private set; }
         public string Rules { get; private set; }
 
-        public Dictionary<int, Skill> Skills { get; } = new Dictionary<int, Skill>();
+        public Dictionary<int, SkillInfo> Skills { get; } = new Dictionary<int, SkillInfo>();
         public List<SpellPath> SpellPaths { get; } = new List<SpellPath>();
         public List<KnowledgeInfo> KnowledgeInfos { get; } = new List<KnowledgeInfo>();
         public UInt64[] ExperienceTable { get; private set; }
@@ -47,7 +47,7 @@ namespace CrossfireCore.ServerInterface
             public int CanAttempt { get; set; }
         }
 
-        public class Skill
+        public class SkillInfo
         {
             public string Name { get; set; }
             public uint Face { get; set; }
@@ -314,8 +314,8 @@ namespace CrossfireCore.ServerInterface
                         var SkillID = int.Parse(SkillSet[0]);
                         switch (SkillSet.Length)
                         {
-                            case 2: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = 0 }; break;
-                            case 3: Skills[SkillID] = new Skill() { Name = SkillSet[1].ToTitleCase(), Face = UInt32.Parse(SkillSet[2]) }; break;
+                            case 2: Skills[SkillID] = new SkillInfo() { Name = SkillSet[1].ToTitleCase(), Face = 0 }; break;
+                            case 3: Skills[SkillID] = new SkillInfo() { Name = SkillSet[1].ToTitleCase(), Face = UInt32.Parse(SkillSet[2]) }; break;
                             default: throw new MessageParserException("Unhandled skill info count");
                         }
                     }

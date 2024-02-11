@@ -2,7 +2,7 @@
 using CrossfireCore.ServerConfig;
 using System;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.ItemManagement
 {
     public class Item : DataObject
     {

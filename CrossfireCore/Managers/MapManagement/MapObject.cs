@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace CrossfireCore.ManagedObjects
+namespace CrossfireCore.Managers.MapManagement
 {
-    public class MapObject : Managers.DataObject
+    public class MapObject : DataObject
     {
         //private SortedDictionary<MapCoord, MapCell> _cells = new SortedDictionary<MapCoord, MapCell>(new MapCoordComparer());
         //private Dictionary<MapCoord, MapCell> _cells = new Dictionary<MapCoord, MapCell>();

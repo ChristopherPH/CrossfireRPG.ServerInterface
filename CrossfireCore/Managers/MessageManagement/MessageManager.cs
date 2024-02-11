@@ -3,7 +3,7 @@ using CrossfireCore.ServerInterface;
 using System;
 using TheBlackRoom.System.Extensions;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.MessageManagement
 {
     public class MessageManager : Manager
     {

@@ -2,11 +2,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.KnowledgeManagement
 {
-    public class KnowledgeDataManager : DataListManager<UInt32, KnowledgeData, List<KnowledgeData>>
+    public class KnowledgeManager : DataListManager<UInt32, Knowledge, List<Knowledge>>
     {
-        public KnowledgeDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+        public KnowledgeManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
             : base(Connection, Builder, Handler)
         {
             Handler.AddKnowledge += Handler_AddKnowledge;
@@ -19,26 +19,13 @@ namespace CrossfireCore.Managers
 
         private void Handler_AddKnowledge(object sender, MessageHandler.AddKnowledgeEventArgs e)
         {
-            AddDataObject(e.ID, new KnowledgeData()
+            AddDataObject(e.ID, new Knowledge()
             {
                 KnowledgeID = e.ID,
                 Type = e.Type,
                 Title = e.Title,
                 Face = e.Face,
             });
-        }
-    }
-
-    public class KnowledgeData : DataObject
-    {
-        public UInt32 KnowledgeID { get; set; }
-        public string Type { get; set; }
-        public string Title { get; set; }
-        public Int32 Face { get; set; }
-
-        public override string ToString()
-        {
-            return Title;
         }
     }
 }

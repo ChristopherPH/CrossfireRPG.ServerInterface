@@ -3,9 +3,9 @@ using CrossfireCore.ServerConfig;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.PlayerManagement
 {
-    public class Player : Managers.DataObject
+    public class Player : DataObject
     {
         /// <summary>
         /// Tag of 0 indicates no active player

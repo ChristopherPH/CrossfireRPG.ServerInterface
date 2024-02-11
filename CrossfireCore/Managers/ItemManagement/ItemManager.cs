@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossfireCore.Managers
+namespace CrossfireCore.Managers.ItemManagement
 {
     public class ItemManager : DataListManager<UInt32, Item, List<Item>>
     {
