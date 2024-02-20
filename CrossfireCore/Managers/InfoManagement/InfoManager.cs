@@ -162,6 +162,11 @@ namespace CrossfireCore.Managers.InfoManagement
             public string Geometry { get; set; }
             public string Future { get; set; }
             public string Description { get; set; }
+
+            public override string ToString()
+            {
+                return $"{ID}: {Geometry} {LongName} {Description}";
+            }
         }
 
         public class ImageSum
@@ -170,6 +175,11 @@ namespace CrossfireCore.Managers.InfoManagement
             public Int32 Checksum { get; set; }
             public byte FaceSet { get; set; }
             public string Name { get; set; }
+
+            public override string ToString()
+            {
+                return $"{Num}: {FaceSet} {Name}";
+            }
         }
 
         //Helper functions
