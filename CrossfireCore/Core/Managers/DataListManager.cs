@@ -144,12 +144,15 @@ namespace CrossfireCore.Managers
             if ((index < 0) || (index > _DataObjects.Count))
                 return -1;
 
+            //check if key already exists
             var existingDataObject = GetDataObject(dataKey);
-            if (existingDataObject != null)
+
+            if (existingDataObject != null) //key exists
             {
                 return ReplaceDataObject(dataKey, DataObject);
             }
 
+            //key doesn't exist, add key and object
             CheckGroupUpdate();
             
             lock (_DataObjectLock)
@@ -229,19 +232,24 @@ namespace CrossfireCore.Managers
             if (DataObject == null)
                 return -1;
 
+            //check if key already exists
             var existingDataObject = GetDataObject(dataKey);
-            if (existingDataObject == null)
+
+            if (existingDataObject == null) //key doesn't exist, add key and object
             {
+                //Note: The added object will be appended to the TDataList
+                //      since there is no way to tell where it should be inserted
                 return AddDataObject(dataKey, DataObject);
             }
 
+            //key exists, update data object
             int index;
 
             CheckGroupUpdate();
 
             lock (_DataObjectLock)
             {
-                index = _DataObjects.IndexOf(DataObject);
+                index = _DataObjects.IndexOf(existingDataObject);
                 _DataObjects[index] = DataObject;
                 _DataObjectCache[dataKey] = DataObject;
             }
