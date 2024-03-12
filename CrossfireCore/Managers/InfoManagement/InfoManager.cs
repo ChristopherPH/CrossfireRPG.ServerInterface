@@ -196,6 +196,19 @@ namespace CrossfireCore.Managers.InfoManagement
             return s ?? "";
         }
 
+        public List<string> GetSpellPaths(uint Path)
+        {
+            List<string> paths = new List<string>();
+
+            foreach (var i in SpellPaths)
+            {
+                if ((i.Path & Path) != 0)
+                    paths.Add(i.Name);
+            }
+
+            return paths;
+        }
+
         public const string InfoTypeMODT = "motd";
         public const string InfoTypeNews = "news";
         public const string InfoTypeRules = "rules";
