@@ -26,7 +26,7 @@ namespace CrossfireCore.ServerConfig
             /// <summary>
             /// NPCs, magic ears, and altars
             /// </summary>
-            [Description("Dialogs (Alter/NPC/Magic Ear)")]
+            [Description("Dialogs (Altar/NPC/Magic Ear)")]
             Dialog = 6,
 
             /// <summary>
