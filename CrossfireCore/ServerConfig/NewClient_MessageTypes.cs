@@ -50,43 +50,43 @@ namespace CrossfireCore.ServerConfig
             /// <summary>
             /// Changes to attributes (stats, resistances, etc
             /// </summary>
-            [Description("Changes to Attributes")]
+            [Description("Attribute Notifications")]
             Attribute = 11,
 
             /// <summary>
             /// Messages related to skill use.
             /// </summary>
-            [Description("Skill related Messages")]
+            [Description("Skill Notifications")]
             Skill = 12,
 
             /// <summary>
             /// Applying objects
             /// </summary>
-            [Description("Apply results")]
+            [Description("Apply Results")]
             Apply = 13,
 
             /// <summary>
             /// Attack related messages
             /// </summary>
-            [Description("Attack results")]
+            [Description("Attack Results")]
             Attack = 14,
 
             /// <summary>
             /// Communication between players
             /// </summary>
-            [Description("Player communication")]
+            [Description("Player Communication")]
             Communication = 15,
 
             /// <summary>
             /// Spell related info
             /// </summary>
-            [Description("Spell results")]
+            [Description("Spell Results")]
             Spell = 16,
 
             /// <summary>
             /// Item related information
             /// </summary>
-            [Description("Item information")]
+            [Description("Item Information")]
             Item = 17,
 
             /// <summary>
@@ -98,13 +98,13 @@ namespace CrossfireCore.ServerConfig
             /// <summary>
             /// Something bad is happening to the player
             /// </summary>
-            [Description("Victim notifications")]
+            [Description("Victim Notifications")]
             Victim = 19,
 
             /// <summary>
             /// Client originated Messages
             /// </summary>
-            [Description("Client generated messages")]
+            [Description("Client Messages")]
             Client = 20,
         }
 
@@ -118,10 +118,20 @@ namespace CrossfireCore.ServerConfig
             Elegant2 = 4,
             Quarto1 = 5,
             Quarto2 = 6,
+
+            [Description("Spell Evoker")]
             SpellEvoker = 7,
+
+            [Description("Spell Prayer")]
             SpellPrayer = 8,
+
+            [Description("Spell Pyro")]
             SpellPyro = 9,
+
+            [Description("Spell Sorcerer")]
             SpellSorcerer = 10,
+
+            [Description("Spell Summoner")]
             SpellSummoner = 11,
         }
 
@@ -165,6 +175,8 @@ namespace CrossfireCore.ServerConfig
             DirLeft = 2,
             DirRight = 3,
             DirBoth = 4,
+
+            [Description("Magic Mouth")]
             MagicMouth = 5,
         }
 
@@ -199,6 +211,7 @@ namespace CrossfireCore.ServerConfig
             /// <summary>
             /// A Message from Magic Ear
             /// </summary>
+            [Description("Magic Ear")]
             MagicEar = 3,
         }
 
