@@ -115,8 +115,11 @@ namespace CrossfireCore.Managers.ItemManagement
 
                 var updatedProperties = item.EndPropertiesChanged();
 
-
-                if ((oldLocationTag != item.LocationTag) && (oldLocationTag == 0))
+                if (updatedProperties == null)
+                {
+                    Logger.Warning("Trying to add existing object {0}, updating instead: (no properties changed)", e.item_tag);
+                }
+                else if ((oldLocationTag != item.LocationTag) && (oldLocationTag == 0))
                 {
                     Logger.Debug("Trying to add existing object {0}, updating instead: {1} (picked up item from ground)", e.item_tag,
                         string.Join(", ", updatedProperties));
