@@ -11,7 +11,9 @@ namespace CrossfireCore.Managers
         /// <summary>
         /// List of properties that were updated, null indicates all/unknown properties, so best to update everything
         /// </summary>
-        public ICollection<string> UpdatedProperties { get; set; } = null;
+        public ICollection<string> UpdatedProperties { private get; set; } = null;
+
+        public bool AllUpdated => UpdatedProperties == null;
 
         public bool WasUpdated(string Property)
         {
