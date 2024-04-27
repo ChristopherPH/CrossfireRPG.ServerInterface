@@ -76,8 +76,12 @@ namespace CrossfireCore.Managers.MapManagement
         List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
 
         //Private variables for creating map updated args
-        List<MapCellLocation> _updatedLocations = new List<MapCellLocation>();
-        bool _mapScrollUpdatedMap = false;
+        MapUpdatedEventArgs workingUpdateArgs = new MapUpdatedEventArgs();
+        bool workingIsEmpty;
+        int workingMinX;
+        int workingMaxX;
+        int workingMinY;
+        int workingMaxY;
 
         protected override void ClearData(bool disconnected)
         {
@@ -149,8 +153,12 @@ namespace CrossfireCore.Managers.MapManagement
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
         {
-            _updatedLocations.Clear();
-            _mapScrollUpdatedMap = false;
+            workingUpdateArgs = new MapUpdatedEventArgs();
+            workingIsEmpty = MapObject.IsEmpty;
+            workingMinX = MapObject.MinX;
+            workingMaxX = MapObject.MaxX;
+            workingMinY = MapObject.MinY;
+            workingMaxY = MapObject.MaxY;
 
             //Got a map2 command
             StartMultiCommand();
@@ -172,23 +180,30 @@ namespace CrossfireCore.Managers.MapManagement
             }
 
             //Notify map was updated
-            if ((_updatedLocations.Count > 0) || _mapScrollUpdatedMap)
+            //_mapScrollUpdatedMap check is bad, if true, then _updatedLocations.Count will always be > 0
+            if ((workingUpdateArgs.CellLocations.Count > 0) ||
+                workingUpdateArgs.MapScrolled)
             {
-                var args = new MapUpdatedEventArgs()
-                {
-                    Modification = DataModificationTypes.Updated,
-                    Data = MapObject,
-                    UpdatedProperties = null,
-                    MapScrolled = _mapScrollUpdatedMap,
-                    CellLocations = new List<MapCellLocation>(_updatedLocations)
-                };
+                //set base properties, other MapUpdatedEventArgs
+                //have been updated
+                workingUpdateArgs.Modification = DataModificationTypes.Updated;
+                workingUpdateArgs.Data = MapObject;
+                workingUpdateArgs.UpdatedProperties = null;
 
-                OnDataChanged(args);
-                OnMapUpdated(args);
+                if ((workingIsEmpty != MapObject.IsEmpty) ||
+                    (workingMinX != MapObject.MinX) ||
+                    (workingMaxX != MapObject.MaxX) ||
+                    (workingMinY != MapObject.MinY) ||
+                    (workingMaxY != MapObject.MaxY))
+                {
+                    workingUpdateArgs.MapSizeChanged = true;
+                }
+
+                OnDataChanged(workingUpdateArgs);
+                OnMapUpdated(workingUpdateArgs);
             }
 
-            _updatedLocations.Clear();
-            _mapScrollUpdatedMap = false;
+            workingUpdateArgs = new MapUpdatedEventArgs();
         }
 
         private void Handler_MapBeginLocation(object sender, MessageHandler.MapLocationEventArgs e)
@@ -219,7 +234,8 @@ namespace CrossfireCore.Managers.MapManagement
                 if ((cell != null) && cell.Updated)
                 {
                     OnMapCellUpdated(cell);
-                    _updatedLocations.Add(new MapCellLocation(worldX, worldY));
+                    workingUpdateArgs.CellLocations.Add(new MapCellLocation(worldX, worldY));
+                    workingUpdateArgs.InsideViewportChanged = true;
                     cell.Updated = false;
                 }
             }
@@ -478,6 +494,9 @@ namespace CrossfireCore.Managers.MapManagement
             MapObject.PlayerX += e.X;
             MapObject.PlayerY += e.Y;
 
+            workingUpdateArgs.MapScrollX = e.X;
+            workingUpdateArgs.MapScrollY = e.Y;
+
             //any cells that were visible prior to this mapscroll, but
             //became invisible after the map scroll should be marked
             //so that we can update them if we get new map data for the
@@ -486,9 +505,13 @@ namespace CrossfireCore.Managers.MapManagement
             //so we need to clear them
             lock (_mapDataLock)
             {
+                //TODO: Remove foreach, narrow search window based on
+                //the mapscroll amount
                 foreach (var cell in MapObject.Cells)
                 {
-                    //check if cell has gone out of viewport
+                    //Check if visible cell has gone out of viewport.
+                    //Note this doesn't catch cells that were already
+                    //not visible (F.O.W) then moved out of the viewport.
                     if (cell.Visible && !IsMapCellInViewport(cell))
                     {
                         //mark cell as part of fog of war and notify any listeners.
@@ -498,8 +521,11 @@ namespace CrossfireCore.Managers.MapManagement
                         //viewport and will never be updated)
                         cell.Visible = false;
                         OnMapCellUpdated(cell);
-                        _updatedLocations.Add(new MapCellLocation(cell.WorldX, cell.WorldY));
-                        _mapScrollUpdatedMap = true;
+                        workingUpdateArgs.CellLocations.Add(new MapCellLocation(cell.WorldX, cell.WorldY));
+
+                        //Indicate that the mapscroll has caused cells
+                        //to change
+                        workingUpdateArgs.OutsideViewportChanged = true;
                     }
                 }
             }
@@ -634,8 +660,70 @@ namespace CrossfireCore.Managers.MapManagement
 
     public class MapUpdatedEventArgs : DataUpdatedEventArgs<MapObject>
     {
+        /// <summary>
+        /// Locations of all the cells that changed on the map during this update
+        /// </summary>
         public List<MapCellLocation> CellLocations { get; set; } = new List<MapCellLocation>();
 
-        public bool MapScrolled { get; set; }
+        /// <summary>
+        /// True if the map scrolled during this update
+        /// </summary>
+        public bool MapScrolled => (MapScrollX != 0) || (MapScrollY != 0);
+
+        /// <summary>
+        /// Amount the map scrolled horizonally during this update
+        /// </summary>
+        public int MapScrollX { get; set; } = 0;
+
+        /// <summary>
+        /// Amount the map scrolled vertically during this update
+        /// </summary>
+        public int MapScrollY { get; set; } = 0;
+
+        /// <summary>
+        /// True if the map size changed during this update
+        /// </summary>
+        public bool MapSizeChanged { get; set; } = false;
+
+        /// <summary>
+        /// True if cells inside the viewport changed during this update
+        /// </summary>
+        public bool InsideViewportChanged { get; set; } = false;
+
+        /// <summary>
+        /// True if cells inside the viewport changed during this update
+        /// </summary>
+        public bool OutsideViewportChanged { get; set; } = false;
+
+        /// <summary>
+        /// Gets the min and max of the cell locations
+        /// </summary>
+        /// <returns>true if bounds set, false if not</returns>
+        public bool GetCellLocationBoundingBox(out int MinWorldX, out int MinWorldY,
+            out int MaxWorldX, out int MaxWorldY)
+        {
+            MinWorldX = int.MaxValue;
+            MinWorldY = int.MaxValue;
+            MaxWorldX = int.MinValue;
+            MaxWorldY = int.MinValue;
+
+            if (CellLocations.Count == 0)
+                return false;
+
+            foreach (var cellLocation in CellLocations)
+            {
+                if (cellLocation.WorldX < MinWorldX)
+                    MinWorldX = cellLocation.WorldX;
+                if (cellLocation.WorldY < MinWorldY)
+                    MinWorldY = cellLocation.WorldY;
+
+                if (cellLocation.WorldX > MaxWorldX)
+                    MaxWorldX = cellLocation.WorldX;
+                if (cellLocation.WorldY > MaxWorldY)
+                    MaxWorldY = cellLocation.WorldY;
+            }
+
+            return true;
+        }
     }
 }
