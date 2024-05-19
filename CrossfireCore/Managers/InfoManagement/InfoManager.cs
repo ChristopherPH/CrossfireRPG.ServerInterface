@@ -225,6 +225,7 @@ namespace CrossfireCore.Managers.InfoManagement
         public const string InfoTypeNewCharInfo = "newcharinfo";
         public const string InfoTypeImageInfo = "image_info";
         public const string InfoTypeImageSums = "image_sums";
+        public const int SkillExtraRequestLevel = 1;
 
         //Supported Request functions
         public void RequestMOTD()
@@ -245,7 +246,12 @@ namespace CrossfireCore.Managers.InfoManagement
         public void RequestSkillInfo()
         {
             Builder.SendRequestInfo(InfoTypeSkillInfo, 1);
-            Builder.SendRequestInfo(InfoTypeSkillExtra, 1);
+
+            //TODO: only request skill extra if its available
+            //      with the protocol version
+            //      SkillExtra was added without bumping the protocol
+            //      so this might be hard to do.
+            Builder.SendRequestInfo(InfoTypeSkillExtra, SkillExtraRequestLevel);
         }
 
         public void RequestExperienceTable()
@@ -345,6 +351,35 @@ namespace CrossfireCore.Managers.InfoManagement
                     break;
 
                 case InfoTypeSkillExtra:
+                    /* HACK: Skill extra was added in 2023 without a protocol
+                     * version bump. Metalforge specifically, as well as servers
+                     * <= 2023 do not support this replyinfo command.
+                     * If the command is not understood, the reply will be the
+                     * optional parameters passed in. So check for a match
+                     * if the reply length is tiny, to indicate the command
+                     * is unsupported.
+                     */
+                    var requestLevel = SkillExtraRequestLevel.ToString();
+
+                    if (e.Reply.Length == requestLevel.Length)
+                    {
+                        var tmpSkillExtra = BufferTokenizer.GetRemainingBytesAsString(
+                            e.Reply, ref offset, end);
+
+                        if (tmpSkillExtra == requestLevel)
+                        {
+                            Logger.Warning("Unsupported ReplyInfo {0}:\n{1}",
+                                e.Request, HexDump.Utils.HexDump(e.Reply));
+
+                            break;
+                        }
+                        else
+                        {
+                            //No match, parse as per normal
+                            offset = 0;
+                        }
+                    }
+
                     while (offset < end)
                     {
                         var SkillID = BufferTokenizer.GetUInt16(e.Reply, ref offset);
