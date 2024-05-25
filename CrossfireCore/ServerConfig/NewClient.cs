@@ -5,6 +5,34 @@ namespace CrossfireCore.ServerConfig
 {
     public static partial class NewClient
     {
+        public enum Map2Type
+        {
+            Clear = 0x00,
+            Darkness = 0x01,
+            Label = 0x02,
+            Layer_1 = 0x10,     //lowest layer
+            Layer_2 = 0x11,
+            Layer_3 = 0x12,
+            Layer_4 = 0x13,
+            Layer_5 = 0x14,
+            Layer_6 = 0x15,
+            Layer_7 = 0x16,
+            Layer_8 = 0x17,
+            Layer_9 = 0x18,
+            Layer_10 = 0x19,    //highest layer (CrossfireCore.ServerConfig.Map.MAP_LAYERS)
+        }
+
+        public enum Map2Type_Label
+        {
+            Player = 1,
+            PlayerParty = 2,
+            DungeonMaster = 3,
+            NPC = 4,
+            Sign = 5,
+            Say = 6,
+            Chat = 7,
+        };
+
         public enum NewDrawInfo //NDI
         {
             Black = 0,

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrossfireCore.ServerConfig;
+using System;
 
 namespace CrossfireCore.ServerInterface
 {
@@ -12,6 +13,7 @@ namespace CrossfireCore.ServerInterface
         public event EventHandler<MapFaceEventArgs> MapFace;
         public event EventHandler<MapAnimationEventArgs> MapAnimation;
         public event EventHandler<MapDarknessEventArgs> MapDarkness;
+        public event EventHandler<MapLabelEventArgs> MapLabel;
         public event EventHandler<MapLocationEventArgs> MapClear;
         public event EventHandler<MapLocationLayerEventArgs> MapClearLayer;
         public event EventHandler<MapLocationEventArgs> MapScroll;
@@ -93,6 +95,17 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
+        protected override void HandleMap2Label(int x, int y, NewClient.Map2Type_Label labelType, string label)
+        {
+            MapLabel?.Invoke(this, new MapLabelEventArgs()
+            {
+                X = x,
+                Y = y,
+                LabelType = labelType,
+                Label = label
+            });
+        }
+
         protected override void HandleMap2Face(int x, int y, int layer, ushort face, byte smooth)
         {
             MapFace?.Invoke(this, new MapFaceEventArgs()
@@ -148,6 +161,14 @@ namespace CrossfireCore.ServerInterface
             public int X { get; set; }
             public int Y { get; set; }
             public byte Darkness { get; set; }
+        }
+
+        public class MapLabelEventArgs : MessageHandlerEventArgs
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+            public NewClient.Map2Type_Label LabelType { get; set; }
+            public string Label { get; set; }
         }
 
         public class MapLocationEventArgs : MessageHandlerEventArgs

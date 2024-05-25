@@ -16,7 +16,7 @@ namespace CrossfireCore.ServerInterface
         /// <summary>
         /// CrossfireCore.ServerInterface can send protocol messages up to and including version:
         /// </summary>
-        public const int ServerProtocolMaximumVersion = 1029;
+        public const int ServerProtocolMaximumVersion = 1030;
 
         //Save the protocol version for the parser
         public int ServerProtocolVersion { get; private set; } = 0;

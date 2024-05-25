@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrossfireCore.ServerConfig;
+using System;
 
 namespace CrossfireCore.ServerInterface
 {
@@ -18,6 +19,7 @@ namespace CrossfireCore.ServerInterface
         protected abstract void HandleMap2Clear(int x, int y);
         protected abstract void HandleMap2Scroll(int x, int y);
         protected abstract void HandleMap2Darkness(int x, int y, byte darkness);
+        protected abstract void HandleMap2Label(int x, int y, NewClient.Map2Type_Label labelType, string label);
 
         /// <summary>
         /// Clear face, animation and smooth at the given x/y co-ords (face/animation was 0)
@@ -32,7 +34,7 @@ namespace CrossfireCore.ServerInterface
         /// <summary>
         /// Add animation and smoothing info at the given x/y co-ords
         /// </summary>
-        protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation, 
+        protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation,
             int animationtype, byte animationspeed, byte smooth);
 
         protected abstract void HandleSmooth(UInt16 face, UInt16 smooth);
@@ -84,45 +86,63 @@ namespace CrossfireCore.ServerInterface
                     if (map_len_type == 0xFF)
                         break;
 
-                    var map_data_len = (map_len_type >> 5) & 0x07;      //top 3 bits
-                    var map_data_type = (map_len_type) & 0x1F;          //bottom 5 bits
+                    var map_data_len = (map_len_type >> 5) & 0x07;                  //top 3 bits are the data length
+                    var map2_type = (NewClient.Map2Type)((map_len_type) & 0x1F);    //bottom 5 bits is the map2_type
 
-                    //currently unused
+                    //A length of 7 indicates the next byte holds the full length
+                    //for server protocol 1030+. Previous protocol versions did
+                    //not implement this, but the comments were ambiguous on how
+                    //to handle this case (was the length additive or explicitly
+                    //set). So, throw an exception if the protocol version is
+                    //incorrect and the parser encounters a length of 7.
                     if (map_data_len == 0x07)
                     {
-                        map_data_len += BufferTokenizer.GetByte(Message, ref DataOffset);
-                        throw new MessageParserException("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
+                        if (ServerProtocolVersion < 1030)
+                            throw new MessageParserException("Invalid map_data_len: Multibyte len is unused: " + map_data_len.ToString());
+
+                        map_data_len = BufferTokenizer.GetByte(Message, ref DataOffset);
                     }
 
-                    switch (map_data_type)
+                    switch (map2_type)
                     {
-                        case 0x00: //clear
+                        case NewClient.Map2Type.Clear:
                             if (map_data_len != 0)
-                                throw new MessageParserException("Invalid map_data_len: must be 0");
+                                throw new MessageParserException("Invalid map_data_len: must be 0 for clear");
 
                             HandleMap2Clear(map_coord_x, map_coord_y);
                             break;
 
-                        case 0x01: //darkness
+                        case NewClient.Map2Type.Darkness:
                             if (map_data_len != 1)
-                                throw new MessageParserException("Invalid map_data_len: must be 1");
+                                throw new MessageParserException("Invalid map_data_len: must be 1 for darkness");
 
                             var darkness = BufferTokenizer.GetByte(Message, ref DataOffset); //0=dark, 255=light
 
                             HandleMap2Darkness(map_coord_x, map_coord_y, darkness);
                             break;
 
-                        case 0x10:  //lowest layer
-                        case 0x11:
-                        case 0x12:
-                        case 0x13:
-                        case 0x14:
-                        case 0x15:
-                        case 0x16:
-                        case 0x17:
-                        case 0x18:
-                        case 0x19:    //highest layer
-                            var layer = map_data_type - 0x10;
+                        case NewClient.Map2Type.Label:
+                            if (map_data_len <= 1)
+                                throw new MessageParserException("Invalid map_data_len: must > 1 for label");
+
+                            var labelType = BufferTokenizer.GetByte(Message, ref DataOffset);
+                            var labelLen = BufferTokenizer.GetByte(Message, ref DataOffset);
+                            var label = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, labelLen);
+
+                            HandleMap2Label(map_coord_x, map_coord_y, (NewClient.Map2Type_Label)labelType, label);
+                            break;
+
+                        case NewClient.Map2Type.Layer_1:
+                        case NewClient.Map2Type.Layer_2:
+                        case NewClient.Map2Type.Layer_3:
+                        case NewClient.Map2Type.Layer_4:
+                        case NewClient.Map2Type.Layer_5:
+                        case NewClient.Map2Type.Layer_6:
+                        case NewClient.Map2Type.Layer_7:
+                        case NewClient.Map2Type.Layer_8:
+                        case NewClient.Map2Type.Layer_9:
+                        case NewClient.Map2Type.Layer_10:
+                            var layer = map2_type - NewClient.Map2Type.Layer_1;
 
                             var face_or_animation = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                             var is_animation = (face_or_animation >> 15) != 0; //high bit set
@@ -169,7 +189,7 @@ namespace CrossfireCore.ServerInterface
                             break;
 
                         default:
-                            throw new MessageParserException("Invalid map_data_type: " + map_data_type.ToString());
+                            throw new MessageParserException("Invalid map_data_type: " + map2_type.ToString());
                     }
                 }
 
@@ -186,7 +206,7 @@ namespace CrossfireCore.ServerInterface
             var face = BufferTokenizer.GetUInt16(Message, ref DataOffset);
             var smoothpic = BufferTokenizer.GetUInt16(Message, ref DataOffset);
             HandleSmooth(face, smoothpic);
-            
+
             return true;
         }
     }
