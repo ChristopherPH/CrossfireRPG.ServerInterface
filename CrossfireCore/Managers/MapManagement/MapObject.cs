@@ -183,6 +183,80 @@ namespace CrossfireCore.Managers.MapManagement
             if (MapCell.WorldY > MaxY) MaxY = MapCell.WorldY;
         }
 
+        /// <summary>
+        /// Gets a cell using tile co-ordinates relative to the player
+        /// </summary>
+        /// <param name="RelativeX">Tile offset relative to player - player is at tile co-ordinates 0,0</param>
+        /// <param name="RelativeY">Tile offset relative to player - player is at tile co-ordinates 0,0</param>
+        /// <returns>Map Cell</returns>
+        public MapCell GetRelativeCell(int RelativeX, int RelativeY)
+        {
+            var worldX = PlayerX + RelativeX;
+            var worldY = PlayerY + RelativeY;
+
+            if (_cells.TryGetElement(worldX, worldY, out var mapCell))
+                return mapCell;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets cell using tile co-ordinates within the viewport
+        /// </summary>
+        /// <param name="ViewportX">Tile offset within viewport - top left is tile co-ordinates 0,0</param>
+        /// <param name="ViewportY">Tile offset within viewport - top left is tile co-ordinates 0,0</param>
+        /// <returns></returns>
+        public MapCell GetViewportCell(int ViewportX, int ViewportY)
+        {
+            var worldX = PlayerX - (ViewportWidth / 2) + ViewportX;
+            var worldY = PlayerY - (ViewportHeight / 2) + ViewportY;
+
+            if (_cells.TryGetElement(worldX, worldY, out var mapCell))
+                return mapCell;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Given a map cell, get the co-ordinates of the cell relative to the player
+        /// </summary>
+        /// <param name="MapCell">Cell to get relative co-ordinates of</param>
+        /// <param name="RelativeX">Variable to store relative co-ordinates - player is at tile co-ordinates 0,0</param>
+        /// <param name="RelativeY">Variable to store relative co-ordinates - player is at tile co-ordinates 0,0</param>
+        /// <returns>true if map cell is valid</returns>
+        public bool GetRelativeCoordinates(MapCell MapCell, out int RelativeX, out int RelativeY)
+        {
+            RelativeX = RelativeY = 0;
+
+            if (MapCell == null)
+                return false;
+
+            RelativeX = MapCell.WorldX - PlayerX;
+            RelativeY = MapCell.WorldY - PlayerY;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Given a map cell, get the co-ordinates of the cell in the viewport
+        /// </summary>
+        /// <param name="MapCell">Cell to get viewport co-ordinates of</param>
+        /// <param name="ViewportX">Variable to store viewport co-ordinates - top left is tile co-ordinates 0,0</param>
+        /// <param name="ViewportY">Variable to store viewport co-ordinates - top left is tile co-ordinates 0,0</param>
+        /// <returns>true if map cell is valid</returns>
+        public bool GetViewportCoordinates(MapCell MapCell, out int ViewportX, out int ViewportY)
+        {
+            ViewportX = ViewportY = 0;
+
+            if (MapCell == null)
+                return false;
+
+            ViewportX = MapCell.WorldX + (ViewportWidth / 2) - PlayerX;
+            ViewportY = MapCell.WorldY + (ViewportHeight / 2) - PlayerY;
+
+            return true;
+        }
+
         /*
         private struct MapCoord
         {
