@@ -55,6 +55,11 @@ namespace CrossfireCore.Managers.MapManagement
         public int Width => IsEmpty ? 0 : MaxX - MinX + 1;
         public int Height => IsEmpty ? 0 : MaxY - MinY + 1;
 
+
+        public int ViewportX => PlayerX - (ViewportWidth / 2);
+        public int ViewportY => PlayerY - (ViewportHeight / 2);
+
+
 #if MAPOBJECT_SERIALIZATION
         [XmlAttribute]
 #endif
