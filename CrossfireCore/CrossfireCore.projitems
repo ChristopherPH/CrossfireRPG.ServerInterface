@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataModificationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\AnimationManagement\AnimationDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\ContainerModifiedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\Item.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\KnowledgeManagement\Knowledge.cs" />
