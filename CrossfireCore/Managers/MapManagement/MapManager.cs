@@ -34,7 +34,7 @@ namespace CrossfireCore.Managers.MapManagement
             Handler.MapScroll += Handler_MapScroll;
 
             //Other managers
-            _animationManager = animationManager;
+            AnimationManager = animationManager;
         }
 
         public static Logger Logger { get; } = new Logger(nameof(MapManager));
@@ -46,7 +46,7 @@ namespace CrossfireCore.Managers.MapManagement
             DataModificationTypes.Updated | //Raised when a map has been updated
             DataModificationTypes.Cleared;  //Raised when a map has been cleared
 
-        private AnimationDataManager _animationManager;
+        public AnimationDataManager AnimationManager { get; }
 
         /// <summary>
         /// Managed Map Object
@@ -374,7 +374,7 @@ namespace CrossfireCore.Managers.MapManagement
                 };
 
                 layer.AnimationState.SetAnimation(layer.AnimationType, layer.AnimationSpeed,
-                    _animationManager.GetAnimationFrameCount(layer.Animation));
+                    AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0);
 
                 if (cell.Layers[e.Layer] != layer)
                 {
