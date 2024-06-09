@@ -1,4 +1,5 @@
 ﻿using Common;
+using CrossfireCore.Managers.AnimationManagement;
 using CrossfireCore.Managers.MapSizeManagement;
 using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
@@ -9,12 +10,12 @@ namespace CrossfireCore.Managers.MapManagement
 {
     public class MapManager : DataObjectManager<MapObject>
     {
-        public MapManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
+        public MapManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler,
+            AnimationDataManager animationManager)
             : base(Connection, Builder, Handler)
         {
             //Individual events
             Handler.Setup += Handler_Setup;
-            Handler.Animation += Handler_Animation;
             Handler.NewMap += Handler_NewMap;
             Handler.Player += Handler_Player;
             Handler.Smooth += Handler_Smooth;
@@ -31,6 +32,9 @@ namespace CrossfireCore.Managers.MapManagement
             Handler.MapClear += Handler_MapClear;
             Handler.MapClearLayer += Handler_MapClearLayer;
             Handler.MapScroll += Handler_MapScroll;
+
+            //Other managers
+            _animationManager = animationManager;
         }
 
         public static Logger Logger { get; } = new Logger(nameof(MapManager));
@@ -41,6 +45,8 @@ namespace CrossfireCore.Managers.MapManagement
             DataModificationTypes.Added |   //Raised after a map has been populated for the first time
             DataModificationTypes.Updated | //Raised when a map has been updated
             DataModificationTypes.Cleared;  //Raised when a map has been cleared
+
+        private AnimationDataManager _animationManager;
 
         /// <summary>
         /// Managed Map Object
@@ -66,9 +72,6 @@ namespace CrossfireCore.Managers.MapManagement
         //Private variables
         object _mapDataLock = new object();
         bool _populatingNewMap = false;
-        Dictionary<UInt16, UInt16[]> Animations = new Dictionary<UInt16, UInt16[]>();
-        Dictionary<UInt16, SynchronizedAnimation> _synchronizedAnimations =
-            new Dictionary<ushort, SynchronizedAnimation>();
         int _mapScrollX = 0;
         int _mapScrollY = 0;
         int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
@@ -91,11 +94,9 @@ namespace CrossfireCore.Managers.MapManagement
             lock (_mapDataLock)
                 MapObject.ClearMap();
 
-            _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
 
             //Items to clear on server disconnect
-            Animations.Clear();
             CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
             CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
             _smoothFaces.Clear();
@@ -117,7 +118,6 @@ namespace CrossfireCore.Managers.MapManagement
                     MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
                 }
 
-                _synchronizedAnimations.Clear();
                 _mapScrollX = _mapScrollY = 0;
 
                 OnDataChanged(DataModificationTypes.Cleared, MapObject);
@@ -144,11 +144,6 @@ namespace CrossfireCore.Managers.MapManagement
             //so we need to adjust the viewport after the map has been
             //created
             MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
-        }
-
-        private void Handler_Animation(object sender, MessageHandler.AnimationEventArgs e)
-        {
-            Animations[e.AnimationNumber] = e.AnimationFaces;
         }
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
@@ -252,7 +247,6 @@ namespace CrossfireCore.Managers.MapManagement
                 MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
             }
 
-            _synchronizedAnimations.Clear();
             _mapScrollX = _mapScrollY = 0;
 
             //Mark that next map population is the first display
@@ -373,14 +367,14 @@ namespace CrossfireCore.Managers.MapManagement
                 //add or set animation layer
                 var layer = new MapLayer()
                 {
-                    IsAnimation = true,
-                    Face = e.Animation, //should save animation ID seperate, we want this to be the actual face to render
-                    CurrentFrame = 0,
-                    AnimationSpeed = e.AnimationSpeed,
-                    animationType = (AnimationTypes)e.AnimationType,
-                    CurrentTick = 0,
                     SmoothLevel = e.Smooth,
+                    Animation = e.Animation,
+                    AnimationType = e.AnimationType,
+                    AnimationSpeed = e.AnimationSpeed,
                 };
+
+                layer.AnimationState.SetAnimation(layer.AnimationType, layer.AnimationSpeed,
+                    _animationManager.GetAnimationFrameCount(layer.Animation));
 
                 if (cell.Layers[e.Layer] != layer)
                 {
@@ -541,25 +535,67 @@ namespace CrossfireCore.Managers.MapManagement
         {
             lock (_mapDataLock)
             {
-                foreach (var cell in MapObject.Cells)
+                var args = new MapUpdatedEventArgs();
+                bool updated = false;
+
+                //set base properties, other MapUpdatedEventArgs
+                //have been updated
+                args.Modification = DataModificationTypes.Updated;
+                args.Data = MapObject;
+                args.UpdatedProperties = null;
+                args.TickChanged = true;
+
+                //Update synchronized animations
+                var updatedAnimations = new HashSet<UInt16>();
+
+                var updatedSyncedAnimations = MapObject.UpdateSynchronizedAnimations();
+
+                /* On a tick, only update cells in the viewport */
+                for (int y = MapObject.ViewportY, dy = 0; dy <= MapObject.Height; y++, dy++)
                 {
-                    //TODO: Determine if we update animations on 
-                    //      FOW or out of map cells
-                    if (!cell.Visible)
-                        continue;
-
-                    foreach (var layer in cell.Layers)
+                    for (int x = MapObject.ViewportX, dx = 0; dx <= MapObject.Width; x++, dx++)
                     {
-                        if (layer == null)
+                        var cell = MapObject.GetCell(x, y);
+                        if (cell == null)
                             continue;
 
-                        if (!layer.IsAnimation)
-                            continue;
+                        foreach (var layer in cell.Layers)
+                        {
+                            if (layer == null)
+                                continue;
 
-                        //TODO: update animation
+                            if (!layer.IsAnimation)
+                                continue;
 
-                        cell.Updated = true;
+                            switch (layer.AnimationType)
+                            {
+                                case Map.AnimationTypes.Normal:
+                                case Map.AnimationTypes.Randomize:
+                                    cell.Updated = layer.AnimationState.UpdateAnimation();
+                                    break;
+
+                                case Map.AnimationTypes.Synchronize:
+                                    if (updatedSyncedAnimations.Contains(layer.Animation))
+                                        cell.Updated = true;
+                                    break;
+                            }
+
+                            if (cell.Updated)
+                            {
+                                OnMapCellUpdated(cell);
+                                args.CellLocations.Add(new MapCellLocation(x, y));
+                                args.InsideViewportChanged = true;
+                                cell.Updated = false;
+                                updated = true;
+                            }
+                        }
                     }
+                }
+
+                if (updated)
+                {
+                    OnDataChanged(args);
+                    OnMapUpdated(args);
                 }
             }
         }
@@ -694,6 +730,11 @@ namespace CrossfireCore.Managers.MapManagement
         /// True if cells inside the viewport changed during this update
         /// </summary>
         public bool OutsideViewportChanged { get; set; } = false;
+
+        /// <summary>
+        /// True if cells changed during a tick
+        /// </summary>
+        public bool TickChanged { get; set; } = false;
 
         /// <summary>
         /// Gets the min and max of the cell locations

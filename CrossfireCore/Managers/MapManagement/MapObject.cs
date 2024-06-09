@@ -1,5 +1,6 @@
 ﻿#define MAPOBJECT_SERIALIZATION
 using Common;
+using CrossfireCore.ServerConfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +84,40 @@ namespace CrossfireCore.Managers.MapManagement
         [XmlIgnore]
         public IEnumerable<MapCell> Cells => _cells.Where(x => x != null);
 
+
+        private Dictionary<UInt16, MapAnimationState> _SynchronizedAnimations
+            = new Dictionary<UInt16, MapAnimationState>();
+
+        public void AddSynchronizedAnimation(UInt16 Animation, byte AnimationSpeed, int FrameCount)
+        {
+            if (!_SynchronizedAnimations.ContainsKey(Animation))
+            {
+                _SynchronizedAnimations[Animation] = new MapAnimationState(
+                    Map.AnimationTypes.Synchronize, AnimationSpeed, FrameCount);
+            }
+        }
+
+        public HashSet<UInt16> UpdateSynchronizedAnimations()
+        {
+            var updatedAnimations = new HashSet<UInt16>();
+
+            foreach (var kv in _SynchronizedAnimations)
+                if (kv.Value.UpdateAnimation())
+                    updatedAnimations.Add(kv.Key);
+
+            return updatedAnimations;
+        }
+
+        public int GetSynchronizedAnimationFrame(UInt16 Animation)
+        {
+            if (_SynchronizedAnimations.TryGetValue(Animation, out var syncAnimation))
+                return syncAnimation.CurrentFrame;
+
+            //Return the first frame of the animation if the animation
+            //was not able to be found
+            return 0;
+        }
+
 #if MAPOBJECT_SERIALIZATION
         /// <summary>
         /// Create a proxy property for cell values.
@@ -124,6 +159,7 @@ namespace CrossfireCore.Managers.MapManagement
             MaxY = 0;
             PlayerX = 0;
             PlayerY = 0;
+            _SynchronizedAnimations.Clear();
 #if MAPOBJECT_SERIALIZATION
             IsEmpty = true;
 #endif
@@ -294,6 +330,14 @@ namespace CrossfireCore.Managers.MapManagement
                 PlayerY = this.PlayerY,
             };
 
+            //copy sync animations
+            foreach (var kv in _SynchronizedAnimations)
+            {
+                _SynchronizedAnimations[kv.Key] =
+                    kv.Value.SaveMapAnimationState();
+            }
+
+            //copy cells
             foreach (var cell in this.Cells)
             {
                 map.SetCell(cell.SaveCell());
@@ -314,30 +358,28 @@ namespace CrossfireCore.Managers.MapManagement
         public int SmoothLevel { get; set; } = 0;
 
         [XmlAttribute]
-        public bool IsAnimation { get; set; } = false;
+        public UInt16 Animation { get; set; } = 0;
 
-        [XmlIgnore]
+        [XmlAttribute]
+        public Map.AnimationTypes AnimationType { get; set; } = Map.AnimationTypes.Normal;
+
+        [XmlAttribute]
         public byte AnimationSpeed { get; set; } = 0;
 
         [XmlIgnore]
-        public AnimationTypes animationType { get; set; } = AnimationTypes.Normal;
+        public MapAnimationState AnimationState { get; } = new MapAnimationState();
 
         [XmlIgnore]
-        public int CurrentFrame { get; set; } = 0;
-
-        [XmlIgnore]
-        public int CurrentTick { get; set; } = 0;
+        public bool IsAnimation => Animation != 0;
 
         public void ClearLayer()
         {
             Face = 0;
             SmoothLevel = 0;
-            IsAnimation = false;
+            Animation = 0;
             AnimationSpeed = 0;
-            animationType = AnimationTypes.Normal;
 
-            CurrentFrame = 0;
-            CurrentTick = 0;
+            AnimationState.ClearAnimation();
         }
 
         // override object.Equals
@@ -351,18 +393,33 @@ namespace CrossfireCore.Managers.MapManagement
 
         public bool Equals(MapLayer other)
         {
-            return
-                Face == other.Face &&
-                SmoothLevel == other.SmoothLevel &&
-                IsAnimation == other.IsAnimation &&
-                AnimationSpeed == other.AnimationSpeed &&
-                animationType == other.animationType;
+            /* Compare properties common between
+             * animation and face layers */
+            if ((IsAnimation != other.IsAnimation) ||
+                (SmoothLevel != other.SmoothLevel))
+            {
+                return false;
+            }
+
+            /* If the layers are both animations,
+             * then need to compare the type and speed */
+            if (IsAnimation)
+            {
+                return
+                    Animation == other.Animation &&
+                    AnimationType == other.AnimationType &&
+                    AnimationSpeed == other.AnimationSpeed;
+            }
+            else
+            {
+                return Face == other.Face;
+            }
         }
 
         // override object.GetHashCode
         public override int GetHashCode()
         {
-            return Tuple.Create(Face, SmoothLevel, IsAnimation, AnimationSpeed, animationType).GetHashCode();
+            return Tuple.Create(Face, SmoothLevel, Animation, AnimationType, AnimationSpeed).GetHashCode();
         }
 
         public static bool operator ==(MapLayer x, MapLayer y)
@@ -381,7 +438,7 @@ namespace CrossfireCore.Managers.MapManagement
         public override string ToString()
         {
             if (IsAnimation)
-                return $"Anim: {Face}";
+                return $"Anim: {Animation}";
             else
                 return $"Face: {Face}";
         }
@@ -392,12 +449,13 @@ namespace CrossfireCore.Managers.MapManagement
             {
                 Face = this.Face,
                 SmoothLevel = this.SmoothLevel,
-                IsAnimation = this.IsAnimation,
+                Animation = this.Animation,
+                AnimationType = this.AnimationType,
                 AnimationSpeed = this.AnimationSpeed,
-                animationType = this.animationType,
-                CurrentFrame = this.CurrentFrame,
-                CurrentTick = this.CurrentTick,
             };
+
+            //TODO: Consider also saving the state
+            //AnimationState = this.AnimationState.SaveMapAnimationState(),
         }
     }
 
@@ -491,20 +549,102 @@ namespace CrossfireCore.Managers.MapManagement
         }
     }
 
-    public class SynchronizedAnimation
+    public class MapAnimationState
     {
-        public UInt16 Animation { get; set; }
-        public byte AnimationSpeed { get; set; } //in ticks (1 = every tick)
-        public int CurrentTick { get; set; } = 0;
-        public int CurrentFrame { get; set; } = 0;
+        public MapAnimationState()
+        {
+            ClearAnimation();
+        }
+
+        public MapAnimationState(Map.AnimationTypes animationType, int Speed, int FrameCount)
+        {
+            SetAnimation(animationType, Speed, FrameCount);
+        }
+
+        private Map.AnimationTypes _AnimationType;
+        private int _AnimationSpeed;
+        private int _AnimationFrameCount;
+
+        public int CurrentTick { get; private set; } = 0;
+        public int CurrentFrame { get; private set; } = 0;
+
+        public void ClearAnimation()
+        {
+            SetAnimation(0, 0, 0);
+            ResetState();
+        }
+
+        public void SetAnimation(Map.AnimationTypes animationType, int Speed, int FrameCount)
+        {
+            _AnimationType = animationType;
+            _AnimationSpeed = Speed;
+            _AnimationFrameCount = FrameCount;
+
+            ResetState();
+        }
+
+        public void ResetState()
+        {
+            if (_AnimationType == Map.AnimationTypes.Randomize)
+            {
+                CurrentFrame = new Random().Next(0, _AnimationFrameCount);
+                CurrentTick = new Random().Next(0, _AnimationSpeed);
+            }
+            else
+            {
+                CurrentTick = 0;
+                CurrentFrame = 0;
+            }
+        }
+
+        /// <summary>
+        /// Updates the animation tick, and changes the frame when needed
+        /// </summary>
+        /// <returns>true if the frame changed</returns>
+        public bool UpdateAnimation()
+        {
+            //Update tick until it rolls over the speed,
+            //then set next frame
+            CurrentTick++;
+            if (CurrentTick < _AnimationSpeed)
+                return false;
+
+            CurrentTick = 0;
+
+            //Randomize next frame
+            if (_AnimationType == Map.AnimationTypes.Randomize)
+            {
+                var frame = new Random().Next(0, _AnimationFrameCount);
+
+                if (CurrentFrame == frame)
+                    return false;
+
+                CurrentFrame = frame;
+                return true;
+            }
+
+            //set next frame
+            CurrentFrame++;
+
+            if (CurrentFrame >= _AnimationFrameCount)
+                CurrentFrame = 0;
+
+            return true;
+        }
+
+        public MapAnimationState SaveMapAnimationState()
+        {
+            return new MapAnimationState()
+            {
+                _AnimationType = this._AnimationType,
+                _AnimationSpeed = this._AnimationSpeed,
+                _AnimationFrameCount = this._AnimationFrameCount,
+                CurrentTick = this.CurrentTick,
+                CurrentFrame = this.CurrentFrame,
+            };
+        }
     }
 
-    public enum AnimationTypes
-    {
-        Normal = 0,
-        Randomize = 1,
-        Synchronize = 2
-    }
 
 #if UNUSED
 
