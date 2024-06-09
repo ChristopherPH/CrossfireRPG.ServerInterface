@@ -29,7 +29,8 @@ namespace CrossfireCore.Managers.AnimationManagement
 
         private object _AnimationLock = new object();
 
-        private Dictionary<UInt32, AnimationInfo> _Animations { get; } = new Dictionary<UInt32, AnimationInfo>();
+        private Dictionary<UInt32, AnimationInfo> _Animations { get; } =
+            new Dictionary<UInt32, AnimationInfo>();
 
         public event EventHandler<AnimationAvailableEventArgs> AnimationAvailable;
 
@@ -65,10 +66,7 @@ namespace CrossfireCore.Managers.AnimationManagement
             if (!hasAnimation)
                 return 0;
 
-            if (FrameNumber >= animationInfo.Faces.Length)
-                return 0;
-
-            return animationInfo.Faces[FrameNumber];
+            return animationInfo.GetFrame(FrameNumber);
         }
 
         public int GetAnimationFrameCount(UInt16 AnimationNumber)
@@ -87,7 +85,7 @@ namespace CrossfireCore.Managers.AnimationManagement
             if (!hasAnimation)
                 return 0;
 
-            return animationInfo.Faces.Length;
+            return animationInfo.FrameCount;
         }
 
         private void _Handler_Animation(object sender, MessageHandler.AnimationEventArgs e)
@@ -125,6 +123,22 @@ namespace CrossfireCore.Managers.AnimationManagement
             /// Array of faces, represent animation frames
             /// </summary>
             public UInt16[] Faces { get; set; }
+
+            /// <summary>
+            /// Number of faces/frames in animation
+            /// </summary>
+            public int FrameCount => Faces?.Length ?? 0;
+
+            /// <summary>
+            /// Gets a faces/frame given a frame number
+            /// </summary>
+            public UInt16 GetFrame(int FrameNumber)
+            {
+                if ((FrameNumber < 0) || (FrameNumber >= FrameCount))
+                    return 0;
+
+                return Faces[FrameNumber];
+            }
         }
     }
 
