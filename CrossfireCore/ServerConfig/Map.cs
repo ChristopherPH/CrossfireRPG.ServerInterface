@@ -17,5 +17,12 @@
             MAP_LAYER_FLY1 = 8,         /* Flying objects - creatures, spells */
             MAP_LAYER_FLY2 = 9,         /* Arrows, etc */
         }
+
+        public enum AnimationTypes
+        {
+            Normal = 0,
+            Randomize = 1,
+            Synchronize = 2
+        }
     }
 }
