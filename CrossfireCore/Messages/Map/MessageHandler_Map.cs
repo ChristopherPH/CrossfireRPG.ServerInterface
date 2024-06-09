@@ -60,7 +60,7 @@ namespace CrossfireCore.ServerInterface
                 Y = y,
                 Layer = layer,
                 Animation = animation,
-                AnimationType = animationtype,
+                AnimationType = (Map.AnimationTypes)animationtype,
                 AnimationSpeed = animationspeed,
                 Smooth = smooth,
             });
@@ -151,7 +151,7 @@ namespace CrossfireCore.ServerInterface
             public int Y { get; set; }
             public int Layer { get; set; }
             public UInt16 Animation { get; set; }
-            public int AnimationType { get; set; }
+            public Map.AnimationTypes AnimationType { get; set; }
             public byte AnimationSpeed { get; set; }
             public byte Smooth { get; set; }
         }
