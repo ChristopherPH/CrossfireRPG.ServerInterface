@@ -373,8 +373,23 @@ namespace CrossfireCore.Managers.MapManagement
                     AnimationSpeed = e.AnimationSpeed,
                 };
 
-                layer.AnimationState.SetAnimation(layer.AnimationType, layer.AnimationSpeed,
-                    AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0);
+                var frameCount = AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0;
+
+                switch (layer.AnimationType)
+                {
+                    default:
+                    case Map.AnimationTypes.Normal:
+                    case Map.AnimationTypes.Randomize:
+                        layer.AnimationState.SetAnimation(layer.AnimationType,
+                            layer.AnimationSpeed, frameCount);
+                        break;
+
+                    case Map.AnimationTypes.Synchronize:
+                        MapObject.AddSynchronizedAnimation(layer.Animation,
+                            layer.AnimationSpeed, frameCount);
+                        break;
+                }
+
 
                 if (cell.Layers[e.Layer] != layer)
                 {
@@ -545,7 +560,8 @@ namespace CrossfireCore.Managers.MapManagement
                 args.UpdatedProperties = null;
                 args.TickChanged = true;
 
-                //Update synchronized animations
+                //Update synchronized animations and save set of
+                //animations that have actually changed frames
                 var updatedAnimations = new HashSet<UInt16>();
 
                 var updatedSyncedAnimations = MapObject.UpdateSynchronizedAnimations();
@@ -569,12 +585,16 @@ namespace CrossfireCore.Managers.MapManagement
 
                             switch (layer.AnimationType)
                             {
+                                default:
                                 case Map.AnimationTypes.Normal:
                                 case Map.AnimationTypes.Randomize:
                                     cell.Updated = layer.AnimationState.UpdateAnimation();
                                     break;
 
                                 case Map.AnimationTypes.Synchronize:
+                                    //Check if this animation exists in saved
+                                    //set of anumations that actually changed
+                                    //frames
                                     if (updatedSyncedAnimations.Contains(layer.Animation))
                                         cell.Updated = true;
                                     break;

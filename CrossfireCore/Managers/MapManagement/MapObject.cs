@@ -331,7 +331,8 @@ namespace CrossfireCore.Managers.MapManagement
             };
 
             //copy sync animations
-            foreach (var kv in _SynchronizedAnimations)
+            //HACK: save a list to avoid enumeration change errors
+            foreach (var kv in _SynchronizedAnimations.ToList())
             {
                 _SynchronizedAnimations[kv.Key] =
                     kv.Value.SaveMapAnimationState();
