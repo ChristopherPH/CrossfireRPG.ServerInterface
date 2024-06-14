@@ -16,7 +16,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\ContainerModifiedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\Item.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\KnowledgeManagement\Knowledge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapAnimationState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapCallUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapCell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\Quest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkillManagement\Skill.cs" />
