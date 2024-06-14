@@ -271,7 +271,7 @@ namespace CrossfireCore.ServerConfig
             /// Has X-ray
             /// </summary>
             [Description("X-Ray")]
-            XRay = 0x80,
+            XRay = 0x08,
 
             /// <summary>
             /// Has at least one disease
