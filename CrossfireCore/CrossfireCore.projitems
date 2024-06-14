@@ -16,6 +16,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\ContainerModifiedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\Item.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\KnowledgeManagement\Knowledge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapCallUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\Quest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkillManagement\Skill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SpellManagement\Spell.cs" />
@@ -96,7 +98,6 @@
     <Folder Include="$(MSBuildThisFileDirectory)Core\Parser\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\InfoManagement\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Managers\MapManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\MessageManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\MapSizeManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\PlayerManagement\" />
