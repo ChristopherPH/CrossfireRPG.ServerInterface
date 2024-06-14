@@ -19,9 +19,21 @@ namespace CrossfireCore.Managers.MapManagement
         [XmlAttribute]
         public int WorldY { get; set; } = 0;
 
+        /// <summary>
+        /// Flag indicating cell is part of Fog of War information,
+        /// and is not technically visible in the viewport.
+        /// The server has sent a message to clear this cell but
+        /// instead of clearing, this flag is set.
+        /// </summary>
         [XmlIgnore]
-        public bool Visible { get; set; } = false;
+        public bool FogOfWar { get; set; } = false;
 
+        /// <summary>
+        /// Flag indicating cell was sent to populate multi-tile
+        /// spaces that are inside the viewport, but the cell is
+        /// not actually inside the viewport. Note that an OOB
+        /// cell could also become a Fog of War cell.
+        /// </summary>
         [XmlIgnore]
         public bool OutOfBounds { get; set; } = false;
 
@@ -41,6 +53,8 @@ namespace CrossfireCore.Managers.MapManagement
         {
             WorldX = 0;
             WorldY = 0;
+            FogOfWar = false;
+            OutOfBounds = false;
             ClearDarkness();
             ClearLayers();
         }
@@ -76,7 +90,7 @@ namespace CrossfireCore.Managers.MapManagement
 
         public override string ToString()
         {
-            return $"Cell:{WorldX}/{WorldY} Vis:{Visible}";
+            return $"Cell:{WorldX}/{WorldY} FOW:{FogOfWar}";
         }
 
         public MapCell SaveCell()
@@ -85,7 +99,8 @@ namespace CrossfireCore.Managers.MapManagement
             {
                 WorldX = this.WorldX,
                 WorldY = this.WorldY,
-                Visible = this.Visible,
+                FogOfWar = this.FogOfWar,
+                OutOfBounds = this.OutOfBounds,
                 Darkness = this.Darkness,
             };
 

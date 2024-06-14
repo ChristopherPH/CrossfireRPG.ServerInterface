@@ -271,19 +271,22 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell is invisible, it means
-                    //that it has gone out of view.
-                    //Since we've now gotten a face, so we need to clear
+                    //if the pre-existing cell was part of FOW data,
+                    //it means that it had previously gone out of view.
+                    //Since we've now gotten information, we need to clear
                     //the cell data like the server would so we can start
                     //the tile fresh.
                     //However, if the cell was originally out of bounds,
                     //then the server would not have ever cleared the tile
-                    //so we can ignore this.
-                    if (!cell.Visible && !OutOfBounds)
+                    //so we can ignore this. (The server doesn't remember
+                    //when it sends OOB data so it doesn't ever clear it.)
+                    if (cell.FogOfWar && !OutOfBounds)
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
-                        cell.Updated = true;
+                        cell.FogOfWar = false;
+                        cell.OutOfBounds = false;
+                        cell.Updated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -318,10 +321,10 @@ namespace CrossfireCore.Managers.MapManagement
                 }
 
                 //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear command
-                //for this data.
+                //out of bounds, and note the server doesn't send a clear
+                //command for this data.
                 cell.OutOfBounds = OutOfBounds;
-                cell.Visible = true;
+                cell.FogOfWar = false;
             }
         }
 
@@ -339,19 +342,22 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell is invisible, it means
-                    //that it had gone out of view.
-                    //Since we've now gotten a face, so we need to clear
-                    //the cell data like the server expects, so we can start
-                    //the cell fresh.
+                    //if the pre-existing cell was part of FOW data,
+                    //it means that it had previously gone out of view.
+                    //Since we've now gotten information, we need to clear
+                    //the cell data like the server would so we can start
+                    //the tile fresh.
                     //However, if the cell was originally out of bounds,
                     //then the server would not have ever cleared the tile
                     //so we can ignore this. (The server doesn't remember
                     //when it sends OOB data so it doesn't ever clear it.)
-                    if (!cell.Visible && !OutOfBounds)
+                    if (cell.FogOfWar && !OutOfBounds)
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
+                        cell.FogOfWar = false;
+                        cell.OutOfBounds = false;
+                        cell.Updated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -400,10 +406,10 @@ namespace CrossfireCore.Managers.MapManagement
                 }
 
                 //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear command
-                //for this data.
+                //out of bounds, and note the server doesn't send a clear
+                //command for this data.
                 cell.OutOfBounds = OutOfBounds;
-                cell.Visible = true;
+                cell.FogOfWar = false;
             }
         }
 
@@ -418,15 +424,18 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell is invisible, it means
-                    //that it has gone out of view. However, we've now
-                    //gotten a face, so we need to clear the cell data
-                    //so we can start fresh
-                    if (!cell.Visible)
+                    //if the pre-existing cell was part of FOW data,
+                    //it means that it had previously gone out of view.
+                    //Since we've now gotten information, we need to clear
+                    //the cell data like the server would so we can start
+                    //the tile fresh.
+                    if (cell.FogOfWar)
                     {
                         cell.ClearDarkness();
                         cell.ClearLayers();
-                        cell.Updated = true;
+                        cell.FogOfWar = false;
+                        cell.OutOfBounds = false;
+                        cell.Updated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -446,7 +455,7 @@ namespace CrossfireCore.Managers.MapManagement
                     cell.Updated = true;
                 }
 
-                cell.Visible = true;
+                cell.FogOfWar = false;
             }
         }
 
@@ -463,12 +472,12 @@ namespace CrossfireCore.Managers.MapManagement
 
                 if (cell != null)
                 {
-                    //instead of removing the cell, set its visibility
-                    //to false indicating it is out of the viewport and
+                    //instead of removing the cell, set the Fog of War
+                    //flag indicating it is out of the viewport and
                     //part of fog of war. When we recieve a new face or
                     //animation for this cell the visibility will be set
                     //to true as it will be back in the viewport.
-                    cell.Visible = false;
+                    cell.FogOfWar = true;
                     cell.Updated = true;
                 }
             }
@@ -495,9 +504,6 @@ namespace CrossfireCore.Managers.MapManagement
 
         private void Handler_MapScroll(object sender, MessageHandler.MapLocationEventArgs e)
         {
-            var oldScrollX = _mapScrollX;
-            var oldScrollY = _mapScrollY;
-
             _mapScrollX += e.X;
             _mapScrollY += e.Y;
 
@@ -522,14 +528,14 @@ namespace CrossfireCore.Managers.MapManagement
                     //Check if visible cell has gone out of viewport.
                     //Note this doesn't catch cells that were already
                     //not visible (F.O.W) then moved out of the viewport.
-                    if (cell.Visible && !IsMapCellInViewport(cell))
+                    if (!cell.FogOfWar && !IsMapCellInViewport(cell))
                     {
                         //mark cell as part of fog of war and notify any listeners.
                         //Note that the mapscroll is sent before any cells are
                         //added/cleared/updated, so we have to manually trigger
                         //cell updated here (as these cells are now out of the
                         //viewport and will never be updated)
-                        cell.Visible = false;
+                        cell.FogOfWar = true;
                         OnMapCellUpdated(cell);
                         workingUpdateArgs.CellLocations.Add(
                             new MapUpdatedEventArgs.MapCellLocation(cell.WorldX, cell.WorldY));

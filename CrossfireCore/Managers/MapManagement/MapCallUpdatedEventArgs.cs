@@ -12,6 +12,5 @@ namespace CrossfireCore.Managers.MapManagement
         public MapCell MapCell { get; }
         public int WorldX => MapCell.WorldX;
         public int WorldY => MapCell.WorldY;
-        public bool Visible => MapCell.Visible;
     }
 }
