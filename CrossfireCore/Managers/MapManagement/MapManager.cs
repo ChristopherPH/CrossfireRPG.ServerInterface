@@ -477,8 +477,11 @@ namespace CrossfireCore.Managers.MapManagement
                     //part of fog of war. When we recieve a new face or
                     //animation for this cell the visibility will be set
                     //to true as it will be back in the viewport.
-                    cell.FogOfWar = true;
-                    cell.Updated = true;
+                    if (!cell.FogOfWar)
+                    {
+                        cell.FogOfWar = true;
+                        cell.Updated = true;
+                    }
                 }
             }
         }
@@ -504,6 +507,9 @@ namespace CrossfireCore.Managers.MapManagement
 
         private void Handler_MapScroll(object sender, MessageHandler.MapLocationEventArgs e)
         {
+            var oldViewportX = MapObject.ViewportX;
+            var oldViewportY = MapObject.ViewportY;
+
             _mapScrollX += e.X;
             _mapScrollY += e.Y;
 
@@ -513,36 +519,40 @@ namespace CrossfireCore.Managers.MapManagement
             workingUpdateArgs.MapScrollX = e.X;
             workingUpdateArgs.MapScrollY = e.Y;
 
-            //any cells that were visible prior to this mapscroll, but
-            //became invisible after the map scroll should be marked
-            //so that we can update them if we get new map data for the
-            //co-ordinates. (invisible data is used for fog of war data)
+            //Check for any visible cells that were in the viewport prior to
+            //this mapscroll, but have now been scrolled out of the viewport.
+            //Instead of claring these cells, mark them as Fog of War data.
             //Basically the server doesn't expect these cells to exist
             //so we need to clear them
             lock (_mapDataLock)
             {
-                //TODO: Remove foreach, narrow search window based on
-                //the mapscroll amount
-                foreach (var cell in MapObject.Cells)
+                for (int srcX = oldViewportX; srcX < MapObject.ViewportWidth + NewServer.MaxHeadOffset; srcX++)
                 {
-                    //Check if visible cell has gone out of viewport.
-                    //Note this doesn't catch cells that were already
-                    //not visible (F.O.W) then moved out of the viewport.
-                    if (!cell.FogOfWar && !IsMapCellInViewport(cell))
+                    for (int srcY = oldViewportY; srcY < MapObject.ViewportHeight + NewServer.MaxHeadOffset; srcY++)
                     {
-                        //mark cell as part of fog of war and notify any listeners.
-                        //Note that the mapscroll is sent before any cells are
-                        //added/cleared/updated, so we have to manually trigger
-                        //cell updated here (as these cells are now out of the
-                        //viewport and will never be updated)
-                        cell.FogOfWar = true;
-                        OnMapCellUpdated(cell);
-                        workingUpdateArgs.CellLocations.Add(
-                            new MapUpdatedEventArgs.MapCellLocation(cell.WorldX, cell.WorldY));
+                        var cell = MapObject.GetCell(srcX, srcY);
+                        if (cell == null)
+                            continue;
 
-                        //Indicate that the mapscroll has caused cells
-                        //to change
-                        workingUpdateArgs.OutsideViewportChanged = true;
+                        //Check if visible cell has gone out of viewport.
+                        //Note this doesn't catch cells that were already
+                        //not visible (F.O.W) then moved out of the viewport.
+                        if (!cell.FogOfWar && !IsMapCellInViewport(cell))
+                        {
+                            //mark cell as part of fog of war and notify any listeners.
+                            //Note that the mapscroll is sent before any cells are
+                            //added/cleared/updated, so we have to manually trigger
+                            //cell updated here (as these cells are now out of the
+                            //viewport and will never be updated)
+                            cell.FogOfWar = true;
+                            OnMapCellUpdated(cell);
+                            workingUpdateArgs.CellLocations.Add(
+                                new MapUpdatedEventArgs.MapCellLocation(cell.WorldX, cell.WorldY));
+
+                            //Indicate that the mapscroll has caused cells
+                            //to change
+                            workingUpdateArgs.OutsideViewportChanged = true;
+                        }
                     }
                 }
             }
