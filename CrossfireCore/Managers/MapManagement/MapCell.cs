@@ -10,6 +10,9 @@ namespace CrossfireCore.Managers.MapManagement
     {
         public MapCell()
         {
+            WorldX = 0;
+            WorldY = 0;
+
             ClearCell();
         }
 
@@ -37,39 +40,33 @@ namespace CrossfireCore.Managers.MapManagement
         [XmlIgnore]
         public bool OutOfBounds { get; set; } = false;
 
-#if MAPOBJECT_SERIALIZATION
-        public MapLayer[] Layers { get; set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
-#else
-        public MapLayer[] Layers { get; private set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
-#endif
-
         /// <summary>
         /// 0=dark, 255=light
         /// </summary>
         [XmlIgnore]
         public int Darkness { get; set; } = 0;
 
+#if MAPOBJECT_SERIALIZATION
+        public MapLayer[] Layers { get; set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
+#else
+        public MapLayer[] Layers { get; private set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
+#endif
+
+        [XmlIgnore]
+        public List<MapLabel> Labels { get; } = new List<MapLabel>();
+
         public void ClearCell()
         {
-            WorldX = 0;
-            WorldY = 0;
             FogOfWar = false;
             OutOfBounds = false;
-            ClearDarkness();
-            ClearLayers();
-        }
-
-        public void ClearDarkness()
-        {
             Darkness = 0;
-        }
 
-        public void ClearLayers()
-        {
             Layers = new MapLayer[ServerConfig.Map.MAP_LAYERS];
 
             for (int i = 0; i < Layers.Length; i++)
                 Layers[i] = new MapLayer();
+
+            Labels.Clear();
         }
 
         public MapLayer GetLayer(int layer)
@@ -100,6 +97,9 @@ namespace CrossfireCore.Managers.MapManagement
 
             for (int i = 0; i < this.Layers.Length; i++)
                 cell.Layers[i] = this.Layers[i].SaveLayer();
+
+            cell.Labels.Clear();
+            cell.Labels.AddRange(this.Labels);
 
             return cell;
         }

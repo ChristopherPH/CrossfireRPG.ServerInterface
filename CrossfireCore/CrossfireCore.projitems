@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapAnimationState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapCellUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapCell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapLabel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\Quest.cs" />

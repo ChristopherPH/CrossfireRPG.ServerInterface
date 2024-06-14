@@ -5,6 +5,7 @@ using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CrossfireCore.Managers.MapManagement
 {
@@ -29,6 +30,7 @@ namespace CrossfireCore.Managers.MapManagement
             Handler.MapFace += Handler_MapFace;
             Handler.MapAnimation += Handler_MapAnimation;
             Handler.MapDarkness += Handler_MapDarkness;
+            Handler.MapLabel += Handler_MapLabel;
             Handler.MapClear += Handler_MapClear;
             Handler.MapClearLayer += Handler_MapClearLayer;
             Handler.MapScroll += Handler_MapScroll;
@@ -88,6 +90,7 @@ namespace CrossfireCore.Managers.MapManagement
 
         //Private variables for handling cell updates
         bool _workingCellUpdated;
+        List<MapLabel> _savedCellLabels = new List<MapLabel>();
 
 
         protected override void ClearData(bool disconnected)
@@ -211,13 +214,23 @@ namespace CrossfireCore.Managers.MapManagement
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
+            //Mark cell as not yet updated
+            _workingCellUpdated = false;
+            _savedCellLabels.Clear();
+
             lock (_mapDataLock)
             {
-                //If there is an existing cell, mark it as not yet updated.
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    _workingCellUpdated = false;
+                    //The server does not send any commands to clear labels,
+                    //so the only place to clear the labels is when the map2
+                    //first gives cell co-ordinates (which is this event).
+                    //Save any existing cell labels, these will be compared
+                    //at the end of the map2 command (EndLocation) to
+                    //determine if the cell has changed.
+                    _savedCellLabels.AddRange(cell.Labels);
+                    cell.Labels.Clear();
                 }
             }
         }
@@ -234,6 +247,10 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
+                    //check for changed map labels
+                    if (!cell.Labels.SequenceEqual(_savedCellLabels))
+                        _workingCellUpdated = true;
+
                     //Notify cell updated
                     if (_workingCellUpdated)
                     {
@@ -294,10 +311,7 @@ namespace CrossfireCore.Managers.MapManagement
                     //when it sends OOB data so it doesn't ever clear it.)
                     if (cell.FogOfWar && !OutOfBounds)
                     {
-                        cell.ClearDarkness();
-                        cell.ClearLayers();
-                        cell.FogOfWar = false;
-                        cell.OutOfBounds = false;
+                        cell.ClearCell();
                         _workingCellUpdated = true; //FOW changed
                     }
                 }
@@ -365,10 +379,7 @@ namespace CrossfireCore.Managers.MapManagement
                     //when it sends OOB data so it doesn't ever clear it.)
                     if (cell.FogOfWar && !OutOfBounds)
                     {
-                        cell.ClearDarkness();
-                        cell.ClearLayers();
-                        cell.FogOfWar = false;
-                        cell.OutOfBounds = false;
+                        cell.ClearCell();
                         _workingCellUpdated = true; //FOW changed
                     }
                 }
@@ -443,10 +454,7 @@ namespace CrossfireCore.Managers.MapManagement
                     //the tile fresh.
                     if (cell.FogOfWar)
                     {
-                        cell.ClearDarkness();
-                        cell.ClearLayers();
-                        cell.FogOfWar = false;
-                        cell.OutOfBounds = false;
+                        cell.ClearCell();
                         _workingCellUpdated = true; //FOW changed
                     }
                 }
@@ -468,6 +476,57 @@ namespace CrossfireCore.Managers.MapManagement
                 }
 
                 cell.FogOfWar = false;
+            }
+        }
+
+        private void Handler_MapLabel(object sender, MessageHandler.MapLabelEventArgs e)
+        {
+            var worldX = e.X + _mapScrollX;
+            var worldY = e.Y + _mapScrollY;
+
+            lock (_mapDataLock)
+            {
+                lock (_mapDataLock)
+                {
+                    //Get pre-existing cell at x/y
+                    var cell = MapObject.GetCell(worldX, worldY);
+                    if (cell != null)
+                    {
+                        //if the pre-existing cell was part of FOW data,
+                        //it means that it had previously gone out of view.
+                        //Since we've now gotten information, we need to clear
+                        //the cell data like the server would so we can start
+                        //the tile fresh.
+                        if (cell.FogOfWar)
+                        {
+                            cell.ClearCell();
+                            _workingCellUpdated = true; //FOW changed
+                        }
+                    }
+                    else //cell doesn't exist, create a new cell
+                    {
+                        cell = new MapCell()
+                        {
+                            WorldX = worldX,
+                            WorldY = worldY,
+                        };
+
+                        MapObject.SetCell(cell);
+                    }
+
+                    //Create label
+                    var mapLabel = new MapLabel()
+                    {
+                        LabelType = e.LabelType,
+                        Label = e.Label,
+                    };
+
+                    //Append label to cell labels if it doesn't already exist
+                    if (!cell.Labels.Contains(mapLabel))
+                        cell.Labels.Add(mapLabel);
+
+                    cell.FogOfWar = false;
+                }
             }
         }
 
