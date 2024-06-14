@@ -10,7 +10,10 @@ namespace CrossfireCore.Managers.MapManagement
 {
     public class MapObject : DataObject
     {
-        private Expanding2DArray<MapCell> _cells = new Expanding2DArray<MapCell>(50, 50);
+        //Set initial map size to twice that of the maximum viewport (in each quadrant),
+        //effectively 4 viewports wide by 4 viewports high
+        private readonly Expanding2DArray<MapCell> _cells =
+            new Expanding2DArray<MapCell>(Config.MAP_CLIENT_X * 2, Config.MAP_CLIENT_Y * 2);
 
         public MapObject()
         {
