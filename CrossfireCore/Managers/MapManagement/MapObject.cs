@@ -82,6 +82,10 @@ namespace CrossfireCore.Managers.MapManagement
 #endif
         public int PlayerY { get; set; }
 
+
+        /// <summary>
+        /// Gets all non null cells in the map
+        /// </summary>
         [XmlIgnore]
         public IEnumerable<MapCell> Cells => _cells.Where(x => x != null);
 
@@ -127,7 +131,7 @@ namespace CrossfireCore.Managers.MapManagement
         /// </summary>
         public MapCell[] Cells2
         {
-            get => _cells.Where(x => x != null).OrderBy(x => x.WorldX).ThenBy(x => x.WorldY).ToArray();
+            get => Cells.OrderBy(x => x.WorldX).ThenBy(x => x.WorldY).ToArray();
             set
             {
                 _cells.Reset();
