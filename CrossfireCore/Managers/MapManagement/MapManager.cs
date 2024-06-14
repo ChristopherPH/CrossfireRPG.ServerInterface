@@ -70,13 +70,13 @@ namespace CrossfireCore.Managers.MapManagement
         public event EventHandler<MapUpdatedEventArgs> MapUpdated;
 
         //Private variables
-        object _mapDataLock = new object();
+        readonly object _mapDataLock = new object();
         bool _populatingNewMap = false;
         int _mapScrollX = 0;
         int _mapScrollY = 0;
         int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
         int CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
-        List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
+        readonly List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
 
         //Private variables for creating map updated args
         MapUpdatedEventArgs workingUpdateArgs = new MapUpdatedEventArgs();

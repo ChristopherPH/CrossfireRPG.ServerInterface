@@ -10,8 +10,6 @@ namespace CrossfireCore.Managers.MapManagement
 {
     public class MapObject : DataObject
     {
-        //private SortedDictionary<MapCoord, MapCell> _cells = new SortedDictionary<MapCoord, MapCell>(new MapCoordComparer());
-        //private Dictionary<MapCoord, MapCell> _cells = new Dictionary<MapCoord, MapCell>();
         private Expanding2DArray<MapCell> _cells = new Expanding2DArray<MapCell>(50, 50);
 
         public MapObject()
@@ -85,7 +83,7 @@ namespace CrossfireCore.Managers.MapManagement
         public IEnumerable<MapCell> Cells => _cells.Where(x => x != null);
 
 
-        private Dictionary<UInt16, MapAnimationState> _SynchronizedAnimations
+        private readonly Dictionary<UInt16, MapAnimationState> _SynchronizedAnimations
             = new Dictionary<UInt16, MapAnimationState>();
 
         public void AddSynchronizedAnimation(UInt16 Animation, byte AnimationSpeed, int FrameCount)
