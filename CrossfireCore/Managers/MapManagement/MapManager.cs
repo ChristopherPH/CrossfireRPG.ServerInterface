@@ -86,6 +86,10 @@ namespace CrossfireCore.Managers.MapManagement
         int workingMinY;
         int workingMaxY;
 
+        //Private variables for handling cell updates
+        bool _workingCellUpdated;
+
+
         protected override void ClearData(bool disconnected)
         {
             OnBeforeMapClear();
@@ -212,7 +216,9 @@ namespace CrossfireCore.Managers.MapManagement
                 //If there is an existing cell, mark it as not yet updated.
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
-                    cell.Updated = false;
+                {
+                    _workingCellUpdated = false;
+                }
             }
         }
 
@@ -226,13 +232,19 @@ namespace CrossfireCore.Managers.MapManagement
             {
                 //If there is an existing cell, and it was updated, notify listeners
                 var cell = MapObject.GetCell(worldX, worldY);
-                if ((cell != null) && cell.Updated)
+                if (cell != null)
                 {
-                    OnMapCellUpdated(cell);
-                    workingUpdateArgs.CellLocations.Add(
-                        new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
-                    workingUpdateArgs.InsideViewportChanged = true;
-                    cell.Updated = false;
+                    //Notify cell updated
+                    if (_workingCellUpdated)
+                    {
+                        OnMapCellUpdated(cell);
+
+                        workingUpdateArgs.CellLocations.Add(
+                            new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                        workingUpdateArgs.InsideViewportChanged = true;
+
+                        _workingCellUpdated = false;
+                    }
                 }
             }
         }
@@ -286,7 +298,7 @@ namespace CrossfireCore.Managers.MapManagement
                         cell.ClearLayers();
                         cell.FogOfWar = false;
                         cell.OutOfBounds = false;
-                        cell.Updated = true; //FOW changed
+                        _workingCellUpdated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -317,7 +329,7 @@ namespace CrossfireCore.Managers.MapManagement
                 {
                     //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
                     cell.Layers[e.Layer] = layer;
-                    cell.Updated = true;
+                    _workingCellUpdated = true;
                 }
 
                 //If the face is out of the visible map area, mark it as
@@ -357,7 +369,7 @@ namespace CrossfireCore.Managers.MapManagement
                         cell.ClearLayers();
                         cell.FogOfWar = false;
                         cell.OutOfBounds = false;
-                        cell.Updated = true; //FOW changed
+                        _workingCellUpdated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -402,7 +414,7 @@ namespace CrossfireCore.Managers.MapManagement
                 {
                     //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
                     cell.Layers[e.Layer] = layer;
-                    cell.Updated = true;
+                    _workingCellUpdated = true;
                 }
 
                 //If the face is out of the visible map area, mark it as
@@ -435,7 +447,7 @@ namespace CrossfireCore.Managers.MapManagement
                         cell.ClearLayers();
                         cell.FogOfWar = false;
                         cell.OutOfBounds = false;
-                        cell.Updated = true; //FOW changed
+                        _workingCellUpdated = true; //FOW changed
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -452,7 +464,7 @@ namespace CrossfireCore.Managers.MapManagement
                 if (cell.Darkness != e.Darkness)
                 {
                     cell.Darkness = e.Darkness;
-                    cell.Updated = true;
+                    _workingCellUpdated = true;
                 }
 
                 cell.FogOfWar = false;
@@ -480,7 +492,7 @@ namespace CrossfireCore.Managers.MapManagement
                     if (!cell.FogOfWar)
                     {
                         cell.FogOfWar = true;
-                        cell.Updated = true;
+                        _workingCellUpdated = true;
                     }
                 }
             }
@@ -500,7 +512,7 @@ namespace CrossfireCore.Managers.MapManagement
                 if (cell != null)
                 {
                     cell.GetLayer(e.Layer).ClearLayer();
-                    cell.Updated = true;
+                    _workingCellUpdated = true;
                 }
             }
         }
@@ -569,7 +581,7 @@ namespace CrossfireCore.Managers.MapManagement
             lock (_mapDataLock)
             {
                 var args = new MapUpdatedEventArgs();
-                bool updated = false;
+                var mapUpdated = false;
 
                 //set base properties, other MapUpdatedEventArgs
                 //have been updated
@@ -593,6 +605,8 @@ namespace CrossfireCore.Managers.MapManagement
                         if (cell == null)
                             continue;
 
+                        var cellUpdated = false;
+
                         foreach (var layer in cell.Layers)
                         {
                             if (layer == null)
@@ -606,7 +620,7 @@ namespace CrossfireCore.Managers.MapManagement
                                 default:
                                 case Map.AnimationTypes.Normal:
                                 case Map.AnimationTypes.Randomize:
-                                    cell.Updated = layer.AnimationState.UpdateAnimation();
+                                    cellUpdated = layer.AnimationState.UpdateAnimation();
                                     break;
 
                                 case Map.AnimationTypes.Synchronize:
@@ -614,23 +628,22 @@ namespace CrossfireCore.Managers.MapManagement
                                     //set of anumations that actually changed
                                     //frames
                                     if (updatedSyncedAnimations.Contains(layer.Animation))
-                                        cell.Updated = true;
+                                        cellUpdated = true;
                                     break;
                             }
 
-                            if (cell.Updated)
+                            if (cellUpdated)
                             {
                                 OnMapCellUpdated(cell);
                                 args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(x, y));
                                 args.InsideViewportChanged = true;
-                                cell.Updated = false;
-                                updated = true;
+                                mapUpdated = true;
                             }
                         }
                     }
                 }
 
-                if (updated)
+                if (mapUpdated)
                 {
                     OnDataChanged(args);
                     OnMapUpdated(args);

@@ -82,12 +82,6 @@ namespace CrossfireCore.Managers.MapManagement
         public void EndUpdate() { }
 #endif
 
-        /// <summary>
-        /// Flag indicating a map2 command has updated this cell
-        /// </summary>
-        [XmlIgnore]
-        public bool Updated;
-
         public override string ToString()
         {
             return $"Cell:{WorldX}/{WorldY} FOW:{FogOfWar}";
