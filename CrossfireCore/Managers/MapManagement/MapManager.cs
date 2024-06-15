@@ -150,7 +150,8 @@ namespace CrossfireCore.Managers.MapManagement
             //the newmap command before returning the setup command,
             //so we need to adjust the viewport after the map has been
             //created
-            MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
+            lock (_mapDataLock)
+                MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
         }
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
