@@ -20,7 +20,7 @@ namespace CrossfireCore.Managers.MapManagement
         public UInt16 Animation { get; set; } = 0;
 
         [XmlAttribute]
-        public Map.AnimationTypes AnimationType { get; set; } = Map.AnimationTypes.Normal;
+        public Map.AnimationFlags AnimationFlags { get; set; } = Map.AnimationFlags.Normal;
 
         [XmlAttribute]
         public byte AnimationSpeed { get; set; } = 0;
@@ -66,7 +66,7 @@ namespace CrossfireCore.Managers.MapManagement
             {
                 return
                     Animation == other.Animation &&
-                    AnimationType == other.AnimationType &&
+                    AnimationFlags == other.AnimationFlags &&
                     AnimationSpeed == other.AnimationSpeed;
             }
             else
@@ -78,7 +78,7 @@ namespace CrossfireCore.Managers.MapManagement
         // override object.GetHashCode
         public override int GetHashCode()
         {
-            return Tuple.Create(Face, SmoothLevel, Animation, AnimationType, AnimationSpeed).GetHashCode();
+            return Tuple.Create(Face, SmoothLevel, Animation, AnimationFlags, AnimationSpeed).GetHashCode();
         }
 
         public static bool operator ==(MapLayer x, MapLayer y)
@@ -109,7 +109,7 @@ namespace CrossfireCore.Managers.MapManagement
                 Face = this.Face,
                 SmoothLevel = this.SmoothLevel,
                 Animation = this.Animation,
-                AnimationType = this.AnimationType,
+                AnimationFlags = this.AnimationFlags,
                 AnimationSpeed = this.AnimationSpeed,
             };
 

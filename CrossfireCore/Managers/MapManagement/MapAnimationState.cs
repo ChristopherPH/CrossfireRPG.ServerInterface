@@ -10,12 +10,12 @@ namespace CrossfireCore.Managers.MapManagement
             ClearAnimation();
         }
 
-        public MapAnimationState(Map.AnimationTypes animationType, int Speed, int FrameCount)
+        public MapAnimationState(Map.AnimationFlags animationFlags, int Speed, int FrameCount)
         {
-            SetAnimation(animationType, Speed, FrameCount);
+            SetAnimation(animationFlags, Speed, FrameCount);
         }
 
-        private Map.AnimationTypes _AnimationType;
+        private Map.AnimationFlags _AnimationFlags;
         private int _AnimationSpeed;
         private int _AnimationFrameCount;
 
@@ -28,9 +28,9 @@ namespace CrossfireCore.Managers.MapManagement
             ResetState();
         }
 
-        public void SetAnimation(Map.AnimationTypes animationType, int Speed, int FrameCount)
+        public void SetAnimation(Map.AnimationFlags animationFlags, int Speed, int FrameCount)
         {
-            _AnimationType = animationType;
+            _AnimationFlags = animationFlags;
             _AnimationSpeed = Speed;
             _AnimationFrameCount = FrameCount;
 
@@ -39,7 +39,7 @@ namespace CrossfireCore.Managers.MapManagement
 
         public void ResetState()
         {
-            if (_AnimationType == Map.AnimationTypes.Randomize)
+            if (_AnimationFlags.HasFlag(Map.AnimationFlags.Randomize))
             {
                 CurrentFrame = new Random().Next(0, _AnimationFrameCount);
                 CurrentTick = new Random().Next(0, _AnimationSpeed);
@@ -66,7 +66,7 @@ namespace CrossfireCore.Managers.MapManagement
             CurrentTick = 0;
 
             //Randomize next frame
-            if (_AnimationType == Map.AnimationTypes.Randomize)
+            if (_AnimationFlags.HasFlag(Map.AnimationFlags.Randomize))
             {
                 var frame = new Random().Next(0, _AnimationFrameCount);
 
@@ -90,7 +90,7 @@ namespace CrossfireCore.Managers.MapManagement
         {
             return new MapAnimationState()
             {
-                _AnimationType = this._AnimationType,
+                _AnimationFlags = this._AnimationFlags,
                 _AnimationSpeed = this._AnimationSpeed,
                 _AnimationFrameCount = this._AnimationFrameCount,
                 CurrentTick = this.CurrentTick,

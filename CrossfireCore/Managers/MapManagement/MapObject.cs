@@ -93,12 +93,13 @@ namespace CrossfireCore.Managers.MapManagement
         private readonly Dictionary<UInt16, MapAnimationState> _SynchronizedAnimations
             = new Dictionary<UInt16, MapAnimationState>();
 
-        public void AddSynchronizedAnimation(UInt16 Animation, byte AnimationSpeed, int FrameCount)
+        public void AddSynchronizedAnimation(UInt16 Animation, Map.AnimationFlags AnimationFlags,
+            byte AnimationSpeed, int FrameCount)
         {
             if (!_SynchronizedAnimations.ContainsKey(Animation))
             {
                 _SynchronizedAnimations[Animation] = new MapAnimationState(
-                    Map.AnimationTypes.Synchronize, AnimationSpeed, FrameCount);
+                    AnimationFlags, AnimationSpeed, FrameCount);
             }
         }
 

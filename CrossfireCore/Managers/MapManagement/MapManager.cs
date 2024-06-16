@@ -400,27 +400,22 @@ namespace CrossfireCore.Managers.MapManagement
                 {
                     SmoothLevel = e.Smooth,
                     Animation = e.Animation,
-                    AnimationType = e.AnimationType,
+                    AnimationFlags = e.AnimationFlags,
                     AnimationSpeed = e.AnimationSpeed,
                 };
 
                 var frameCount = AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0;
 
-                switch (layer.AnimationType)
+                if (layer.AnimationFlags.HasFlag(Map.AnimationFlags.Synchronize))
                 {
-                    default:
-                    case Map.AnimationTypes.Normal:
-                    case Map.AnimationTypes.Randomize:
-                        layer.AnimationState.SetAnimation(layer.AnimationType,
-                            layer.AnimationSpeed, frameCount);
-                        break;
-
-                    case Map.AnimationTypes.Synchronize:
-                        MapObject.AddSynchronizedAnimation(layer.Animation,
-                            layer.AnimationSpeed, frameCount);
-                        break;
+                    MapObject.AddSynchronizedAnimation(layer.Animation, layer.AnimationFlags,
+                        layer.AnimationSpeed, frameCount);
                 }
-
+                else
+                {
+                    layer.AnimationState.SetAnimation(layer.AnimationFlags,
+                        layer.AnimationSpeed, frameCount);
+                }
 
                 if (cell.Layers[e.Layer] != layer)
                 {
@@ -675,21 +670,17 @@ namespace CrossfireCore.Managers.MapManagement
                             if (!layer.IsAnimation)
                                 continue;
 
-                            switch (layer.AnimationType)
+                            if (layer.AnimationFlags.HasFlag(Map.AnimationFlags.Synchronize))
                             {
-                                default:
-                                case Map.AnimationTypes.Normal:
-                                case Map.AnimationTypes.Randomize:
-                                    cellUpdated = layer.AnimationState.UpdateAnimation();
-                                    break;
-
-                                case Map.AnimationTypes.Synchronize:
-                                    //Check if this animation exists in saved
-                                    //set of anumations that actually changed
-                                    //frames
-                                    if (updatedSyncedAnimations.Contains(layer.Animation))
-                                        cellUpdated = true;
-                                    break;
+                                //Check if this animation exists in saved
+                                //set of anumations that actually changed
+                                //frames
+                                if (updatedSyncedAnimations.Contains(layer.Animation))
+                                    cellUpdated = true;
+                            }
+                            else
+                            {
+                                cellUpdated = layer.AnimationState.UpdateAnimation();
                             }
 
                             if (cellUpdated)
