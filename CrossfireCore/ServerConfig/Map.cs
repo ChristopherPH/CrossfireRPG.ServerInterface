@@ -1,4 +1,6 @@
-﻿namespace CrossfireCore.ServerConfig
+﻿using System;
+
+namespace CrossfireCore.ServerConfig
 {
     public static class Map
     {
@@ -18,11 +20,12 @@
             MAP_LAYER_FLY2 = 9,         /* Arrows, etc */
         }
 
-        public enum AnimationTypes
+        [Flags]
+        public enum AnimationFlags
         {
             Normal = 0,
-            Randomize = 1,
-            Synchronize = 2
+            Randomize = 0x01,
+            Synchronize = 0x02,
         }
     }
 }

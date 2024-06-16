@@ -35,7 +35,7 @@ namespace CrossfireCore.ServerInterface
         /// Add animation and smoothing info at the given x/y co-ords
         /// </summary>
         protected abstract void HandleMap2Animation(int x, int y, int layer, UInt16 animation,
-            int animationtype, byte animationspeed, byte smooth);
+            int animationflags, byte animationspeed, byte smooth);
 
         protected abstract void HandleSmooth(UInt16 face, UInt16 smooth);
 
@@ -177,10 +177,10 @@ namespace CrossfireCore.ServerInterface
                             }
                             else if (is_animation)
                             {
-                                var anim_type = (face_or_animation >> 6) & 0x03;      //top 2 bits
+                                var anim_flags = (face_or_animation >> 6) & 0x03;      //top 2 bits
 
                                 var animation = (UInt16)(face_or_animation & 0x1FFF);
-                                HandleMap2Animation(map_coord_x, map_coord_y, layer, animation, anim_type, animspeed, smooth);
+                                HandleMap2Animation(map_coord_x, map_coord_y, layer, animation, anim_flags, animspeed, smooth);
                             }
                             else
                             {

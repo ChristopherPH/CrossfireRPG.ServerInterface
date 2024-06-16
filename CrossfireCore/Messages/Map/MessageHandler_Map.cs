@@ -52,7 +52,8 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleMap2Animation(int x, int y, int layer, ushort animation, int animationtype, byte animationspeed, byte smooth)
+        protected override void HandleMap2Animation(int x, int y, int layer, ushort animation,
+            int animationflags, byte animationspeed, byte smooth)
         {
             MapAnimation?.Invoke(this, new MapAnimationEventArgs()
             {
@@ -60,7 +61,7 @@ namespace CrossfireCore.ServerInterface
                 Y = y,
                 Layer = layer,
                 Animation = animation,
-                AnimationType = (Map.AnimationTypes)animationtype,
+                AnimationFlags = (Map.AnimationFlags)animationflags,
                 AnimationSpeed = animationspeed,
                 Smooth = smooth,
             });
@@ -151,7 +152,7 @@ namespace CrossfireCore.ServerInterface
             public int Y { get; set; }
             public int Layer { get; set; }
             public UInt16 Animation { get; set; }
-            public Map.AnimationTypes AnimationType { get; set; }
+            public Map.AnimationFlags AnimationFlags { get; set; }
             public byte AnimationSpeed { get; set; }
             public byte Smooth { get; set; }
         }
