@@ -66,6 +66,11 @@ namespace CrossfireCore.Managers.MapManagement
         public event EventHandler<MapCellUpdatedEventArgs> MapCellUpdated;
 
         /// <summary>
+        /// Raised when a map cell label has been updated
+        /// </summary>
+        public event EventHandler<MapCellUpdatedEventArgs> MapCellLabelUpdated;
+
+        /// <summary>
         /// Raised when the map has been updated : Occurs when ModificationTypes.Updated
         /// is raised, but this event contains additional data
         /// </summary>
@@ -250,7 +255,12 @@ namespace CrossfireCore.Managers.MapManagement
                 {
                     //check for changed map labels
                     if (!cell.Labels.SequenceEqual(_savedCellLabels))
-                        _workingCellUpdated = true;
+                    {
+                        OnMapCellLabelUpdated(cell);
+
+                        workingUpdateArgs.CellLabelLocations.Add(
+                            new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                    }
 
                     //Notify cell updated
                     if (_workingCellUpdated)
@@ -762,6 +772,12 @@ namespace CrossfireCore.Managers.MapManagement
         private void OnMapCellUpdated(MapCell cell)
         {
             MapCellUpdated?.Invoke(this,
+                new MapCellUpdatedEventArgs(cell));
+        }
+
+        private void OnMapCellLabelUpdated(MapCell cell)
+        {
+            MapCellLabelUpdated?.Invoke(this,
                 new MapCellUpdatedEventArgs(cell));
         }
 

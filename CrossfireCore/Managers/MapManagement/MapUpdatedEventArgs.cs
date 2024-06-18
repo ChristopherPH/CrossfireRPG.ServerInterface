@@ -10,6 +10,11 @@ namespace CrossfireCore.Managers.MapManagement
         public List<MapCellLocation> CellLocations { get; set; } = new List<MapCellLocation>();
 
         /// <summary>
+        /// Locations of all the cells labels that changed on the map during this update
+        /// </summary>
+        public List<MapCellLocation> CellLabelLocations { get; set; } = new List<MapCellLocation>();
+
+        /// <summary>
         /// True if the map scrolled during this update
         /// </summary>
         public bool MapScrolled => (MapScrollX != 0) || (MapScrollY != 0);
@@ -74,6 +79,38 @@ namespace CrossfireCore.Managers.MapManagement
 
             return true;
         }
+
+        /// <summary>
+        /// Gets the min and max of the cell label locations
+        /// </summary>
+        /// <returns>true if bounds set, false if not</returns>
+        public bool GetCellLabelLocationBoundingBox(out int MinWorldX, out int MinWorldY,
+            out int MaxWorldX, out int MaxWorldY)
+        {
+            MinWorldX = int.MaxValue;
+            MinWorldY = int.MaxValue;
+            MaxWorldX = int.MinValue;
+            MaxWorldY = int.MinValue;
+
+            if (CellLabelLocations.Count == 0)
+                return false;
+
+            foreach (var cellLabelLocation in CellLabelLocations)
+            {
+                if (cellLabelLocation.WorldX < MinWorldX)
+                    MinWorldX = cellLabelLocation.WorldX;
+                if (cellLabelLocation.WorldY < MinWorldY)
+                    MinWorldY = cellLabelLocation.WorldY;
+
+                if (cellLabelLocation.WorldX > MaxWorldX)
+                    MaxWorldX = cellLabelLocation.WorldX;
+                if (cellLabelLocation.WorldY > MaxWorldY)
+                    MaxWorldY = cellLabelLocation.WorldY;
+            }
+
+            return true;
+        }
+
 
         public class MapCellLocation
         {
