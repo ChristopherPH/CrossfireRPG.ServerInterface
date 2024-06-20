@@ -13,6 +13,7 @@ namespace CrossfireCore.Managers.FaceManagement
         {
             Handler.Image2 += _Handler_Image2;
             Handler.Face2 += _Handler_Face2;
+            Handler.Smooth += _Handler_Smooth;
         }
 
         protected abstract TImage CreateImage(byte[] ImageData);
@@ -38,14 +39,22 @@ namespace CrossfireCore.Managers.FaceManagement
             {
                 _FaceAvailableActions.Clear();
             }
+
+            lock (_SmoothLock)
+            {
+                _smoothFaces.Clear();
+            }
         }
 
         private Dictionary<UInt32, FaceInfo> _Faces { get; } = new Dictionary<UInt32, FaceInfo>();
         private List<UInt32> _MissingFaces = new List<UInt32>();
         private List<KeyValuePair<UInt32, Action<TImage>>> _FaceAvailableActions = new List<KeyValuePair<uint, Action<TImage>>>();
+        private Dictionary<Int32, SmoothInfo> _smoothFaces = new Dictionary<Int32, SmoothInfo>();
+
         private object _FaceLock = new object();
         private object _MissingLock = new object();
         private object _ActionLock = new object();
+        private object _SmoothLock = new object();
 
         public event EventHandler<FaceAvailableEventArgs> FaceAvailable;
 
@@ -203,11 +212,57 @@ namespace CrossfireCore.Managers.FaceManagement
             }
         }
 
+
+        public TImage GetSmoothFace(Int32 SmoothFace)
+        {
+            if (SmoothFace == 0)
+                return null;
+
+            bool found;
+            SmoothInfo info;
+
+            lock (_SmoothLock)
+                found = _smoothFaces.TryGetValue(SmoothFace, out info);
+
+            //TODO: Implement AskSmooth() if not found, and user wants to
+            //      request missing smoothing
+
+            if (!found)
+                return null;
+
+            return GetFace(info.SmoothFace);
+        }
+
+        private void _Handler_Smooth(object sender, MessageHandler.SmoothEventArgs e)
+        {
+            lock (_SmoothLock)
+            {
+                _smoothFaces[e.Smooth] = new SmoothInfo()
+                {
+                    Face = e.Smooth,
+                    SmoothFace = e.SmoothFace,
+                };
+            }
+        }
+
         private class FaceInfo
         {
             public TImage Image { get; set; }
             public UInt32 Face { get; set; }
             public byte FaceSet { get; set; }
+        }
+
+        private class SmoothInfo
+        {
+            /// <summary>
+            /// Face to Smooth
+            /// </summary>
+            public Int32 Face { get; set; }
+
+            /// <summary>
+            /// Face to use when smoothing
+            /// </summary>
+            public Int32 SmoothFace { get; set; }
         }
     }
 

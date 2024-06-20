@@ -19,7 +19,6 @@ namespace CrossfireCore.Managers.MapManagement
             Handler.Setup += Handler_Setup;
             Handler.NewMap += Handler_NewMap;
             Handler.Player += Handler_Player;
-            Handler.Smooth += Handler_Smooth;
             Handler.Tick += Handler_Tick;
 
             //All part of map2 events
@@ -83,7 +82,6 @@ namespace CrossfireCore.Managers.MapManagement
         int _mapScrollY = 0;
         int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
         int CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
-        readonly List<MessageHandler.SmoothEventArgs> _smoothFaces = new List<MessageHandler.SmoothEventArgs>();
 
         //Private variables for creating map updated args
         MapUpdatedEventArgs workingUpdateArgs = new MapUpdatedEventArgs();
@@ -111,7 +109,6 @@ namespace CrossfireCore.Managers.MapManagement
             //Items to clear on server disconnect
             CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
             CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
-            _smoothFaces.Clear();
 
             OnDataChanged(DataModificationTypes.Cleared, MapObject);
         }
@@ -633,12 +630,6 @@ namespace CrossfireCore.Managers.MapManagement
                     }
                 }
             }
-        }
-
-
-        private void Handler_Smooth(object sender, MessageHandler.SmoothEventArgs e)
-        {
-            _smoothFaces.Add(e);
         }
 
         private void Handler_Tick(object sender, MessageHandler.TickEventArgs e)
