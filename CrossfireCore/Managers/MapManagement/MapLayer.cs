@@ -13,6 +13,9 @@ namespace CrossfireCore.Managers.MapManagement
         [XmlAttribute]
         public int Face { get; set; } = 0;
 
+        /// <summary>
+        /// 0 (overlap nothing) to 255 (overlap above everything except other objects having also smoothlevel of 255)
+        /// </summary>
         [XmlAttribute]
         public int SmoothLevel { get; set; } = 0;
 
