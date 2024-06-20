@@ -128,7 +128,7 @@ namespace CrossfireCore.ServerInterface
             });
         }
 
-        protected override void HandleSmooth(ushort face, ushort smooth)
+        protected override void HandleSmooth(UInt16 face, UInt16 smooth)
         {
             Smooth?.Invoke(this, new SmoothEventArgs()
             {
@@ -190,12 +190,12 @@ namespace CrossfireCore.ServerInterface
             /// <summary>
             /// Face to Smooth
             /// </summary>
-            public int Smooth { get; set; }
+            public UInt16 Smooth { get; set; }
 
             /// <summary>
             /// Face to use when smoothing
             /// </summary>
-            public Int64 SmoothFace { get; set; }
+            public UInt16 SmoothFace { get; set; }
         }
     }
 }
