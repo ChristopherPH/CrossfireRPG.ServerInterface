@@ -36,6 +36,7 @@ namespace CrossfireCore.Managers.MapManagement
             Face = 0;
             SmoothLevel = 0;
             Animation = 0;
+            AnimationFlags = Map.AnimationFlags.Normal;
             AnimationSpeed = 0;
 
             AnimationState.ClearAnimation();
