@@ -12,11 +12,10 @@ namespace CrossfireCore.Managers.MapManagement
     public class MapManager : DataObjectManager<MapObject>
     {
         public MapManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler,
-            AnimationDataManager animationManager)
+            MapSizeManager mapsizeManager, AnimationDataManager animationManager)
             : base(Connection, Builder, Handler)
         {
             //Individual events
-            Handler.Setup += Handler_Setup;
             Handler.NewMap += Handler_NewMap;
             Handler.Player += Handler_Player;
             Handler.Tick += Handler_Tick;
@@ -35,6 +34,9 @@ namespace CrossfireCore.Managers.MapManagement
             Handler.MapScroll += Handler_MapScroll;
 
             //Other managers
+            MapsizeManager = mapsizeManager;
+            mapsizeManager.MapSizeChanged += MapsizeManager_MapSizeChanged;
+
             AnimationManager = animationManager;
         }
 
@@ -47,6 +49,7 @@ namespace CrossfireCore.Managers.MapManagement
             DataModificationTypes.Updated | //Raised when a map has been updated
             DataModificationTypes.Cleared;  //Raised when a map has been cleared
 
+        public MapSizeManager MapsizeManager { get; }
         public AnimationDataManager AnimationManager { get; }
 
         /// <summary>
@@ -80,8 +83,6 @@ namespace CrossfireCore.Managers.MapManagement
         bool _populatingNewMap = false;
         int _mapScrollX = 0;
         int _mapScrollY = 0;
-        int CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
-        int CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
 
         //Private variables for creating map updated args
         MapUpdatedEventArgs workingUpdateArgs = new MapUpdatedEventArgs();
@@ -106,10 +107,6 @@ namespace CrossfireCore.Managers.MapManagement
 
             _mapScrollX = _mapScrollY = 0;
 
-            //Items to clear on server disconnect
-            CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
-            CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
-
             OnDataChanged(DataModificationTypes.Cleared, MapObject);
         }
 
@@ -124,7 +121,7 @@ namespace CrossfireCore.Managers.MapManagement
                 lock (_mapDataLock)
                 {
                     MapObject.ClearMap();
-                    MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
+                    MapObject.SetViewportSize(MapsizeManager.CurrentMapWidth, MapsizeManager.CurrentMapHeight);
                 }
 
                 _mapScrollX = _mapScrollY = 0;
@@ -133,27 +130,15 @@ namespace CrossfireCore.Managers.MapManagement
             }
         }
 
-        private void Handler_Setup(object sender, MessageHandler.SetupEventArgs e)
+
+        private void MapsizeManager_MapSizeChanged(object sender, MapSizeEventArgs e)
         {
-            if (e.SetupCommand.ToLower() != "mapsize")
-                return;
-
-            if (!MapSizeManager.ParseMapSize(e.SetupValue, out var width, out var height))
-            {
-                CurrentMapWidth = Config.MAP_CLIENT_X_DEFAULT;
-                CurrentMapHeight = Config.MAP_CLIENT_Y_DEFAULT;
-                return;
-            }
-
-            CurrentMapWidth = width;
-            CurrentMapHeight = height;
-
             //As it turns out, changing the viewport (mapsize) triggers
             //the newmap command before returning the setup command,
             //so we need to adjust the viewport after the map has been
             //created
             lock (_mapDataLock)
-                MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
+                MapObject.SetViewportSize(e.Width, e.Height);
         }
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
@@ -282,7 +267,7 @@ namespace CrossfireCore.Managers.MapManagement
             lock (_mapDataLock)
             {
                 MapObject.ClearMap();
-                MapObject.SetViewportSize(CurrentMapWidth, CurrentMapHeight);
+                MapObject.SetViewportSize(MapsizeManager.CurrentMapWidth, MapsizeManager.CurrentMapHeight);
             }
 
             _mapScrollX = _mapScrollY = 0;
@@ -300,7 +285,8 @@ namespace CrossfireCore.Managers.MapManagement
             var worldY = e.Y + _mapScrollY;
 
             var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
-                (e.X >= CurrentMapWidth) || (e.Y >= CurrentMapHeight);
+                (e.X >= MapsizeManager.CurrentMapWidth) ||
+                (e.Y >= MapsizeManager.CurrentMapHeight);
 
             lock (_mapDataLock)
             {
@@ -368,7 +354,8 @@ namespace CrossfireCore.Managers.MapManagement
             var worldY = e.Y + _mapScrollY;
 
             var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
-                (e.X >= CurrentMapWidth) || (e.Y >= CurrentMapHeight);
+                (e.X >= MapsizeManager.CurrentMapWidth) ||
+                (e.Y >= MapsizeManager.CurrentMapHeight);
 
             lock (_mapDataLock)
             {
@@ -714,8 +701,8 @@ namespace CrossfireCore.Managers.MapManagement
 
             if (viewportX < 0) return false;
             if (viewportY < 0) return false;
-            if (viewportX >= CurrentMapWidth) return false;
-            if (viewportY >= CurrentMapHeight) return false;
+            if (viewportX >= MapsizeManager.CurrentMapWidth) return false;
+            if (viewportY >= MapsizeManager.CurrentMapHeight) return false;
 
             return true;
         }
@@ -727,8 +714,8 @@ namespace CrossfireCore.Managers.MapManagement
 
             if (viewportX < 0) return false;
             if (viewportY < 0) return false;
-            if (viewportX >= CurrentMapWidth) return false;
-            if (viewportY >= CurrentMapHeight) return false;
+            if (viewportX >= MapsizeManager.CurrentMapWidth) return false;
+            if (viewportY >= MapsizeManager.CurrentMapHeight) return false;
 
             return true;
         }
@@ -744,8 +731,8 @@ namespace CrossfireCore.Managers.MapManagement
 
             if (viewportX < 0) return false;
             if (viewportY < 0) return false;
-            if (viewportX >= CurrentMapWidth + NewServer.MaxHeadOffset) return false;
-            if (viewportY >= CurrentMapHeight + NewServer.MaxHeadOffset) return false;
+            if (viewportX >= MapsizeManager.CurrentMapWidth + NewServer.MaxHeadOffset) return false;
+            if (viewportY >= MapsizeManager.CurrentMapHeight + NewServer.MaxHeadOffset) return false;
 
             return true;
         }
