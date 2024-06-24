@@ -24,10 +24,16 @@ namespace CrossfireCore.Managers.MapSizeManagement
         protected override bool ClearDataOnNewPlayer => false;
 
         public event EventHandler<MapSizeEventArgs> MapSizeChanged;
+        public event EventHandler<MapSizeEventArgs> MaximumMapSizeChanged;
 
         protected void OnMapSizeChanged(MapSizeEventArgs args)
         {
             MapSizeChanged?.Invoke(this, args);
+        }
+
+        protected void OnMaximumMapSizeChanged(MapSizeEventArgs args)
+        {
+            MaximumMapSizeChanged?.Invoke(this, args);
         }
 
         private void Handler_Setup(object sender, MessageHandler.SetupEventArgs e)
@@ -49,10 +55,10 @@ namespace CrossfireCore.Managers.MapSizeManagement
                 _RequestedMapSizes.Clear();
             }
 
-            MaximumMapWidth = 0;
-            MaximumMapHeight = 0;
-            CurrentMapWidth = 0;
-            CurrentMapHeight = 0;
+            MaximumMapWidth = MaximumMapWidth;
+            MaximumMapHeight = MaximumMapHeight;
+            CurrentMapWidth = DefaultMapWidth;
+            CurrentMapHeight = DefaultMapHeight;
         }
 
         /// <summary>
@@ -100,12 +106,12 @@ namespace CrossfireCore.Managers.MapSizeManagement
         /// <summary>
         /// Current Map Width
         /// </summary>
-        public int CurrentMapWidth { get; private set; } = 0;
+        public int CurrentMapWidth { get; private set; } = Config.MAP_CLIENT_X_DEFAULT;
 
         /// <summary>
         /// Current Map Height
         /// </summary>
-        public int CurrentMapHeight { get; private set; } = 0;
+        public int CurrentMapHeight { get; private set; } = Config.MAP_CLIENT_Y_DEFAULT;
 
         private int WantedWidth;
         private int WantedHeight;
@@ -126,6 +132,8 @@ namespace CrossfireCore.Managers.MapSizeManagement
             }
 
             //Request the maximum map size
+            Logger.Info("Client requested maximum mapsize");
+
             SetMapSizeInternal(0, 0);
 
             if ((WantedWidth > 0) && (WantedHeight > 0))
@@ -142,7 +150,7 @@ namespace CrossfireCore.Managers.MapSizeManagement
             WantedWidth = width;
             WantedHeight = height;
 
-            Logger.Info("Wanted mapsize is {0}x{1}", width, height);
+            Logger.Info("Client requested mapsize of {0}x{1}", width, height);
 
             //Setup server: Note that older servers don't understand setup command
             //              and if we aren't connected, this will be 0
@@ -153,13 +161,19 @@ namespace CrossfireCore.Managers.MapSizeManagement
                 return true;
             }
 
-            return SetMapSizeInternal(width, height);
+            if (!SetMapSizeInternal(width, height))
+                return false;
+
+            WantedWidth = 0;
+            WantedHeight = 0;
+
+            return true;
         }
 
         private bool SetMapSizeInternal(int width, int height)
         {
             //Send the mapsize command
-            if (!Builder.SendSetup("mapsize", string.Format("{0}x{1}", width, height)))
+            if (!Builder.SendSetup("mapsize", $"{width}x{height}"))
                 return false;
 
             //If we successfully sent the command, save the size to match up with the
@@ -183,32 +197,6 @@ namespace CrossfireCore.Managers.MapSizeManagement
 
                 OnMapSizeChanged(new MapSizeEventArgs(CurrentMapWidth, CurrentMapHeight));
             }
-        }
-
-        public static bool ParseMapSize(string mapsize, out int width, out int height)
-        {
-            //Check for setup command failure
-            if (string.IsNullOrWhiteSpace(mapsize) || (mapsize == "FALSE"))
-            {
-                width = Config.MAP_CLIENT_X_DEFAULT;
-                height = Config.MAP_CLIENT_Y_DEFAULT;
-                return false;
-            }
-
-            //match pattern of (number)x(number) with allowed whitespace and case insensitive x
-            var match = System.Text.RegularExpressions.Regex.Match(mapsize, @"^\s*(\d+)\s*[xX]\s*(\d+)\s*$");
-            if (!match.Success)
-            {
-                width = Config.MAP_CLIENT_X_DEFAULT;
-                height = Config.MAP_CLIENT_Y_DEFAULT;
-                return false;
-            }
-
-            //we know we've captured digits so we can assume int.Parse() won't fail here, hence no error checking
-            width = int.Parse(match.Groups[1].Value);
-            height = int.Parse(match.Groups[2].Value);
-
-            return true;
         }
 
         private bool HandleMapSize(string mapsize)
@@ -256,7 +244,9 @@ namespace CrossfireCore.Managers.MapSizeManagement
                 MaximumMapWidth = serverWidth;
                 MaximumMapHeight = serverHeight;
 
-                Logger.Info("Setup: Maximum mapsize is {0}x{1}", MaximumMapWidth, MaximumMapHeight);
+                Logger.Info("Setup: Server returned maximum mapsize is {0}x{1}", MaximumMapWidth, MaximumMapHeight);
+
+                OnMaximumMapSizeChanged(new MapSizeEventArgs(MaximumMapWidth, MaximumMapHeight));
                 return true;
             }
 
@@ -266,7 +256,7 @@ namespace CrossfireCore.Managers.MapSizeManagement
                 CurrentMapWidth = serverWidth;
                 CurrentMapHeight = serverHeight;
 
-                Logger.Info("Setup: Set current mapsize to {0}x{1}", CurrentMapWidth, CurrentMapHeight);
+                Logger.Info("Setup: Server has set current mapsize to {0}x{1}", CurrentMapWidth, CurrentMapHeight);
 
                 OnMapSizeChanged(RequestedMapSize);
                 return true;
