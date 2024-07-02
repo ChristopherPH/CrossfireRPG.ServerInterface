@@ -464,17 +464,17 @@ namespace CrossfireCore.ServerInterface
     }
 
 
-    public class ConnectionPacketEventArgs
+    public class ConnectionPacketEventArgs : EventArgs
     {
         public byte[] Packet { get; set; }
     }
 
-    public class ConnectionStatusEventArgs
+    public class ConnectionStatusEventArgs : EventArgs
     {
         public ConnectionStatuses Status { get; set; }
     }
 
-    public class ConnectionErrorEventArgs
+    public class ConnectionErrorEventArgs: EventArgs
     {
         public int ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
