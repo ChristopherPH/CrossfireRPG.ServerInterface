@@ -87,10 +87,10 @@ namespace CrossfireCore.ServerInterface
                 return false;
             }
 
-            Logger.Info("Connecting to {0}:{1}", Host, Port);
-
             this.Host = Host;
             this.Port = Port;
+
+            Logger.Info($"Connecting to {this.Host}:{this.Port}");
 
             SetConnectionStatus(ConnectionStatuses.Connecting);
 
@@ -159,12 +159,13 @@ namespace CrossfireCore.ServerInterface
             System.Diagnostics.Debug.Assert(_stream.CanRead);
             System.Diagnostics.Debug.Assert(_stream.CanWrite);
 
+            //notify connected
+            Logger.Info($"Connected to {this.Host}:{this.Port}");
+
+            SetConnectionStatus(ConnectionStatuses.Connected);
+
             //start waiting for data
             WaitForBytes(new StateObject(client, _stream));
-
-            //notify connected
-            Logger.Info("Connected");
-            SetConnectionStatus(ConnectionStatuses.Connected);
         }
 
         private void Cleanup()
@@ -194,11 +195,12 @@ namespace CrossfireCore.ServerInterface
             if ((_client != null) && _client.Connected)
             {
                 _client.Close();
-                Logger.Info("Disconnected");
+
+                Logger.Info($"Disconnected from {this.Host}:{this.Port}");
             }
             else
             {
-                Logger.Debug("Disconnected (but wasn't connected)");
+                Logger.Info($"Disconnected from {this.Host}:{this.Port} (but wasn't connected)");
             }
 
             SetConnectionStatus(ConnectionStatuses.Disconnected);
