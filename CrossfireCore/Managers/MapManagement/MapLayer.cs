@@ -10,6 +10,9 @@ namespace CrossfireCore.Managers.MapManagement
     //      already provides an equals and ==
     public class MapLayer
     {
+        [XmlIgnore]
+        public int LayerIndex { get; set; } = -1;
+
         [XmlAttribute]
         public int Face { get; set; } = 0;
 
@@ -110,6 +113,7 @@ namespace CrossfireCore.Managers.MapManagement
         {
             return new MapLayer()
             {
+                LayerIndex = this.LayerIndex,
                 Face = this.Face,
                 SmoothLevel = this.SmoothLevel,
                 Animation = this.Animation,

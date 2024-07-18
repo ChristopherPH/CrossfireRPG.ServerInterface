@@ -323,6 +323,7 @@ namespace CrossfireCore.Managers.MapManagement
                 //add or set face layer
                 var layer = new MapLayer()
                 {
+                    LayerIndex = e.Layer,
                     Face = e.Face,
                     SmoothLevel = e.Smooth,
                 };
@@ -392,6 +393,7 @@ namespace CrossfireCore.Managers.MapManagement
                 //add or set animation layer
                 var layer = new MapLayer()
                 {
+                    LayerIndex = e.Layer,
                     SmoothLevel = e.Smooth,
                     Animation = e.Animation,
                     AnimationFlags = e.AnimationFlags,

@@ -64,7 +64,7 @@ namespace CrossfireCore.Managers.MapManagement
             Layers = new MapLayer[ServerConfig.Map.MAP_LAYERS];
 
             for (int i = 0; i < Layers.Length; i++)
-                Layers[i] = new MapLayer();
+                Layers[i] = new MapLayer() { LayerIndex = i };
 
             Labels.Clear();
         }
