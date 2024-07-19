@@ -213,10 +213,10 @@ namespace CrossfireCore.Managers.FaceManagement
         }
 
 
-        public TImage GetSmoothFace(Int32 SmoothFace)
+        public Int32 GetSmoothFace(Int32 SmoothFace)
         {
             if (SmoothFace == 0)
-                return null;
+                return 0;
 
             bool found;
             SmoothInfo info;
@@ -228,9 +228,9 @@ namespace CrossfireCore.Managers.FaceManagement
             //      request missing smoothing
 
             if (!found)
-                return null;
+                return 0;
 
-            return GetFace(info.SmoothFace);
+            return info.SmoothFace;
         }
 
         private void _Handler_Smooth(object sender, MessageHandler.SmoothEventArgs e)
