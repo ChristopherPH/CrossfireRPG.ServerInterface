@@ -712,15 +712,20 @@ namespace CrossfireCore.Managers.MapManagement
             //so we need to clear them
             lock (_mapDataLock)
             {
-                for (int srcX = oldViewportX; srcX < MapObject.ViewportWidth + NewServer.MaxHeadOffset; srcX++)
+                int srcX = oldViewportX;
+
+                for (int x = 0; x < MapObject.ViewportWidth + NewServer.MaxHeadOffset; x++, srcX++)
                 {
-                    for (int srcY = oldViewportY; srcY < MapObject.ViewportHeight + NewServer.MaxHeadOffset; srcY++)
+                    int srcY = oldViewportY;
+
+                    for (int y = 0; y < MapObject.ViewportHeight + NewServer.MaxHeadOffset; y++, srcY++)
                     {
                         var cell = MapObject.GetCell(srcX, srcY);
                         if (cell == null)
                             continue;
 
                         //Check if visible cell has gone out of viewport.
+                        //Check if OOB cell has been scrolled
                         //Note this doesn't catch cells that were already
                         //not visible (F.O.W) then moved out of the viewport.
                         if (!cell.FogOfWar && !IsMapCellInViewport(cell))
