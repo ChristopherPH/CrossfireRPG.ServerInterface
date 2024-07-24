@@ -94,8 +94,8 @@ namespace CrossfireCore.Managers.MapManagement
 
         //Private variables for handling cell updates
         bool _workingCellUpdated;
+        bool _workingCellLayerUpdated;
         List<MapLabel> _savedCellLabels = new List<MapLabel>();
-
 
         protected override void ClearData(bool disconnected)
         {
@@ -204,6 +204,7 @@ namespace CrossfireCore.Managers.MapManagement
 
             //Mark cell as not yet updated
             _workingCellUpdated = false;
+            _workingCellLayerUpdated = false;
             _savedCellLabels.Clear();
 
             lock (_mapDataLock)
@@ -294,19 +295,29 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell was part of FOW data,
-                    //it means that it had previously gone out of view.
-                    //Since we've now gotten information, we need to clear
-                    //the cell data like the server would so we can start
-                    //the tile fresh.
-                    //However, if the cell was originally out of bounds,
-                    //then the server would not have ever cleared the tile
-                    //so we can ignore this. (The server doesn't remember
-                    //when it sends OOB data so it doesn't ever clear it.)
-                    if (cell.FogOfWar && !OutOfBounds)
+                    /* If the pre-existing cell was part of FOW data, it means
+                     * that it had previously gone out of view.
+                     *
+                     * If the pre-existing cell was out of bounds, it means
+                     * that the server does not know about this cell.
+                     * (The server doesn't remember when it sends OOB data so
+                     * it doesn't ever clear it.)
+                     *
+                     * Since we've now gotten information for the cell location,
+                     * we need to clear the cell data like the server expects,
+                     * so we can start the tile fresh. */
+                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                     {
-                        cell.ClearCell();
-                        _workingCellUpdated = true; //FOW changed
+                        /* Only clear cell if the cell has not yet been
+                         * cleared on this map location update */
+                        if (!_workingCellLayerUpdated)
+                        {
+                            cell.ClearCell();
+
+                            /* Always update on FOW change,
+                             * TODO: Check conditions to update on OOB */
+                            _workingCellUpdated = true;
+                        }
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -346,6 +357,9 @@ namespace CrossfireCore.Managers.MapManagement
                 //command for this data.
                 cell.OutOfBounds = OutOfBounds;
                 cell.FogOfWar = false;
+
+                //Mark this cell location as updated so its not cleared again
+                _workingCellLayerUpdated = true;
             }
         }
 
@@ -364,19 +378,29 @@ namespace CrossfireCore.Managers.MapManagement
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell was part of FOW data,
-                    //it means that it had previously gone out of view.
-                    //Since we've now gotten information, we need to clear
-                    //the cell data like the server would so we can start
-                    //the tile fresh.
-                    //However, if the cell was originally out of bounds,
-                    //then the server would not have ever cleared the tile
-                    //so we can ignore this. (The server doesn't remember
-                    //when it sends OOB data so it doesn't ever clear it.)
-                    if (cell.FogOfWar && !OutOfBounds)
+                    /* If the pre-existing cell was part of FOW data, it means
+                     * that it had previously gone out of view.
+                     *
+                     * If the pre-existing cell was out of bounds, it means
+                     * that the server does not know about this cell.
+                     * (The server doesn't remember when it sends OOB data so
+                     * it doesn't ever clear it.)
+                     *
+                     * Since we've now gotten information for the cell location,
+                     * we need to clear the cell data like the server expects,
+                     * so we can start the tile fresh. */
+                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                     {
-                        cell.ClearCell();
-                        _workingCellUpdated = true; //FOW changed
+                        /* Only clear cell if the cell has not yet been
+                         * cleared on this map location update */
+                        if (!_workingCellLayerUpdated)
+                        {
+                            cell.ClearCell();
+
+                            /* Always update on FOW change,
+                             * TODO: Check conditions to update on OOB */
+                            _workingCellUpdated = true;
+                        }
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -425,6 +449,9 @@ namespace CrossfireCore.Managers.MapManagement
                 //command for this data.
                 cell.OutOfBounds = OutOfBounds;
                 cell.FogOfWar = false;
+
+                //Mark this cell location as updated so its not cleared again
+                _workingCellLayerUpdated = true;
             }
         }
 
@@ -433,21 +460,39 @@ namespace CrossfireCore.Managers.MapManagement
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
+            var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
+                (e.X >= MapsizeManager.CurrentMapWidth) ||
+                (e.Y >= MapsizeManager.CurrentMapHeight);
+
             lock (_mapDataLock)
             {
                 //Get pre-existing cell at x/y
                 var cell = MapObject.GetCell(worldX, worldY);
                 if (cell != null)
                 {
-                    //if the pre-existing cell was part of FOW data,
-                    //it means that it had previously gone out of view.
-                    //Since we've now gotten information, we need to clear
-                    //the cell data like the server would so we can start
-                    //the tile fresh.
-                    if (cell.FogOfWar)
+                    /* If the pre-existing cell was part of FOW data, it means
+                     * that it had previously gone out of view.
+                     *
+                     * If the pre-existing cell was out of bounds, it means
+                     * that the server does not know about this cell.
+                     * (The server doesn't remember when it sends OOB data so
+                     * it doesn't ever clear it.)
+                     *
+                     * Since we've now gotten information for the cell location,
+                     * we need to clear the cell data like the server expects,
+                     * so we can start the tile fresh. */
+                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                     {
-                        cell.ClearCell();
-                        _workingCellUpdated = true; //FOW changed
+                        /* Only clear cell if the cell has not yet been
+                         * cleared on this map location update */
+                        if (!_workingCellLayerUpdated)
+                        {
+                            cell.ClearCell();
+
+                            /* Always update on FOW change,
+                             * TODO: Check conditions to update on OOB */
+                            _workingCellUpdated = true;
+                        }
                     }
                 }
                 else //cell doesn't exist, create a new cell
@@ -467,7 +512,14 @@ namespace CrossfireCore.Managers.MapManagement
                     _workingCellUpdated = true;
                 }
 
+                //If the face is out of the visible map area, mark it as
+                //out of bounds, and note the server doesn't send a clear
+                //command for this data.
+                cell.OutOfBounds = OutOfBounds;
                 cell.FogOfWar = false;
+
+                //Mark this cell location as updated so its not cleared again
+                _workingCellLayerUpdated = true;
             }
         }
 
@@ -475,6 +527,10 @@ namespace CrossfireCore.Managers.MapManagement
         {
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
+
+            var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
+                (e.X >= MapsizeManager.CurrentMapWidth) ||
+                (e.Y >= MapsizeManager.CurrentMapHeight);
 
             lock (_mapDataLock)
             {
@@ -484,15 +540,27 @@ namespace CrossfireCore.Managers.MapManagement
                     var cell = MapObject.GetCell(worldX, worldY);
                     if (cell != null)
                     {
-                        //if the pre-existing cell was part of FOW data,
-                        //it means that it had previously gone out of view.
-                        //Since we've now gotten information, we need to clear
-                        //the cell data like the server would so we can start
-                        //the tile fresh.
-                        if (cell.FogOfWar)
+                        /* If the pre-existing cell was part of FOW data, it means
+                         * that it had previously gone out of view.
+                         *
+                         * If the pre-existing cell was out of bounds, it means
+                         * that the server does not know about this cell.
+                         * (The server doesn't remember when it sends OOB data so
+                         * it doesn't ever clear it.)
+                         *
+                         * Since we've now gotten information for the cell location,
+                         * we need to clear the cell data like the server expects,
+                         * so we can start the tile fresh. */
+                        if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                         {
-                            cell.ClearCell();
-                            _workingCellUpdated = true; //FOW changed
+                            if (!_workingCellLayerUpdated)
+                            {
+                                cell.ClearCell();
+
+                                /* Always update on FOW change,
+                                 * TODO: Check conditions to update on OOB */
+                                _workingCellUpdated = true;
+                            }
                         }
                     }
                     else //cell doesn't exist, create a new cell
@@ -517,7 +585,14 @@ namespace CrossfireCore.Managers.MapManagement
                     if (!cell.Labels.Contains(mapLabel))
                         cell.Labels.Add(mapLabel);
 
+                    //If the face is out of the visible map area, mark it as
+                    //out of bounds, and note the server doesn't send a clear
+                    //command for this data.
+                    cell.OutOfBounds = OutOfBounds;
                     cell.FogOfWar = false;
+
+                    //Mark this cell location as updated so its not cleared again
+                    _workingCellLayerUpdated = true;
                 }
             }
         }
@@ -554,6 +629,10 @@ namespace CrossfireCore.Managers.MapManagement
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
+            var OutOfBounds = (e.X < 0) || (e.Y < 0) ||
+                (e.X >= MapsizeManager.CurrentMapWidth) ||
+                (e.Y >= MapsizeManager.CurrentMapHeight);
+
             //_Logger.Warning($"Map: Cell {worldX}/{worldY} clear layer {e.Layer}");
 
             lock (_mapDataLock)
@@ -562,8 +641,52 @@ namespace CrossfireCore.Managers.MapManagement
 
                 if (cell != null)
                 {
-                    cell.GetLayer(e.Layer).ClearLayer();
-                    _workingCellUpdated = true;
+                    /* If the pre-existing cell was part of FOW data, it means
+                     * that it had previously gone out of view.
+                     *
+                     * If the pre-existing cell was out of bounds, it means
+                     * that the server does not know about this cell.
+                     * (The server doesn't remember when it sends OOB data so
+                     * it doesn't ever clear it.)
+                     *
+                     * Since we've now gotten information for the cell location,
+                     * we need to clear the cell data like the server expects,
+                     * so we can start the tile fresh. */
+                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    {
+                        /* Only clear cell if the cell has not yet been
+                         * cleared on this map location update */
+                        if (!_workingCellLayerUpdated)
+                        {
+                            cell.ClearCell();
+
+                            /* Always update on FOW change,
+                             * TODO: Check conditions to update on OOB */
+                            _workingCellUpdated = true;
+                        }
+                    }
+
+                    //Create a new, empty, cleared layer
+                    var layer = new MapLayer()
+                    {
+                        LayerIndex = e.Layer,
+                    };
+
+                    //Check for layer changes
+                    if (cell.Layers[e.Layer] != layer)
+                    {
+                        cell.Layers[e.Layer] = layer;
+                        _workingCellUpdated = true;
+                    }
+
+                    //If the face is out of the visible map area, mark it as
+                    //out of bounds, and note the server doesn't send a clear
+                    //command for this data.
+                    cell.OutOfBounds = OutOfBounds;
+                    cell.FogOfWar = false;
+
+                    //Mark this cell location as updated so its not cleared again
+                    _workingCellLayerUpdated = true;
                 }
             }
         }
