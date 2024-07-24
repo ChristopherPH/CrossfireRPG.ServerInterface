@@ -104,9 +104,9 @@ namespace CrossfireCore.Managers.MapManagement
         public override string ToString()
         {
             if (IsAnimation)
-                return $"Anim: {Animation}";
+                return $"{LayerIndex} Anim: {Animation} {AnimationFlags} {AnimationSpeed} Smooth: {SmoothLevel}";
             else
-                return $"Face: {Face}";
+                return $"{LayerIndex} Face: {Face}";
         }
 
         public MapLayer SaveLayer()

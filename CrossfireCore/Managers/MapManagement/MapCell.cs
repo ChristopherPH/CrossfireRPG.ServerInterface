@@ -81,7 +81,7 @@ namespace CrossfireCore.Managers.MapManagement
 
         public override string ToString()
         {
-            return $"Cell:{WorldX}/{WorldY} FOW:{FogOfWar}";
+            return $"Cell:{WorldX}/{WorldY} FOW:{FogOfWar} Dark:{Darkness} OOB:{OutOfBounds}";
         }
 
         public MapCell SaveCell()
