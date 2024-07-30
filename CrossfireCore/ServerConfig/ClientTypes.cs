@@ -2,10 +2,10 @@
 
 namespace CrossfireCore.ServerConfig
 {
-    public static class ClientTypes
-    {
-        public static string GetClientTypeInfo(UInt16 ClientType, out string Group)
-        {
+	public static class ClientTypes
+	{
+		public static string GetClientTypeInfo(UInt16 ClientType, out string Group)
+		{
 			Group = "Unknown";
 
 			if (ClientType <= 0)
@@ -17,12 +17,12 @@ namespace CrossfireCore.ServerConfig
 				Group = "Special";
 
 				switch (ClientType)
-                {
+				{
 					case 1: return "Bomb"; //47
 					case 41: return "Power Crystal"; //156
 
 					default: return Group;
-                }
+				}
 			}
 
 			//Containers - put near top to make things easier for the player.
@@ -73,6 +73,7 @@ namespace CrossfireCore.ServerConfig
 					case 159: return "Arrow"; //13
 					case 161: return "Crossbow";
 					case 165: return "Bolt";
+					case 170: return "Bombs";
 
 					default: return Group;
 				}
@@ -177,8 +178,8 @@ namespace CrossfireCore.ServerConfig
 
 					switch (ClientType)
 					{
-						case 300: return "Artifact Bracers"; //104
-						case 301: return "Bracers"; //104
+						case 310: return "Artifact Bracers"; //104
+						case 311: return "Bracers"; //104
 
 						default: return Group;
 					}
@@ -254,6 +255,7 @@ namespace CrossfireCore.ServerConfig
 					case 628: return "Dust";
 					case 641: return "Raw"; //73
 					case 642: return "Refined"; //true lead, mercury, etc
+					case 645: return "Smithing";
 					case 649: return "Poison"; //vial_poison.arc
 
 					default: return Group;
@@ -394,5 +396,5 @@ namespace CrossfireCore.ServerConfig
 
 			return ClientType.ToString();
 		}
-    }
+	}
 }
