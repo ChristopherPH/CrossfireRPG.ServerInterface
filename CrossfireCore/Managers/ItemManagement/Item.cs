@@ -22,6 +22,8 @@ namespace CrossfireCore.Managers.ItemManagement
 
 
         public NewClient.ItemFlags FlagsNoPick => Flags & ~NewClient.ItemFlags.NoPick;
+        public NewClient.ItemFlags FlagsNoApply => Flags & ~NewClient.ItemFlags.Applied_Mask;
+        public NewClient.ItemFlags FlagsNoApplyNoPick => Flags & ~(NewClient.ItemFlags.Applied_Mask | NewClient.ItemFlags.NoPick);
 
 
         /// <summary>
