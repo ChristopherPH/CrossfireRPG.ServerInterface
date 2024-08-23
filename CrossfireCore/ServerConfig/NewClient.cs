@@ -190,8 +190,6 @@ namespace CrossfireCore.ServerConfig
         [Flags]
         public enum ItemFlags : UInt32
         {
-            None = 0,
-
             /// <summary>
             /// Bows, Wands, Rods
             /// </summary>
