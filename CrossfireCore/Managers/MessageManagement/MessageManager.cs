@@ -87,7 +87,12 @@ namespace CrossfireCore.Managers.MessageManagement
             });
         }
 
-        public static string GetMessageSubType(NewClient.MsgTypes MessageType, int SubType)
+        public static string GetMessageTypeDescription(NewClient.MsgTypes MessageType)
+        {
+            return MessageType.GetDescription();
+        }
+
+        public static string GetMessageTypeDescription(NewClient.MsgTypes MessageType, int SubType)
         {
             switch (MessageType)
             {
