@@ -13,7 +13,7 @@
         protected abstract void HandleSetup(string SetupCommand, string SetupValue);
         protected abstract void HandleVersion(int csval, int scval, string verstring);
 
-        private void AddProtocolParsers()
+        private void AddHandshakeParsers()
         {
             AddCommandHandler("addme_failed", new CommandParserDefinition(Parse_addme_failed));
             AddCommandHandler("addme_success", new CommandParserDefinition(Parse_addme_success));

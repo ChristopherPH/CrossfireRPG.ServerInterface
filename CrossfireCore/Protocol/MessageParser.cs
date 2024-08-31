@@ -35,6 +35,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             AddAudioParsers();
             AddCommandParsers();
             AddGraphicsParsers();
+            AddHandshakeParsers();
             AddInfoParsers();
             AddItemParsers();
             AddKnowledgeParsers();
@@ -42,7 +43,6 @@ namespace CrossfireRPG.ServerInterface.Protocol
             AddMessageParsers();
             AddMiscParsers();
             AddPlayerParsers();
-            AddProtocolParsers();
             AddQuestParsers();
             AddSpellParsers();
         }

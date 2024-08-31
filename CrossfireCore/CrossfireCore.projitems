@@ -48,7 +48,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\PlayerManagement\Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\PlayerManagement\PlayerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkillManagement\SkillManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageBuilder_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Handshake\MessageBuilder_Handshake.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageHandler_Knowledge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Knowledge\MessageParser_Knowledge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\QuestManager.cs" />
@@ -78,8 +78,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Player\MessageParser_Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Graphics\MessageHandler_Graphics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Graphics\MessageParser_Graphics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageHandler_Protocol.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\Protocol\MessageParser_Protocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Handshake\MessageHandler_Handshake.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\Handshake\MessageParser_Handshake.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Commands\MessageHandler_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Commands\MessageParser_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Quests\MessageHandler_Quest.cs" />
@@ -100,8 +100,6 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Protocol\" />
     <Folder Include="$(MSBuildThisFileDirectory)Network\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Core\Messenger\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Core\Parser\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\InfoManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\MessageManagement\" />
