@@ -1,7 +1,7 @@
 ﻿using CrossfireRPG.ServerInterface.Network;
 using System;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     /// <summary>
     /// MessageParser is used to receive messages from the server and generate

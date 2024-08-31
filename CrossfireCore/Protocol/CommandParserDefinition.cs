@@ -1,6 +1,6 @@
 ﻿using Common;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     public class CommandParserDefinition
     {

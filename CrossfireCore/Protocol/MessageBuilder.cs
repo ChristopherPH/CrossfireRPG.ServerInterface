@@ -1,7 +1,7 @@
 ﻿using Common;
 using CrossfireRPG.ServerInterface.Network;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     /// <summary>
     /// MessageBuilder is used to create and send messages to the server
@@ -25,7 +25,7 @@ namespace CrossfireCore.ServerInterface
         private SocketConnection _Connection;
 
         /// <summary>
-        /// Sends an assembled message to the server
+        /// Sends an assembled protocol message to the server
         /// </summary>
         /// <returns>True if the message was sent, false if not</returns>
         private bool SendMessage(BufferAssembler ba)
@@ -42,7 +42,7 @@ namespace CrossfireCore.ServerInterface
         }
 
         /// <summary>
-        /// Sends a raw string to the server
+        /// Sends a raw protocol string to the server
         /// </summary>
         /// <returns>True if the message was sent, false if not</returns>
         public bool SendMessage(string message)

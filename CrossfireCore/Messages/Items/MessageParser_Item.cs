@@ -2,7 +2,7 @@
 using System;
 using System.Text;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageParser
     {

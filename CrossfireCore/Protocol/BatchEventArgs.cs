@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     /// <summary>
     /// Base event args for messages that raise a batch of events

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageHandler
     {

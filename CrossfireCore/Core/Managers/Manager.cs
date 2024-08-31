@@ -1,5 +1,5 @@
-﻿using CrossfireCore.ServerInterface;
-using CrossfireRPG.ServerInterface.Network;
+﻿using CrossfireRPG.ServerInterface.Network;
+using CrossfireRPG.ServerInterface.Protocol;
 
 namespace CrossfireCore.Managers
 {

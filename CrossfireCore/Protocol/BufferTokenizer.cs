@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     public static class BufferTokenizer
     {

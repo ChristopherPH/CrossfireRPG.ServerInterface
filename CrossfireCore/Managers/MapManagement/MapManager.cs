@@ -1,9 +1,9 @@
 ﻿using Common;
 using CrossfireCore.Managers.AnimationManagement;
 using CrossfireCore.Managers.MapSizeManagement;
-using CrossfireCore.ServerInterface;
 using CrossfireRPG.ServerInterface.Definitions;
 using CrossfireRPG.ServerInterface.Network;
+using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;

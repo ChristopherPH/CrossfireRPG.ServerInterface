@@ -1,6 +1,5 @@
-﻿using CrossfireCore.ServerInterface;
-using CrossfireRPG.ServerInterface.Network;
-using System;
+﻿using CrossfireRPG.ServerInterface.Network;
+using CrossfireRPG.ServerInterface.Protocol;
 using System.Collections.Generic;
 
 namespace CrossfireCore.Managers.SkillManagement

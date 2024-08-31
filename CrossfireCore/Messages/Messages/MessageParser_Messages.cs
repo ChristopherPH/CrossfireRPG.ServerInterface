@@ -1,6 +1,6 @@
 ﻿using CrossfireRPG.ServerInterface.Definitions;
 
-namespace CrossfireCore.ServerInterface
+namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageParser
     {
