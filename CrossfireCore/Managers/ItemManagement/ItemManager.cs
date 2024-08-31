@@ -583,7 +583,7 @@ namespace CrossfireCore.Managers.ItemManagement
             if (item == null)
                 return;
 
-            Builder.SendMove((Int32)_PlayerTag, (Int32)item.Tag, count);
+            Builder.SendProtocolMove((Int32)_PlayerTag, (Int32)item.Tag, count);
         }
 
         public void MoveItemToGround(Item item, int count = 0)
@@ -591,7 +591,7 @@ namespace CrossfireCore.Managers.ItemManagement
             if (item == null)
                 return;
 
-            Builder.SendMove(0, (Int32)item.Tag, count);
+            Builder.SendProtocolMove(0, (Int32)item.Tag, count);
         }
 
         public void MoveItemToContainer(Item item, Item container, int count = 0)
@@ -599,7 +599,7 @@ namespace CrossfireCore.Managers.ItemManagement
             if (item == null || container == null)
                 return;
 
-            Builder.SendMove((Int32)container.Tag, (Int32)item.Tag, count);
+            Builder.SendProtocolMove((Int32)container.Tag, (Int32)item.Tag, count);
         }
 
         public void MoveItemToOpenContainer(Item item, int count = 0)

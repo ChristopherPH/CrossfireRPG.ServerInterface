@@ -2,11 +2,11 @@
 {
     public partial class MessageBuilder
     {
-        public bool SendHeartbeat()
+        public bool SendProtocolHeartbeat()
         {
             using (var ba = new BufferAssembler("beat", false))
             {
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

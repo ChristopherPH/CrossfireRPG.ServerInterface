@@ -6,39 +6,39 @@
         /// Start playing with the given PlayerName, assuming there is a logged in account
         /// </summary>
         /// <param name="PlayerName"></param>
-        public bool SendAccountPlay(string PlayerName)
+        public bool SendProtocolAccountPlay(string PlayerName)
         {
             using (var ba = new BufferAssembler("accountplay"))
             {
                 ba.AddString(PlayerName);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendAccountLogin(string UserName, string Password)
+        public bool SendProtocolAccountLogin(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountlogin"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendAccountNew(string UserName, string Password)
+        public bool SendProtocolAccountNew(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountnew"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendAccountAddPlayer(bool Force, string UserName, string Password)
+        public bool SendProtocolAccountAddPlayer(bool Force, string UserName, string Password)
         {
             using (var ba = new BufferAssembler("accountaddplayer"))
             {
@@ -46,26 +46,26 @@
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendAccountPW(string OldPassword, string NewPassword)
+        public bool SendProtocolAccountPW(string OldPassword, string NewPassword)
         {
             using (var ba = new BufferAssembler("accountpw"))
             {
                 ba.AddLengthPrefixedString(OldPassword);
                 ba.AddLengthPrefixedString(NewPassword);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendAddMe()
+        public bool SendProtocolAddMe()
         {
             using (var ba = new BufferAssembler("addme", false))
             {
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

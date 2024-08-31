@@ -9,7 +9,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// </summary>
         /// <param name="tag"></param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendApply(Int32 tag)
+        public bool SendProtocolApply(Int32 tag)
         {
             using (var ba = new BufferAssembler("apply"))
             {
@@ -19,7 +19,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 //to parse said high bit.
                 ba.AddIntAsString(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
@@ -28,7 +28,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// </summary>
         /// <param name="tag"></param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendExamine(Int32 tag)
+        public bool SendProtocolExamine(Int32 tag)
         {
             using (var ba = new BufferAssembler("examine"))
             {
@@ -38,7 +38,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 //to parse said high bit.
                 ba.AddIntAsString(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
@@ -49,7 +49,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// <param name="tag">Object tag to move</param>
         /// <param name="nrof">Number of items to move, 0=all</param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendMove(Int32 to, Int32 tag, Int32 nrof = 0)
+        public bool SendProtocolMove(Int32 to, Int32 tag, Int32 nrof = 0)
         {
             using (var ba = new BufferAssembler("move"))
             {
@@ -59,7 +59,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 ba.AddSpace();
                 ba.AddIntAsString(nrof);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
@@ -68,14 +68,14 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// </summary>
         /// <param name="tag"></param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendLock(UInt32 tag)
+        public bool SendProtocolLock(UInt32 tag)
         {
             using (var ba = new BufferAssembler("lock"))
             {
                 ba.AddByte((byte)1);
                 ba.AddUInt32(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
@@ -84,14 +84,14 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// </summary>
         /// <param name="tag"></param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendUnlock(UInt32 tag)
+        public bool SendProtocolUnlock(UInt32 tag)
         {
             using (var ba = new BufferAssembler("lock"))
             {
                 ba.AddByte((byte)0);
                 ba.AddUInt32(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
@@ -100,13 +100,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// </summary>
         /// <param name="tag"></param>
         /// <returns>true if protocol message sent</returns>
-        public bool SendMark(UInt32 tag)
+        public bool SendProtocolMark(UInt32 tag)
         {
             using (var ba = new BufferAssembler("mark"))
             {
                 ba.AddUInt32(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

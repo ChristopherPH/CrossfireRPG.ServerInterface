@@ -231,73 +231,73 @@ namespace CrossfireCore.Managers.InfoManagement
         //Supported Request functions
         public void RequestMOTD()
         {
-            Builder.SendRequestInfo(InfoTypeMODT);
+            Builder.SendProtocolRequestInfo(InfoTypeMODT);
         }
 
         public void RequestNews()
         {
-            Builder.SendRequestInfo(InfoTypeNews);
+            Builder.SendProtocolRequestInfo(InfoTypeNews);
         }
 
         public void RequestRules()
         {
-            Builder.SendRequestInfo(InfoTypeRules);
+            Builder.SendProtocolRequestInfo(InfoTypeRules);
         }
 
         public void RequestSkillInfo()
         {
-            Builder.SendRequestInfo(InfoTypeSkillInfo, 1);
+            Builder.SendProtocolRequestInfo(InfoTypeSkillInfo, 1);
 
             //TODO: only request skill extra if its available
             //      with the protocol version
             //      SkillExtra was added without bumping the protocol
             //      so this might be hard to do.
-            Builder.SendRequestInfo(InfoTypeSkillExtra, SkillExtraRequestLevel);
+            Builder.SendProtocolRequestInfo(InfoTypeSkillExtra, SkillExtraRequestLevel);
         }
 
         public void RequestExperienceTable()
         {
-            Builder.SendRequestInfo(InfoTypeExpTable);
+            Builder.SendProtocolRequestInfo(InfoTypeExpTable);
         }
 
         public void RequestSpellPaths()
         {
-            Builder.SendRequestInfo(InfoTypeSpellPaths);
+            Builder.SendProtocolRequestInfo(InfoTypeSpellPaths);
         }
 
         public void RequestKnowledgeInfo()
         {
-            Builder.SendRequestInfo(InfoTypeKnowledgeInfo);
+            Builder.SendProtocolRequestInfo(InfoTypeKnowledgeInfo);
         }
 
         public void RequestRaces()
         {
-            Builder.SendRequestInfo(InfoTypeRaceList);
+            Builder.SendProtocolRequestInfo(InfoTypeRaceList);
         }
 
         public void RequestClasses()
         {
-            Builder.SendRequestInfo(InfoTypeClassList);
+            Builder.SendProtocolRequestInfo(InfoTypeClassList);
         }
 
         public void RequestStartingMap()
         {
-            Builder.SendRequestInfo(InfoTypeStartingMap);
+            Builder.SendProtocolRequestInfo(InfoTypeStartingMap);
         }
 
         public void RequestNewCharInfo()
         {
-            Builder.SendRequestInfo(InfoTypeNewCharInfo);
+            Builder.SendProtocolRequestInfo(InfoTypeNewCharInfo);
         }
 
         public void RequestImageInfo()
         {
-            Builder.SendRequestInfo(InfoTypeImageInfo);
+            Builder.SendProtocolRequestInfo(InfoTypeImageInfo);
         }
 
         public void RequestImageSums(int start, int stop)
         {
-            Builder.SendRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
+            Builder.SendProtocolRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
         }
 
         protected override void ClearData(bool disconnected)
@@ -444,7 +444,7 @@ namespace CrossfireCore.Managers.InfoManagement
                     var race_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset, end).Split('|');
                     foreach (var race in race_arches)
                         if (!string.IsNullOrWhiteSpace(race))
-                            Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeRaceInfo, race));
+                            Builder.SendProtocolRequestInfo(string.Format("{0} {1}", InfoTypeRaceInfo, race));
                     break;
 
                 case InfoTypeRaceInfo:
@@ -562,7 +562,7 @@ namespace CrossfireCore.Managers.InfoManagement
                     var class_arches = BufferTokenizer.GetRemainingBytesAsString(e.Reply, ref offset, end).Split('|');
                     foreach (var cls in class_arches)
                         if (!string.IsNullOrWhiteSpace(cls))
-                            Builder.SendRequestInfo(string.Format("{0} {1}", InfoTypeClassInfo, cls));
+                            Builder.SendProtocolRequestInfo(string.Format("{0} {1}", InfoTypeClassInfo, cls));
                     break;
 
                 case InfoTypeClassInfo:

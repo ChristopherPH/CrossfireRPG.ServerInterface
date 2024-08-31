@@ -4,7 +4,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageBuilder
     {
-        public bool SendInscribe(UInt32 SpellTag, UInt32 ScrollTag)
+        public bool SendProtocolInscribe(UInt32 SpellTag, UInt32 ScrollTag)
         {
             using (var ba = new BufferAssembler("inscribe"))
             {
@@ -12,7 +12,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 ba.AddUInt32(SpellTag);
                 ba.AddUInt32(ScrollTag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

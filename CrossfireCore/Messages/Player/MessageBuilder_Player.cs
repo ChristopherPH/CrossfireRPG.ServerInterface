@@ -4,18 +4,18 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageBuilder
     {
-        public bool SendCreatePlayer(string UserName, string Password)
+        public bool SendProtocolCreatePlayer(string UserName, string Password)
         {
             using (var ba = new BufferAssembler("createplayer"))
             {
                 ba.AddLengthPrefixedString(UserName);
                 ba.AddLengthPrefixedString(Password);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendCreatePlayer(string UserName, string Password,
+        public bool SendProtocolCreatePlayer(string UserName, string Password,
             string RaceArch, string ClassArch, IEnumerable<KeyValuePair<string, int>> Stats,
             string StartingMapArch, IEnumerable<KeyValuePair<string, string>> Choices)
         {
@@ -72,7 +72,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                     }
                 }
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

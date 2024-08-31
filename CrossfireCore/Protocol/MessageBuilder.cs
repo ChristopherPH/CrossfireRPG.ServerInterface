@@ -28,7 +28,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// Sends an assembled protocol message to the server
         /// </summary>
         /// <returns>True if the message was sent, false if not</returns>
-        private bool SendMessage(BufferAssembler ba)
+        private bool SendProtocolMessage(BufferAssembler ba)
         {
             if (ba == null)
                 return false;
@@ -45,7 +45,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// Sends a raw protocol string to the server
         /// </summary>
         /// <returns>True if the message was sent, false if not</returns>
-        public bool SendMessage(string message)
+        public bool SendProtocolMessage(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
                 return false;

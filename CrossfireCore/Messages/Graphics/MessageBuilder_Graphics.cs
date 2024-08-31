@@ -4,13 +4,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageBuilder
     {
-        public bool SendAskFace(Int32 tag)
+        public bool SendProtocolAskFace(Int32 tag)
         {
             using (var ba = new BufferAssembler("askface"))
             {
                 ba.AddIntAsString(tag);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

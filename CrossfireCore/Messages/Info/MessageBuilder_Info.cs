@@ -2,17 +2,17 @@
 {
     public partial class MessageBuilder
     {
-        public bool SendRequestInfo(string Request)
+        public bool SendProtocolRequestInfo(string Request)
         {
             using (var ba = new BufferAssembler("requestinfo"))
             {
                 ba.AddString(Request);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
 
-        public bool SendRequestInfo(string Request, int level)
+        public bool SendProtocolRequestInfo(string Request, int level)
         {
             using (var ba = new BufferAssembler("requestinfo"))
             {
@@ -20,7 +20,7 @@
                 ba.AddSpace();
                 ba.AddIntAsString(level);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

@@ -111,7 +111,7 @@ namespace CrossfireCore.Managers.FaceManagement
                         //      sent, so we see missing knowledge and character portraits
                         //      during testing
                         Logger.Warning("Missing face {0}, requesting face", Face);
-                        Builder.SendAskFace((int)Face);
+                        Builder.SendProtocolAskFace((int)Face);
                     }
                 }
 
@@ -209,7 +209,7 @@ namespace CrossfireCore.Managers.FaceManagement
             if (!requestedFace)
             {
                 Logger.Warning($"Face {e.Face} not in cache, requesting face");
-                Builder.SendAskFace(e.Face);
+                Builder.SendProtocolAskFace(e.Face);
             }
         }
 

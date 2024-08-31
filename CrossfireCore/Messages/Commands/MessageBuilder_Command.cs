@@ -10,7 +10,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// Sends a NewCommand (UserCommand) to the server
         /// </summary>
         /// <returns>Command ID, or 0 on failure</returns>
-        public UInt16 SendNewCommand(string command, Int32 repeat = 0)
+        public UInt16 SendProtocolNewCommand(string command, Int32 repeat = 0)
         {
             using (var ba = new BufferAssembler("ncom")) //NewCommand
             {
@@ -24,7 +24,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 if (nComPacket == 0)    //don't allow a commandNumber of 0
                     nComPacket = 1;
 
-                if (SendMessage(ba) == false)
+                if (SendProtocolMessage(ba) == false)
                     return 0;   //no command
 
                 return tmpPacket;
@@ -35,13 +35,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// Reply to a query
         /// </summary>
         /// <param name="Reply"></param>
-        public bool SendReply(string Reply)
+        public bool SendProtocolReply(string Reply)
         {
             using (var ba = new BufferAssembler("reply"))
             {
                 ba.AddString(Reply);
 
-                return SendMessage(ba);
+                return SendProtocolMessage(ba);
             }
         }
     }

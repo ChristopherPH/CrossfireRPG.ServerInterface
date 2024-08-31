@@ -174,7 +174,7 @@ namespace CrossfireCore.Managers.MapSizeManagement
         private bool SetMapSizeInternal(int width, int height)
         {
             //Send the mapsize command
-            if (!Builder.SendSetup("mapsize", $"{width}x{height}"))
+            if (!Builder.SendProtocolSetup("mapsize", $"{width}x{height}"))
                 return false;
 
             //If we successfully sent the command, save the size to match up with the
