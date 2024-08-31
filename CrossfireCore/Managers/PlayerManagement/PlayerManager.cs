@@ -4,7 +4,7 @@ using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 
-namespace CrossfireCore.Managers.PlayerManagement
+namespace CrossfireRPG.ServerInterface.Managers.PlayerManagement
 {
     public class PlayerManager : DataObjectManager<Player>
     {

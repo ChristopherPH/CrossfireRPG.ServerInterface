@@ -9,9 +9,9 @@
     <Import_RootNamespace>CrossfireCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataModificationTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataModificationTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\AnimationManagement\AnimationDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\FaceManagement\FaceDataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\ContainerModifiedEventArgs.cs" />
@@ -28,10 +28,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SpellManagement\Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\ClientTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\Config.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObjectManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\Manager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataListManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataObjectManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\DataManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Account\MessageBuilder_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Commands\MessageBuilder_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Graphics\MessageBuilder_Graphics.cs" />

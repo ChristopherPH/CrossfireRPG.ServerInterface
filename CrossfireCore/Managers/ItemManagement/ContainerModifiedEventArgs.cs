@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.ItemManagement
+namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 {
     public class ContainerModifiedEventArgs : EventArgs
     {

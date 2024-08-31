@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.KnowledgeManagement
+namespace CrossfireRPG.ServerInterface.Managers.KnowledgeManagement
 {
     public class Knowledge : DataObject
     {

@@ -3,7 +3,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.QuestManagement
+namespace CrossfireRPG.ServerInterface.Managers.QuestManagement
 {
     public class QuestManager : DataListManager<UInt32, Quest, List<Quest>>
     {

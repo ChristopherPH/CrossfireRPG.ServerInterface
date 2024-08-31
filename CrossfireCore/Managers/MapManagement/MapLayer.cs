@@ -3,7 +3,7 @@ using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Xml.Serialization;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
 
     //TODO: Consider moving to a struct, as this

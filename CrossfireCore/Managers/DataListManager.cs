@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     /// <summary>
     /// Manager class that holds, manages and organizes data for multiple objects

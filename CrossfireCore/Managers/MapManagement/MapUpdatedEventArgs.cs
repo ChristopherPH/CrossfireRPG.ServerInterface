@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
     public class MapUpdatedEventArgs : DataUpdatedEventArgs<MapObject>
     {

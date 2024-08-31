@@ -2,7 +2,7 @@
 using CrossfireRPG.ServerInterface.Protocol;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.SkillManagement
+namespace CrossfireRPG.ServerInterface.Managers.SkillManagement
 {
     public class SkillManager : DataListManager<int, Skill, List<Skill>>
     {

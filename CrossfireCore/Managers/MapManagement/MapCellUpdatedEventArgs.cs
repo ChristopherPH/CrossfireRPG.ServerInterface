@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
     public class MapCellUpdatedEventArgs : EventArgs
     {

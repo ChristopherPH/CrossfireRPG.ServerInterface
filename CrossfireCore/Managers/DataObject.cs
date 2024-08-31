@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     /// <summary>
     /// Base class of objects that a DataObjectManager can manage

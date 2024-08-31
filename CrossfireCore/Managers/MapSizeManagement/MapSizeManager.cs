@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace CrossfireCore.Managers.MapSizeManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapSizeManagement
 {
     /// <summary>
     /// Manager to handle changing the map size

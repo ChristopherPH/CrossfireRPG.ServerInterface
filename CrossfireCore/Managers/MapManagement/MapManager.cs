@@ -1,14 +1,14 @@
 ﻿using Common;
-using CrossfireCore.Managers.AnimationManagement;
-using CrossfireCore.Managers.MapSizeManagement;
 using CrossfireRPG.ServerInterface.Definitions;
+using CrossfireRPG.ServerInterface.Managers.AnimationManagement;
+using CrossfireRPG.ServerInterface.Managers.MapSizeManagement;
 using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
     public class MapManager : DataObjectManager<MapObject>
     {

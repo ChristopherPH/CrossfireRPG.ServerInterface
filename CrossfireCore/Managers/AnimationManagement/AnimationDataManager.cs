@@ -4,7 +4,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.AnimationManagement
+namespace CrossfireRPG.ServerInterface.Managers.AnimationManagement
 {
     public class AnimationDataManager : DataManager
     {

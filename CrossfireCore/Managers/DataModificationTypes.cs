@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     [Flags]
     public enum DataModificationTypes

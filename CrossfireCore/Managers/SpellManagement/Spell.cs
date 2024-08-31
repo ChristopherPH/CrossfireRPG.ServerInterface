@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.SpellManagement
+namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 {
     public class Spell : DataObject
     {

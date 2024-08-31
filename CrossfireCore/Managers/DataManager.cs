@@ -1,7 +1,7 @@
 ﻿using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     /// <summary>
     /// Base class for a manager, used to hold, manage and organize data from the server

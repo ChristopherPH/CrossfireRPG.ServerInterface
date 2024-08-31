@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     public class DataUpdatedEventArgs<TDataObject> : EventArgs
     {

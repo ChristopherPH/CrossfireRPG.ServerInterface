@@ -2,7 +2,7 @@
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
 
-namespace CrossfireCore.Managers.ItemManagement
+namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 {
     public class Item : DataObject
     {

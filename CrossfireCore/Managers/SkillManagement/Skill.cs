@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.SkillManagement
+namespace CrossfireRPG.ServerInterface.Managers.SkillManagement
 {
     public class Skill : DataObject
     {

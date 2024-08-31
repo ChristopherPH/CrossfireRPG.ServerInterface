@@ -3,7 +3,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.KnowledgeManagement
+namespace CrossfireRPG.ServerInterface.Managers.KnowledgeManagement
 {
     public class KnowledgeManager : DataListManager<UInt32, Knowledge, List<Knowledge>>
     {

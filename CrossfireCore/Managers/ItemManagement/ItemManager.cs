@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossfireCore.Managers.ItemManagement
+namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 {
     public class ItemManager : DataListManager<UInt32, Item, List<Item>>
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
     public class MapCell
     {

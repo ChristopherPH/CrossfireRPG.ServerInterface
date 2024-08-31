@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrossfireCore.Managers.QuestManagement
+namespace CrossfireRPG.ServerInterface.Managers.QuestManagement
 {
     public class Quest : DataObject
     {

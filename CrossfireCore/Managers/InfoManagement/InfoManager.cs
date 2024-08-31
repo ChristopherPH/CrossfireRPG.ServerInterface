@@ -6,7 +6,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.InfoManagement
+namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
 {
     public class InfoManager : DataManager
     {

@@ -2,7 +2,7 @@
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 
-namespace CrossfireCore.Managers
+namespace CrossfireRPG.ServerInterface.Managers
 {
     /// <summary>
     /// Manager class that holds, manages and organizes data for a single object

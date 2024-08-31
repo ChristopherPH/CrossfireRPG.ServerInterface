@@ -3,7 +3,7 @@ using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.PlayerManagement
+namespace CrossfireRPG.ServerInterface.Managers.PlayerManagement
 {
     public class Player : DataObject
     {

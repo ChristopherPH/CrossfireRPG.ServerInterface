@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossfireCore.Managers.FaceManagement
+namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
 {
     public abstract class FaceDataManager<TImage> : DataManager where TImage : class
     {

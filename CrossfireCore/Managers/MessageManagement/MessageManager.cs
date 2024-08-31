@@ -4,7 +4,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using TheBlackRoom.System.Extensions;
 
-namespace CrossfireCore.Managers.MessageManagement
+namespace CrossfireRPG.ServerInterface.Managers.MessageManagement
 {
     public class MessageManager : Manager
     {

@@ -1,6 +1,6 @@
 ﻿using CrossfireRPG.ServerInterface.Definitions;
 
-namespace CrossfireCore.Managers.MapManagement
+namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
     public struct MapLabel
     {

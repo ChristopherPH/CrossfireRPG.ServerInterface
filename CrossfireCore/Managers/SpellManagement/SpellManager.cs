@@ -4,7 +4,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
 
-namespace CrossfireCore.Managers.SpellManagement
+namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 {
     public class SpellManager : DataListManager<UInt32, Spell, List<Spell>>
     {
