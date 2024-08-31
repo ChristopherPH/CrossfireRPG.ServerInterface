@@ -1,5 +1,5 @@
-﻿using Common;
-using CrossfireRPG.ServerInterface.Definitions;
+﻿using CrossfireRPG.ServerInterface.Definitions;
+using CrossfireRPG.Utility.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

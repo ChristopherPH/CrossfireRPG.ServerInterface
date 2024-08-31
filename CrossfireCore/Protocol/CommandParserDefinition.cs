@@ -1,4 +1,4 @@
-﻿using Common;
+﻿using CrossfireRPG.Utility.Logging;
 
 namespace CrossfireRPG.ServerInterface.Protocol
 {

@@ -1,5 +1,5 @@
-﻿using Common;
-using CrossfireRPG.ServerInterface.Definitions;
+﻿using CrossfireRPG.ServerInterface.Definitions;
+using CrossfireRPG.Utility.Logging;
 using System;
 using System.Net.Sockets;
 using System.Text;

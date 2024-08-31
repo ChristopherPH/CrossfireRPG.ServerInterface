@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrossfireRPG.Utility.Logging;
+using System;
 
 namespace CrossfireRPG.ServerInterface.Protocol
 {
@@ -10,7 +11,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         private void AddMiscParsers()
         {
             AddCommandHandler("pickup", new CommandParserDefinition(Parse_pickup));
-            AddCommandHandler("tick", new CommandParserDefinition(Parse_tick, Common.Logger.Levels.Debug));
+            AddCommandHandler("tick", new CommandParserDefinition(Parse_tick, Logger.Levels.Debug));
         }
 
         private bool Parse_pickup(byte[] Message, ref int DataOffset, int DataEnd)

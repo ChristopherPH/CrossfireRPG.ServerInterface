@@ -1,7 +1,7 @@
-﻿using Common;
-using CrossfireRPG.ServerInterface.Definitions;
+﻿using CrossfireRPG.ServerInterface.Definitions;
 using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
+using CrossfireRPG.Utility.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
