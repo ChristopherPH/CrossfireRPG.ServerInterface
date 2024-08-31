@@ -15,7 +15,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         public static Logger Logger { get; } = new Logger(nameof(MessageParser));
 
         /// <summary>
-        /// CrossfireCore.ServerInterface can send protocol messages up to and including version:
+        /// CrossfireRPG.ServerInterface can send protocol messages up to and including version:
         /// </summary>
         public const int ServerProtocolMaximumVersion = 1030;
 

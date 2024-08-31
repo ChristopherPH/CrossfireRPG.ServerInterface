@@ -12,7 +12,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         public static Logger Logger { get; } = new Logger(nameof(MessageBuilder));
 
         /// <summary>
-        /// CrossfireCore.ServerInterface can receive and understand protocol
+        /// CrossfireRPG.ServerInterface can receive and understand protocol
         /// messages up to and including version:
         /// </summary>
         public const int ClientProtocolVersion = 1023;

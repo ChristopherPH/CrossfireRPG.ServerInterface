@@ -22,7 +22,7 @@ namespace CrossfireRPG.ServerInterface.Definitions
             Layer_7 = 0x16,
             Layer_8 = 0x17,
             Layer_9 = 0x18,
-            Layer_10 = 0x19,    //highest layer (CrossfireCore.ServerConfig.Map.MAP_LAYERS)
+            Layer_10 = 0x19,    //highest layer (CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS)
         }
 
         public enum Map2Type_Label
