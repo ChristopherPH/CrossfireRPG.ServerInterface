@@ -1,9 +1,11 @@
 ﻿using Common;
+using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Net.Sockets;
 using System.Text;
 
-namespace CrossfireCore.ServerInterface
+
+namespace CrossfireRPG.ServerInterface.Network
 {
     public class SocketConnection
     {
@@ -30,7 +32,7 @@ namespace CrossfireCore.ServerInterface
         public string Host { get; private set; } = string.Empty;
         public int Port { get; private set; } = 0;
 
-        public bool Connect(string Host = DefaultServerHost, int Port = ServerConfig.Config.CSPORT)
+        public bool Connect(string Host = DefaultServerHost, int Port = Config.CSPORT)
         {
             Disconnect();
 

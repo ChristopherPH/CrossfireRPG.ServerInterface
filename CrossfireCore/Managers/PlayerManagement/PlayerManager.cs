@@ -1,6 +1,7 @@
 ﻿using Common;
-using CrossfireCore.ServerConfig;
 using CrossfireCore.ServerInterface;
+using CrossfireRPG.ServerInterface.Definitions;
+using CrossfireRPG.ServerInterface.Network;
 using System;
 
 namespace CrossfireCore.Managers.PlayerManagement

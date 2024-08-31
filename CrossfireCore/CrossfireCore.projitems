@@ -26,8 +26,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\Quest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkillManagement\Skill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SpellManagement\Spell.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\ClientTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Config.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\ClientTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataListManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Managers\DataManager.cs" />
@@ -57,11 +57,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Info\MessageParser_Info.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Spells\MessageBuilder_Spell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SpellManagement\SpellManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\Map.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\NewServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\CommandParserDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\MetaServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewClient_MessageTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Network\MetaServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\NewClient_MessageTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageHandler_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Audio\MessageHandler_Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\Account\MessageParser_Account.cs" />
@@ -91,14 +91,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Core\Messenger\MessageBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConfig\NewClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\NewClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\BatchEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\InfoManagement\InfoManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Core\Parser\MessageHandlerEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Core\Net\SocketConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Network\SocketConnection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Core\Net\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Network\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Messenger\" />
     <Folder Include="$(MSBuildThisFileDirectory)Core\Parser\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\" />

@@ -1,6 +1,6 @@
 ﻿#define MAPOBJECT_SERIALIZATION
 using Common;
-using CrossfireCore.ServerConfig;
+using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

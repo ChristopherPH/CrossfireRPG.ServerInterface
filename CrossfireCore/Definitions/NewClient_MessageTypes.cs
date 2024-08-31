@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel;
 
-namespace CrossfireCore.ServerConfig
+namespace CrossfireRPG.ServerInterface.Definitions
 {
+    /// <summary>
+    /// MsgType Constants from CrossfireRPG server include file: newclient.h
+    /// </summary>
     public static partial class NewClient
     {
         public enum MsgTypes

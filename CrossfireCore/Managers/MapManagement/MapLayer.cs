@@ -1,5 +1,5 @@
 ﻿#define MAPOBJECT_SERIALIZATION
-using CrossfireCore.ServerConfig;
+using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Xml.Serialization;
 

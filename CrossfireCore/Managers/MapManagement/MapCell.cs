@@ -47,9 +47,9 @@ namespace CrossfireCore.Managers.MapManagement
         public int Darkness { get; set; } = 0;
 
 #if MAPOBJECT_SERIALIZATION
-        public MapLayer[] Layers { get; set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
+        public MapLayer[] Layers { get; set; } = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
 #else
-        public MapLayer[] Layers { get; private set; } = new MapLayer[ServerConfig.Map.MAP_LAYERS];
+        public MapLayer[] Layers { get; private set; } = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
 #endif
 
         [XmlIgnore]
@@ -61,7 +61,7 @@ namespace CrossfireCore.Managers.MapManagement
             OutOfBounds = false;
             Darkness = 0;
 
-            Layers = new MapLayer[ServerConfig.Map.MAP_LAYERS];
+            Layers = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
 
             for (int i = 0; i < Layers.Length; i++)
                 Layers[i] = new MapLayer() { LayerIndex = i };

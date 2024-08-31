@@ -1,4 +1,4 @@
-﻿using CrossfireCore.ServerConfig;
+﻿using CrossfireRPG.ServerInterface.Definitions;
 
 namespace CrossfireCore.Managers.MapManagement
 {

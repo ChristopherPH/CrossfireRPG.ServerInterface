@@ -1,7 +1,10 @@
 ﻿using System;
 
-namespace CrossfireCore.ServerConfig
+namespace CrossfireRPG.ServerInterface.Definitions
 {
+	/// <summary>
+	/// ClientType definitions
+	/// </summary>
 	public static class ClientTypes
 	{
 		public static string GetClientTypeInfo(UInt16 ClientType, out string Group)

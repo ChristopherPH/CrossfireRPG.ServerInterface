@@ -1,5 +1,8 @@
-﻿namespace CrossfireCore.ServerConfig
+﻿namespace CrossfireRPG.ServerInterface.Definitions
 {
+    /// <summary>
+    /// Constants from CrossfireRPG server include file: config.h
+    /// </summary>
     public static class Config
     {
         public const int CSPORT = 13327;

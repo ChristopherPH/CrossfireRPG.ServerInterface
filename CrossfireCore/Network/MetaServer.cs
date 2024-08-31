@@ -1,11 +1,11 @@
 ﻿using Common;
-using CrossfireCore.ServerConfig;
+using CrossfireRPG.ServerInterface.Definitions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 
-namespace CrossfireCore
+namespace CrossfireRPG.Network
 {
     public class MetaServer
     {

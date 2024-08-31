@@ -1,5 +1,6 @@
-﻿using CrossfireCore.ServerConfig;
-using CrossfireCore.ServerInterface;
+﻿using CrossfireCore.ServerInterface;
+using CrossfireRPG.ServerInterface.Definitions;
+using CrossfireRPG.ServerInterface.Network;
 using System;
 using TheBlackRoom.System.Extensions;
 
