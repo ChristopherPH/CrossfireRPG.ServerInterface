@@ -106,4 +106,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)Managers\MapSizeManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\PlayerManagement\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" />
+  </ItemGroup>
 </Project>

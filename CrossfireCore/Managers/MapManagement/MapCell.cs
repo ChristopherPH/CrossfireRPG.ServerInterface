@@ -1,7 +1,12 @@
-﻿#define MAPOBJECT_SERIALIZATION
-using System;
+﻿/*
+ * Copyright (c) 2024 Christopher Hayes
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+#define MAPOBJECT_SERIALIZATION
 using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace CrossfireRPG.ServerInterface.Managers.MapManagement

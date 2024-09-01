@@ -1,4 +1,11 @@
-﻿namespace CrossfireRPG.ServerInterface.Definitions
+﻿/*
+ * Copyright (c) 2024 Christopher Hayes
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+namespace CrossfireRPG.ServerInterface.Definitions
 {
     /// <summary>
     /// Constants from CrossfireRPG server include file: config.h
