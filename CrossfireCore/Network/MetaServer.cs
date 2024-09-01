@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 
-namespace CrossfireRPG.Network
+namespace CrossfireRPG.ServerInterface.Network
 {
     public class MetaServer
     {
