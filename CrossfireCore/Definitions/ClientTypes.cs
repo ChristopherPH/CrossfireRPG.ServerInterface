@@ -14,6 +14,12 @@ namespace CrossfireRPG.ServerInterface.Definitions
 	/// </summary>
 	public static class ClientTypes
 	{
+		/// <summary>
+		/// Gets the client type description, and optionally the client type group
+		/// </summary>
+		/// <param name="ClientType">Item ClientType</param>
+		/// <param name="Group">Client type group</param>
+		/// <returns>Client type description</returns>
 		public static string GetClientTypeInfo(UInt16 ClientType, out string Group)
 		{
 			Group = "Unknown";
