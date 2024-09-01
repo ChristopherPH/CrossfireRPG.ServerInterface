@@ -1,6 +1,6 @@
-﻿using Common.Utility;
-using CrossfireRPG.ServerInterface.Definitions;
+﻿using CrossfireRPG.ServerInterface.Definitions;
 using System;
+using TheBlackRoom.System.Extensions;
 
 namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 {
