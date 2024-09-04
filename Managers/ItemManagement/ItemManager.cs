@@ -407,10 +407,12 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
                 Logger.Debug("Update {0} did not change properties of {1}", e.UpdateType, item);
 
 
-            //handle container opened/closed 
+            //handle container opened/closed, taking care to ignore cases when
+            //flags change but the open container stays open (eg locked flag
+            //changes on open container)
             if (e.UpdateType == NewClient.UpdateTypes.Flags)
             {
-                //item was open, is no longer open
+                //item was previously open, is no longer open
                 if ((item == OpenContainer) && !item.IsOpen)
                 {
                     OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
@@ -418,12 +420,15 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
                     OpenContainer = null;
                 }
 
-                if (item.IsOpen)
+                //item is now open, and was not previously open
+                if ((item != OpenContainer) && item.IsOpen)
                 {
+                    //Warn when a previously open container was not closed by the server,
+                    //and then close it before opening the new container
                     if (OpenContainer != null)
                     {
                         Logger.Warning("Container {0} was already open when received updated open container {1}", OpenContainer, item);
-    
+
                         OnContainerChanged(ContainerModifiedEventArgs.ModificationTypes.Closed,
                             OpenContainer, this.GetDataObjectIndex(OpenContainer));
                     }
@@ -562,7 +567,7 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 
         public bool IsItemContainerOpen(Item item)
         {
-            //Technically we can just look at the OpenContainer variable and 
+            //Technically we can just look at the OpenContainer variable and
             //check the tags, but this way we future proof for multiple
             //open containers
             var container = GetItemContainer(item);
