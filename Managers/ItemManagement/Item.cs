@@ -152,11 +152,12 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
             LocationTag,
             Flags,
             FlagsNoPick,
-            ClientTypes.GetClientTypeInfo(ClientType, out var clientGroup),
+            FlagsNoApply,
+            FlagsNoApplyNoPick,
         };
 
         public const string FormatHelp = "{0}=Name {1}=PluralName {2}=NumberOf {3}=NumberOfInWords " +
             "{4}=NumberOfWithout1 {5}=NumberOfInWordsWithout1 {6}=Weight {7}=TotalWeight {8}=Tag " +
-            "{9}=Location {10}=Flags {11}=FlagsNoPick {12}=ClientType";
+            "{9}=Location {10}=Flags {11}=FlagsNoPick {12}=FlagsNoApply {13}=FlagsNoApplyNoPick";
     }
 }
