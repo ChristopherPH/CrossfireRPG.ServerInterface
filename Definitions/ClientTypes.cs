@@ -12,6 +12,7 @@ namespace CrossfireRPG.ServerInterface.Definitions
 	/// <summary>
 	/// ClientType definitions
 	/// </summary>
+	[Obsolete("Use ClientTypes.xml", false)]
 	public static class ClientTypes
 	{
 		/// <summary>
