@@ -185,13 +185,13 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
         {
             if (!GetDataObject(e.ObjectTag, out var item, out var index))
             {
-                //We will get these messages when applying a bed to reality, when we have
-                //applied containers with items inside, that we haven't opened in this session.
-                //The server has not sent the items to the client, but sends a removal message
-                //when quitting.
-                //We will also get these messages when deleting a character, as the player list
-                //is sent before the deletion of inventory. The item manager will be cleared on
-                //a seeing the player list.
+                //Note: We will get these messages when applying a bed to reality, when we have
+                //      applied containers with items inside, that we haven't opened in this session.
+                //      The server has not sent the items to the client, but sends a removal message
+                //      when quitting.
+                //      We will also get these messages when deleting a character, as the player list
+                //      is sent before the deletion of inventory. The item manager will be cleared on
+                //      a seeing the player list.
                 Logger.Warning("Trying to delete invalid object {0}", e.ObjectTag);
                 return;
             }
@@ -263,6 +263,9 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 
             if (!GetDataObject(e.ObjectTag, out var item, out var index))
             {
+                //Note: We will get this message when selling an object, as selling calls identify()
+                //      (which then updates the item name/flags/face) after removing the item from
+                //      the player, but before putting the item on the ground. */
                 Logger.Warning("Trying to update invalid object {0}", e.ObjectTag);
                 return;
             }
