@@ -9,7 +9,7 @@ using CrossfireRPG.ServerInterface.Definitions;
 using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
-using TheBlackRoom.System.Extensions;
+using TheBlackRoom.Core.Extensions;
 
 namespace CrossfireRPG.ServerInterface.Managers.MessageManagement
 {

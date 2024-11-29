@@ -7,7 +7,7 @@
  */
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
-using TheBlackRoom.System.Extensions;
+using TheBlackRoom.Core.Extensions;
 
 namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 {

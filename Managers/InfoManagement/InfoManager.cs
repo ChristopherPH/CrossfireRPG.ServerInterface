@@ -11,7 +11,7 @@ using CrossfireRPG.ServerInterface.Protocol;
 using CrossfireRPG.Utility.Logging;
 using System;
 using System.Collections.Generic;
-using TheBlackRoom.System.Extensions;
+using TheBlackRoom.Core.Extensions;
 
 namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
 {

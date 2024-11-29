@@ -8,7 +8,7 @@
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
 using System.Collections.Generic;
-using TheBlackRoom.System.Extensions;
+using TheBlackRoom.Core.Extensions;
 
 namespace CrossfireRPG.ServerInterface.Managers.PlayerManagement
 {
