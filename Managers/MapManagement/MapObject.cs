@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 #define MAPOBJECT_SERIALIZATION
+using Common.ExpandingArray;
 using CrossfireRPG.ServerInterface.Definitions;
-using CrossfireRPG.Utility.ExpandingArray;
 using System;
 using System.Collections.Generic;
 using System.Linq;

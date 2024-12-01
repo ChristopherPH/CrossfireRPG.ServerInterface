@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-using CrossfireRPG.Utility.Logging;
+using Common.Logging;
 
 namespace CrossfireRPG.ServerInterface.Protocol
 {
