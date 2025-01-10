@@ -11,13 +11,24 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageParser
     {
+        protected abstract void HandleStartedCommand(ushort startc_packet);
         protected abstract void HandleCompletedCommand(UInt16 comc_packet, UInt32 comc_time);
         protected abstract void HandleQuery(int Flags, string QueryText);
 
         private void AddCommandParsers()
         {
+            AddCommandHandler("startc", new CommandParserDefinition(Parse_startc));
             AddCommandHandler("comc", new CommandParserDefinition(Parse_comc));
             AddCommandHandler("query", new CommandParserDefinition(Parse_query));
+        }
+
+        private bool Parse_startc(byte[] Message, ref int DataOffset, int DataEnd)
+        {
+            var startc_packet = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+
+            HandleStartedCommand(startc_packet);
+
+            return true;
         }
 
         private bool Parse_comc(byte[] Message, ref int DataOffset, int DataEnd)
