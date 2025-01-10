@@ -11,8 +11,17 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageHandler
     {
+        public event EventHandler<StartedCommandEventArgs> StartedCommand;
         public event EventHandler<CompletedCommandEventArgs> CompletedCommand;
         public event EventHandler<QueryEventArgs> Query;
+
+        protected override void HandleStartedCommand(ushort startc_packet)
+        {
+            StartedCommand?.Invoke(this, new StartedCommandEventArgs()
+            {
+                Packet = startc_packet,
+            });
+        }
 
         protected override void HandleCompletedCommand(ushort comc_packet, uint comc_time)
         {
@@ -30,6 +39,11 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 Flags = Flags,
                 QueryText = QueryText
             });
+        }
+
+        public class StartedCommandEventArgs : MessageHandlerEventArgs
+        {
+            public UInt16 Packet { get; set; }
         }
 
         public class CompletedCommandEventArgs : MessageHandlerEventArgs
