@@ -12,10 +12,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
     public partial class MessageParser
     {
         protected abstract void HandleAddQuest(UInt32 Code, string Title, Int32 Face, byte Replay, UInt32 Parent,
-            byte End, string Step);
+            byte End, string Description, string Step);
         protected abstract void HandleUpdateQuest(UInt32 Code, byte End, string Step);
         protected abstract void HandleBeginQuests();
         protected abstract void HandleEndQuests();
+
+        //Save the notification value for the parser
+        private int ParserOption_Notifications = 0;
 
         private void AddQuestParsers()
         {
@@ -39,8 +42,17 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 var quest_step_len = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                 var quest_step = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, quest_step_len);
 
+                var quest_description = string.Empty;
+
+                if (ParserOption_Notifications >= 4)
+                {
+                    /* added in setup notifications 4 */
+                    var quest_desc_len = BufferTokenizer.GetUInt16(Message, ref DataOffset);
+                    quest_description = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, quest_desc_len);
+                }
+
                 HandleAddQuest(quest_code, quest_title, quest_face, quest_replay, quest_parent_code,
-                    quest_end, quest_step);
+                    quest_end, quest_description, quest_step);
             }
 
             HandleEndQuests();

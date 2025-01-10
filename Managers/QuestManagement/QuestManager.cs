@@ -39,6 +39,7 @@ namespace CrossfireRPG.ServerInterface.Managers.QuestManagement
                 Face = e.Face,
                 Replay = e.Replay,
                 End = e.End,
+                Description = e.Description,
                 Step = e.Step,
             });
         }
