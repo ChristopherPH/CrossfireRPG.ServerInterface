@@ -53,6 +53,13 @@ namespace CrossfireRPG.ServerInterface.Managers.QuestManagement
         }
         byte _End;
 
+        public string Description
+        {
+            get => _Description;
+            set => SetProperty(ref _Description, value);
+        }
+        string _Description;
+
         public string Step
         {
             get => _Step;
