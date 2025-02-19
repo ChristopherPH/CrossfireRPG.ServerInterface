@@ -32,6 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DataObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Manager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Network\NetworkUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Account\MessageBuilder_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Commands\MessageBuilder_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Graphics\MessageBuilder_Graphics.cs" />
@@ -99,7 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Protocol\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Network\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\ItemManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\InfoManagement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Managers\MessageManagement\" />
