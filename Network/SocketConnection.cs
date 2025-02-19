@@ -39,11 +39,16 @@ namespace CrossfireRPG.ServerInterface.Network
         public string Host { get; private set; } = string.Empty;
         public int Port { get; private set; } = 0;
 
-        public bool Connect(string Host = DefaultServerHost, int Port = Config.CSPORT)
+        public bool Connect(string Host = DefaultServerHost, int Port = Config.CSPORT,
+            AddressFamily family = AddressFamily.Unspecified)
         {
             Disconnect();
 
-            _client = new TcpClient
+            if (family == AddressFamily.Unspecified)
+                family = NetworkUtility.CheckHostIPv6(Host) ?
+                    AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+
+            _client = new TcpClient(family)
             {
                 NoDelay = true
             };
