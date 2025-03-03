@@ -27,6 +27,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             Handler.NewMap += Handler_NewMap;
             Handler.Player += Handler_Player;
             Handler.Tick += Handler_Tick;
+            Handler.MagicMap += Handler_MagicMap;
 
             //All part of map2 events
             Handler.MapBegin += Handler_MapBegin;
@@ -137,7 +138,6 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 OnDataChanged(DataModificationTypes.Cleared, MapObject);
             }
         }
-
 
         private void MapsizeManager_MapSizeChanged(object sender, MapSizeEventArgs e)
         {
@@ -816,6 +816,63 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                                 args.InsideViewportChanged = true;
                                 mapUpdated = true;
                             }
+                        }
+                    }
+                }
+
+                if (mapUpdated)
+                {
+                    OnDataChanged(args);
+                    OnMapUpdated(args);
+                }
+            }
+        }
+
+        private void Handler_MagicMap(object sender, MessageHandler.MagicMapEventArgs e)
+        {
+            lock (_mapDataLock)
+            {
+                var args = new MapUpdatedEventArgs()
+                {
+                    Modification = DataModificationTypes.Updated,
+                    Data = MapObject,
+                    UpdatedProperties = null,
+                };
+
+                var mapUpdated = false;
+
+                int offset = 0;
+
+                for (int y = 0; y < e.Height; y++)
+                {
+                    for (int x = 0; x < e.Width; x++, offset++)
+                    {
+                        var worldX = MapObject.PlayerX + (x - e.PlayerX);
+                        var worldY = MapObject.PlayerY + (y - e.PlayerY);
+
+                        var cell = MapObject.GetCell(worldX, worldY);
+
+                        //Create cell if it doesn't exist
+                        if (cell == null)
+                        {
+                            cell = new MapCell()
+                            {
+                                WorldX = worldX,
+                                WorldY = worldY,
+                            };
+
+                            MapObject.SetCell(cell);
+                        }
+
+                        //Set magic map info to cell and trigger update
+                        if ((cell.MagicMap == null) || (cell.MagicMap.MagicMapInfo != e.MapData[offset]))
+                        {
+                            cell.MagicMap = new MagicMapCell(e.MapData[offset]);
+
+                            OnMapCellUpdated(cell);
+                            args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                            args.InsideViewportChanged = true;
+                            mapUpdated = true;
                         }
                     }
                 }

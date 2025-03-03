@@ -51,6 +51,12 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         [XmlIgnore]
         public int Darkness { get; set; } = 0;
 
+        /// <summary>
+        /// Magic Map Cell Info
+        /// </summary>
+        [XmlIgnore]
+        public MagicMapCell MagicMap { get; set; } = null;
+
 #if MAPOBJECT_SERIALIZATION
         public MapLayer[] Layers { get; set; } = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
 #else
@@ -65,6 +71,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             FogOfWar = false;
             OutOfBounds = false;
             Darkness = 0;
+            MagicMap = null;
 
             Layers = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
 
@@ -105,6 +112,14 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
             cell.Labels.Clear();
             cell.Labels.AddRange(this.Labels);
+
+            if (cell.MagicMap != null)
+            {
+                cell.MagicMap = new MagicMapCell()
+                {
+                    MagicMapInfo = this.MagicMap.MagicMapInfo
+                };
+            }
 
             return cell;
         }
