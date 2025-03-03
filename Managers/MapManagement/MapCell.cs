@@ -58,9 +58,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public MagicMapCell MagicMap { get; set; } = null;
 
 #if MAPOBJECT_SERIALIZATION
-        public MapLayer[] Layers { get; set; } = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
+        public MapLayer[] Layers { get; set; } = new MapLayer[Definitions.Map.MAP_LAYERS];
 #else
-        public MapLayer[] Layers { get; private set; } = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
+        public MapLayer[] Layers { get; private set; } = new MapLayer[Definitions.Map.MAP_LAYERS];
 #endif
 
         [XmlIgnore]
@@ -73,7 +73,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             Darkness = 0;
             MagicMap = null;
 
-            Layers = new MapLayer[CrossfireRPG.ServerInterface.Definitions.Map.MAP_LAYERS];
+            Layers = new MapLayer[Definitions.Map.MAP_LAYERS];
 
             for (int i = 0; i < Layers.Length; i++)
                 Layers[i] = new MapLayer() { LayerIndex = i };
