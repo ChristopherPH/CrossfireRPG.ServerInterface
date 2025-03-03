@@ -840,6 +840,11 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 };
 
                 var mapUpdated = false;
+                var tmpIsEmpty = MapObject.IsEmpty;
+                var tmpMinX = MapObject.MinX;
+                var tmpMaxX = MapObject.MaxX;
+                var tmpMinY = MapObject.MinY;
+                var tmpMaxY = MapObject.MaxY;
 
                 int offset = 0;
 
@@ -879,6 +884,15 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
                 if (mapUpdated)
                 {
+                    if ((tmpIsEmpty != MapObject.IsEmpty) ||
+                        (tmpMinX != MapObject.MinX) ||
+                        (tmpMaxX != MapObject.MaxX) ||
+                        (tmpMinY != MapObject.MinY) ||
+                        (tmpMaxY != MapObject.MaxY))
+                    {
+                        args.MapSizeChanged = true;
+                    }
+
                     OnDataChanged(args);
                     OnMapUpdated(args);
                 }
