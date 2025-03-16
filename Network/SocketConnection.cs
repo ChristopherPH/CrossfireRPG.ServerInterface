@@ -261,12 +261,22 @@ namespace CrossfireRPG.ServerInterface.Network
 
             var messageLength = Message.Length;
 
-            var lengthBytes = new byte[2];
-            lengthBytes[0] = (byte)((messageLength >> 8) & 0xFF);
-            lengthBytes[1] = (byte)((messageLength) & 0xFF);
+            //Message length must fit within 2 bytes
+            if (messageLength > 65535)
+                return false;
 
-            _stream.BeginWrite(lengthBytes, 0, lengthBytes.Length, BeginSendCallback, _stream);
-            _stream.BeginWrite(Message, 0, Message.Length, BeginSendCallback, _stream);
+            //Create a single send buffer
+            var sendBytes = new byte[2 + messageLength];
+
+            //Add message length to send buffer
+            sendBytes[0] = (byte)((messageLength >> 8) & 0xFF);
+            sendBytes[1] = (byte)((messageLength) & 0xFF);
+
+            //Add message to send buffer
+            Array.Copy(Message, 0, sendBytes, 2, messageLength);
+
+            //Send message
+            _stream.BeginWrite(sendBytes, 0, sendBytes.Length, BeginSendCallback, _stream);
 
             Logger.Debug("Write {0} bytes\n{1}",
                 messageLength, HexDump.Utils.HexDump(Message));
