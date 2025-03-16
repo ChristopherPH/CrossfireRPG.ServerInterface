@@ -857,6 +857,22 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
                         var cell = MapObject.GetCell(worldX, worldY);
 
+                        /* Note: If the magic map data is 0, this is likely
+                         *       indicating the magic map cell was not
+                         *       populated. However, a 0 also matches a black
+                         *       coloured cell with no flags, which is rare
+                         *       but does exist (eg. blackrock face).
+                         *       So currently there is no way to distinguish
+                         *       a black cell with no flags from an unpopulated
+                         *       cell.
+                         *
+                         * TODO: Determine if we want to skip adding likely
+                         *       unpopulated but potentially black floor cells
+                         *       to the map.
+                         */
+                        //if ((e.MapData[offset] == 0) && (cell == null))
+                        //    continue;
+
                         //Create cell if it doesn't exist
                         if (cell == null)
                         {
