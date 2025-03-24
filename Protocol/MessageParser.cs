@@ -60,8 +60,10 @@ namespace CrossfireRPG.ServerInterface.Protocol
         /// <summary>
         /// Add a command handler and parser function for the command data
         /// </summary>
+        /// <param name="command">Command to add</param>
+        /// <param name="parseCommand">Command parser definition to attach to command</param>
         /// <returns>true if the handler was added</returns>
-        protected bool AddCommandHandler(string command, CommandParserDefinition parseCommand)
+        public bool AddCommandHandler(string command, CommandParserDefinition parseCommand)
         {
             if (string.IsNullOrWhiteSpace(command) || (parseCommand == null) || (parseCommand.Parser == null))
                 return false;
@@ -71,6 +73,15 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
             _CommandHandler[command] = parseCommand;
             return true;
+        }
+
+        /// <summary>
+        /// Removes a command handler from the parser
+        /// </summary>
+        /// <param name="command">Command to remove</param>
+        public void RemoveCommandHandler(string command)
+        {
+            _CommandHandler.Remove(command);
         }
 
         byte[] _SavedBuffer = null;
