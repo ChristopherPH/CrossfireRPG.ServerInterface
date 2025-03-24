@@ -113,7 +113,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             cell.Labels.Clear();
             cell.Labels.AddRange(this.Labels);
 
-            if (cell.MagicMap != null)
+            if (this.MagicMap != null)
             {
                 cell.MagicMap = new MagicMapCell()
                 {
