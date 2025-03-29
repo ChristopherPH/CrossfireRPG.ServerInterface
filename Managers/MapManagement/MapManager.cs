@@ -884,17 +884,32 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
                             MapObject.SetCell(cell);
                         }
-
-                        //Set magic map info to cell and trigger update
-                        if ((cell.MagicMap == null) || (cell.MagicMap.MagicMapInfo != e.MapData[offset]))
+                        else if (cell.MagicMap != null)
                         {
-                            cell.MagicMap = new MagicMapCell(e.MapData[offset]);
+                            /* Cell exists and has magic map data
+                             * Don't trigger update if magic map data matches */
+                            if (cell.MagicMap.MagicMapInfo == e.MapData[offset])
+                                continue;
 
-                            OnMapCellUpdated(cell);
-                            args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
-                            args.InsideViewportChanged = true;
-                            mapUpdated = true;
+                            /* Note: See note above about magic map data of 0.
+                             *
+                             * If the magic map cell is now 0, and was not
+                             * previously zero, it is safe to assume that the
+                             * updated magic map cell is now no longer visible.
+                             *
+                             * In this case, ignore the update and keep the
+                             * original cell data. */
+                            if (e.MapData[offset] == 0)
+                                continue;
                         }
+
+                        //Update cell and trigger update
+                        cell.MagicMap = new MagicMapCell(e.MapData[offset]);
+
+                        OnMapCellUpdated(cell);
+                        args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                        args.InsideViewportChanged = true;
+                        mapUpdated = true;
                     }
                 }
 
