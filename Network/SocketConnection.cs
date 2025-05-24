@@ -288,6 +288,13 @@ namespace CrossfireRPG.ServerInterface.Network
         {
             var stream = ar.AsyncState as NetworkStream;
 
+            //If we have called disconnect() due to a write failure,
+            //and there are other pending writes, the client/stream
+            //will not match the state objects client/stream,
+            //so we can ignore this BeginSendCallback()
+            if ((_client == null) || (_stream == null))
+                return;
+
             System.Diagnostics.Debug.Assert(stream == _stream, "BeginSendCallback: Internal stream mismatch");
 
             //stream has been shut down
@@ -345,6 +352,14 @@ namespace CrossfireRPG.ServerInterface.Network
             var so = ar.AsyncState as StateObject;
 
             System.Diagnostics.Debug.Assert(so != null);
+
+            //If we have called disconnect() due to a write failure,
+            //then this read is still active but the client/stream
+            //will not match the state objects client/stream,
+            //so we can ignore this BeginReadCallback()
+            if ((_client == null) || (_stream == null))
+                return;
+
             System.Diagnostics.Debug.Assert(so.client == _client);
             System.Diagnostics.Debug.Assert(so.stream == _stream);
 
