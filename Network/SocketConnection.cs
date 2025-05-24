@@ -236,7 +236,20 @@ namespace CrossfireRPG.ServerInterface.Network
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Format));
 
-            var Message = string.Format(Format, args);
+            string Message;
+
+            try
+            {
+                Message = string.Format(Format, args);
+            }
+            catch (ArgumentNullException)
+            {
+                return false;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(Message));
 
@@ -247,6 +260,9 @@ namespace CrossfireRPG.ServerInterface.Network
 
         public bool SendMessage(byte[] Message)
         {
+            if (Message == null)
+                return false;
+
             if ((_client == null) || (_stream == null) || (!_client.Connected))
             {
                 Cleanup();
