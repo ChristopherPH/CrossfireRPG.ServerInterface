@@ -34,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\DataManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Network\NetworkUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Network\SocketConnectionQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Account\MessageBuilder_Account.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Commands\MessageBuilder_Command.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Protocol\Graphics\MessageBuilder_Graphics.cs" />
