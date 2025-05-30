@@ -8,7 +8,6 @@
 using Common.Logging;
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
@@ -299,20 +298,24 @@ namespace CrossfireRPG.ServerInterface.Network
             {
                 _stream.BeginWrite(sendBytes, 0, sendBytes.Length, BeginSendCallback, _stream);
             }
-            catch (IOException ex)
+            catch (System.IO.IOException ex)
             {
                 var msg = ex.Message;
 
-                if (ex.InnerException is SocketException sockex)
+                if (ex.InnerException is SocketException se)
                 {
-                    switch (sockex.ErrorCode)
+                    switch (se.ErrorCode)
                     {
-                        case 10054: //WSAECONNRESET
-                            msg = "Connection reset by peer.";
+                        //Don't send a ConnectionErrorEventArgs on these error codes
+                        case 10054: //WSAECONNRESET / Connection reset by peer.
+                            Logger.Info($"Connection reset by peer while sending message");
+                            break;
+
+                        //use socket error message instead of System.IO.IOException error message
+                        default:
+                            RaiseOnError(se.ErrorCode, se.Message);
                             break;
                     }
-
-                    RaiseOnError(sockex.ErrorCode, msg);
                 }
                 else
                 {
@@ -353,7 +356,25 @@ namespace CrossfireRPG.ServerInterface.Network
             }
             catch (Exception ex)
             {
-                RaiseOnError(ex.Message);
+                if (ex.InnerException is SocketException se)
+                {
+                    switch (se.ErrorCode)
+                    {
+                        //Don't send a ConnectionErrorEventArgs on these error codes
+                        case 10054: //WSAECONNRESET / Connection reset by peer.
+                            Logger.Info($"Connection reset by peer while sending message callback");
+                            break;
+
+                        //use socket error message instead of System.IO.IOException error message
+                        default:
+                            RaiseOnError(se.ErrorCode, se.Message);
+                            break;
+                    }
+                }
+                else
+                {
+                    RaiseOnError(ex.Message);
+                }
 
                 Disconnect();
                 return;
@@ -386,7 +407,25 @@ namespace CrossfireRPG.ServerInterface.Network
             }
             catch (Exception ex)
             {
-                RaiseOnError(ex.Message);
+                if (ex.InnerException is SocketException se)
+                {
+                    switch (se.ErrorCode)
+                    {
+                        //Don't send a ConnectionErrorEventArgs on these error codes
+                        case 10054: //WSAECONNRESET / Connection reset by peer.
+                            Logger.Info($"Connection reset by peer while reading message");
+                            break;
+
+                        //use socket error message instead of System.IO.IOException error message
+                        default:
+                            RaiseOnError(se.ErrorCode, se.Message);
+                            break;
+                    }
+                }
+                else
+                {
+                    RaiseOnError(ex.Message);
+                }
 
                 Disconnect();
             }
@@ -427,6 +466,7 @@ namespace CrossfireRPG.ServerInterface.Network
                     {
                         //Don't send a ConnectionErrorEventArgs on these error codes
                         case 10054: //WSAECONNRESET / Connection reset by peer.
+                            Logger.Info($"Connection reset by peer while reading message callback");
                             break;
 
                         //use socket error message instead of System.IO.IOException error message
