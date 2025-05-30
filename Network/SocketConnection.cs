@@ -8,6 +8,7 @@
 using Common.Logging;
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
@@ -260,26 +261,28 @@ namespace CrossfireRPG.ServerInterface.Network
 
         public bool SendMessage(byte[] Message)
         {
-            if (Message == null)
+            if ((Message == null) ||
+                (Message.Length == 0) ||
+                (Message.Length > 65535) ||
+                (ConnectionStatus != ConnectionStatuses.Connected))
+            {
                 return false;
+            }
 
             if ((_client == null) || (_stream == null) || (!_client.Connected))
             {
-                Cleanup();
+                Disconnect();
                 return false;
             }
 
             if (!_stream.CanWrite)
             {
-                Cleanup();
+                Disconnect();
                 return false;
             }
 
-            var messageLength = Message.Length;
-
             //Message length must fit within 2 bytes
-            if (messageLength > 65535)
-                return false;
+            var messageLength = Message.Length;
 
             //Create a single send buffer
             var sendBytes = new byte[2 + messageLength];
@@ -292,7 +295,33 @@ namespace CrossfireRPG.ServerInterface.Network
             Array.Copy(Message, 0, sendBytes, 2, messageLength);
 
             //Send message
-            _stream.BeginWrite(sendBytes, 0, sendBytes.Length, BeginSendCallback, _stream);
+            try
+            {
+                _stream.BeginWrite(sendBytes, 0, sendBytes.Length, BeginSendCallback, _stream);
+            }
+            catch (IOException ex)
+            {
+                var msg = ex.Message;
+
+                if (ex.InnerException is SocketException sockex)
+                {
+                    switch (sockex.ErrorCode)
+                    {
+                        case 10054: //WSAECONNRESET
+                            msg = "Connection reset by peer.";
+                            break;
+                    }
+
+                    RaiseOnError(sockex.ErrorCode, msg);
+                }
+                else
+                {
+                    RaiseOnError(ex.Message);
+                }
+
+                Disconnect();
+                return false;
+            }
 
             Logger.Debug("Write {0} bytes\n{1}",
                 messageLength, HexDump.Utils.HexDump(Message));
