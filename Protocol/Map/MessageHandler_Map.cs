@@ -114,7 +114,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             });
         }
 
-        protected override void HandleMap2Face(int x, int y, int layer, ushort face, byte smooth)
+        protected override void HandleMap2Face(int x, int y, int layer, UInt16 face, byte smooth)
         {
             MapFace?.Invoke(this, new MapFaceEventArgs()
             {
@@ -149,7 +149,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             public int X { get; set; }
             public int Y { get; set; }
             public int Layer { get; set; }
-            public int Face { get; set; }
+            public UInt32 Face { get; set; }
             public byte Smooth { get; set; }
         }
 

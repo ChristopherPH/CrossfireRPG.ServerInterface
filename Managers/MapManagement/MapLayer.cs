@@ -21,7 +21,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public int LayerIndex { get; set; } = -1;
 
         [XmlAttribute]
-        public int Face { get; set; } = 0;
+        public UInt32 Face { get; set; } = 0;
 
         /// <summary>
         /// 0 (overlap nothing) to 255 (overlap above everything except other objects having also smoothlevel of 255)

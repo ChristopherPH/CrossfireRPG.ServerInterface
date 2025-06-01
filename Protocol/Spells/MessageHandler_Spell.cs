@@ -16,8 +16,8 @@ namespace CrossfireRPG.ServerInterface.Protocol
         public event EventHandler<UpdateSpellEventArgs> UpdateSpell;
         public event EventHandler<DeleteSpellEventArgs> DeleteSpell;
 
-        protected override void HandleAddSpell(uint SpellTag, short Level, short CastingTime,
-            short Mana, short Grace, short Damage, byte Skill, uint Path, int Face,
+        protected override void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime,
+            Int16 Mana, Int16 Grace, Int16 Damage, byte Skill, UInt32 Path, UInt32 Face,
             string Name, string Description, byte Usage, string Requirements)
         {
             AddSpell?.Invoke(this, new AddSpellEventArgs()
@@ -66,7 +66,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             public Int16 Damage { get; set; }
             public byte Skill { get; set; }
             public UInt32 Path { get; set; }
-            public Int32 Face { get; set; }
+            public UInt32 Face { get; set; }
             public string Name { get; set; }
             public string Description { get; set; }
             public byte Usage { get; set; }

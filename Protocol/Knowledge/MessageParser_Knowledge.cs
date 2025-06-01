@@ -11,7 +11,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
 {
     public partial class MessageParser
     {
-        protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, Int32 Face);
+        protected abstract void HandleAddKnowledge(UInt32 ID, string Type, string Title, UInt32 Face);
 
         private void AddKnowledgeParsers()
         {
@@ -27,7 +27,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 var knowledge_type = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, knowledge_type_len);
                 var knowledge_title_len = BufferTokenizer.GetUInt16(Message, ref DataOffset);
                 var knowledge_title = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, knowledge_title_len);
-                var knowledge_face = BufferTokenizer.GetInt32(Message, ref DataOffset);
+                var knowledge_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
                 HandleAddKnowledge(knowledge_id, knowledge_type, knowledge_title, knowledge_face);
             }

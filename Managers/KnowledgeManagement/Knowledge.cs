@@ -20,8 +20,8 @@ namespace CrossfireRPG.ServerInterface.Managers.KnowledgeManagement
         public string Title { get => _Title; set => SetProperty(ref _Title, value); }
         private string _Title;
 
-        public Int32 Face { get => _Face; set => SetProperty(ref _Face, value); }
-        private Int32 _Face;
+        public UInt32 Face { get => _Face; set => SetProperty(ref _Face, value); }
+        private UInt32 _Face;
 
 
         public override string ToString()

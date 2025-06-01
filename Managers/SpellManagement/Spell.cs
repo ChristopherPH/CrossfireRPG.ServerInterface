@@ -26,7 +26,7 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 
         public byte Skill { get; set; }
         public UInt32 Path { get; set; }
-        public Int32 Face { get; set; }
+        public UInt32 Face { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 

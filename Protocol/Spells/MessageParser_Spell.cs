@@ -13,7 +13,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
     public partial class MessageParser
     {
         protected abstract void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime, Int16 Mana, Int16 Grace,
-            Int16 Damage, byte Skill, UInt32 Path, Int32 Face, string Name, string Description, byte Usage,
+            Int16 Damage, byte Skill, UInt32 Path, UInt32 Face, string Name, string Description, byte Usage,
             string Requirements);
 
         protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue);
@@ -41,7 +41,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                 var spell_damage = BufferTokenizer.GetInt16(Message, ref DataOffset);
                 var spell_skill = BufferTokenizer.GetByte(Message, ref DataOffset);
                 var spell_path = BufferTokenizer.GetUInt32(Message, ref DataOffset);
-                var spell_face = BufferTokenizer.GetInt32(Message, ref DataOffset);
+                var spell_face = BufferTokenizer.GetUInt32(Message, ref DataOffset);
                 var spell_name_len = BufferTokenizer.GetByte(Message, ref DataOffset);
                 var spell_name = BufferTokenizer.GetBytesAsString(Message, ref DataOffset, spell_name_len);
                 var spell_desc_len = BufferTokenizer.GetInt16(Message, ref DataOffset);
