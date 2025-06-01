@@ -10,10 +10,17 @@ using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
 {
+    /// <summary>
+    /// Manager to handle face, image, and smoothing data
+    /// </summary>
+    /// <remarks>This class is abstract and requires derived implementations to define how images
+    /// are created and destroyed.</remarks>
+    /// <typeparam name="TImage">The type representing an image associated with a face.</typeparam>
     public abstract class FaceDataManager<TImage> : DataManager where TImage : class
     {
         public FaceDataManager(SocketConnection Connection, MessageBuilder Builder, MessageHandler Handler)
@@ -24,7 +31,20 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
             Handler.Smooth += _Handler_Smooth;
         }
 
+        /// <summary>
+        /// Creates an image object from the provided binary image data.
+        /// </summary>
+        /// <param name="ImageData">The binary data representing the image. Cannot be null or empty.</param>
+        /// <returns>An instance of <typeparamref name="TImage"/> representing the created image.</returns>
         protected abstract TImage CreateImage(byte[] ImageData);
+
+        /// <summary>
+        /// Releases resources associated with the specified image.
+        /// </summary>
+        /// <remarks>This method is intended to clean up resources tied to the provided image.
+        /// Implementations should ensure that all associated resources are properly released.</remarks>
+        /// <param name="image">The image to be destroyed. Must not be null.</param>
+        protected abstract void DestroyImage(TImage image);
 
         public static Logger Logger { get; } = new Logger(nameof(FaceDataManager<TImage>));
 
@@ -35,105 +55,167 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
         {
             lock (_FaceLock)
             {
-                _Faces.Clear();
+                for (int ix = 0; ix < _Faces.Length; ix++)
+                {
+                    if (_Faces[ix] == null)
+                        continue;
+
+                    if (_Faces[ix].Image != null)
+                        DestroyImage(_Faces[ix].Image);
+
+                    _Faces[ix] = null;
+                }
             }
 
-            lock (_MissingLock)
+            lock (_RequestedFaces)
             {
-                _MissingFaces.Clear();
+                _RequestedFaces.Clear();
             }
 
-            lock (_ActionLock)
+            lock (_FaceAvailableActions)
             {
                 _FaceAvailableActions.Clear();
             }
 
-            lock (_SmoothLock)
+            lock (_SmoothFaces)
             {
-                _smoothFaces.Clear();
+                _SmoothFaces = new UInt32[_SmoothFaces.Length];
             }
         }
 
-        private Dictionary<UInt32, FaceInfo> _Faces { get; } = new Dictionary<UInt32, FaceInfo>();
-        private List<UInt32> _MissingFaces = new List<UInt32>();
-        private List<KeyValuePair<UInt32, Action<TImage>>> _FaceAvailableActions = new List<KeyValuePair<uint, Action<TImage>>>();
-        private Dictionary<Int32, SmoothInfo> _smoothFaces = new Dictionary<Int32, SmoothInfo>();
+        /// <summary>
+        /// Initial size of faces array
+        /// </summary>
+        /// <remarks>Note that face max is currently a uint16 / 0xFFFF,
+        /// as determined by the protocol and internal face storage.
+        /// As of this writing, the face max is around 6750</remarks>
+        const int InitialFaceSize = 8192;
 
+        /// <summary>
+        /// Face Data
+        /// </summary>
+        private FaceData[] _Faces = new FaceData[InitialFaceSize];
+
+        /// <summary>
+        /// Smooth Data
+        /// </summary>
+        private UInt32[] _SmoothFaces = new UInt32[InitialFaceSize];
+
+        /// <summary>
+        /// Contains faces that have been requested but not yet received
+        /// </summary>
+        private HashSet<UInt32> _RequestedFaces = new HashSet<UInt32>();
+
+        /// <summary>
+        /// Contains actions to run when a face becomes available
+        /// </summary>
+        private Dictionary<UInt32, List<Action<TImage>>> _FaceAvailableActions = new Dictionary<UInt32, List<Action<TImage>>>();
+
+
+        //TODO: Consider using ReaderWriterLockSlim
         private object _FaceLock = new object();
-        private object _MissingLock = new object();
-        private object _ActionLock = new object();
-        private object _SmoothLock = new object();
 
+        /// <summary>
+        /// Raised when a face becomes available
+        /// </summary>
         public event EventHandler<FaceAvailableEventArgs> FaceAvailable;
 
-        public TImage GetFace(Int32 Face, Action<TImage> FaceAvailable = null, bool RequestIfMissing = true)
-        {
-            return GetFace((UInt32)Face, FaceAvailable, RequestIfMissing);
-        }
 
-        public TImage GetFace(Int64 Face, Action<TImage> FaceAvailable = null, bool RequestIfMissing = true)
-        {
-            return GetFace((UInt32)Face, FaceAvailable, RequestIfMissing);
-        }
-
-        public TImage GetFace(string Face, Action<TImage> FaceAvailable = null, bool RequestIfMissing = true)
-        {
-            if (!uint.TryParse(Face, out var value))
-                return null;
-
-            return GetFace(value, FaceAvailable, RequestIfMissing);
-        }
-
-        public TImage GetFace(UInt32 Face, Action<TImage> FaceAvailable = null, bool RequestIfMissing = true)
+        public bool ContainsFace(UInt32 Face)
         {
             if (Face == 0)
-                return null;
-
-            bool hasFace;
-            FaceInfo faceInfo;
+                return false;
 
             lock (_FaceLock)
             {
-                hasFace = _Faces.TryGetValue(Face, out faceInfo);
+                return (Face < _Faces.Length) && (_Faces[Face] != null);
             }
+        }
 
-            if (!hasFace)
+        public bool AskFace(UInt32 Face)
+        {
+            if (Face == 0)
+                return false;
+
+            lock (_RequestedFaces)
             {
-                if ((Connection.ConnectionStatus == ConnectionStatuses.Connected) &&
-                    RequestIfMissing)
-                {
-                    bool requestedFace = false;
-
-                    lock (_MissingLock)
-                    {
-                        requestedFace = _MissingFaces.Contains(Face);
-                        if (!requestedFace)
-                            _MissingFaces.Add(Face);
-                    }
-
-                    if (!requestedFace)
-                    {
-                        //NOTE: the server has a bug where if you connect and don't pick
-                        //      a character, the next time you connect faces won't be
-                        //      sent, so we see missing knowledge and character portraits
-                        //      during testing
-                        Logger.Warning("Missing face {0}, requesting face", Face);
-                        Builder.SendProtocolAskFace((int)Face);
-                    }
-                }
-
-                if (FaceAvailable != null)
-                {
-                    lock (_ActionLock)
-                    {
-                        _FaceAvailableActions.Add(new KeyValuePair<uint, Action<TImage>>(Face, FaceAvailable));
-                    }
-                }
-
-                return null;
+                _RequestedFaces.Add(Face);
             }
 
-            return faceInfo.Image;
+            return Builder.SendProtocolAskFace(Face);
+        }
+
+        /// <summary>
+        /// Gets the image associated with a face
+        /// </summary>
+        /// <param name="Face">Face Number</param>
+        /// <param name="FaceAvailable">Action to run when the face becomes available in the face manager</param>
+        /// <param name="RequestIfMissing">Flag to auto-request the face image if the face manager does not contain the face</param>
+        /// <returns>Image, or null if the face manager does not contain the face</returns>
+        public TImage GetFace(UInt32 Face, Action<TImage> FaceAvailable = null, bool RequestIfMissing = true)
+        {
+            //0 is not a valid face number
+            if (Face == 0)
+                return null;
+
+            FaceData faceData = null;
+
+            //Retrieve the requested face data if available
+            lock (_FaceLock)
+            {
+                if (Face < _Faces.Length)
+                    faceData = _Faces[Face];
+            }
+
+            //Face data exists, return image
+            if (faceData != null)
+                return faceData.Image;
+
+            //Request missing face if asked
+            if ((Connection.ConnectionStatus == ConnectionStatuses.Connected) &&
+                RequestIfMissing)
+            {
+                bool requestFace = false;
+
+                //Add face to requested faces
+                lock (_RequestedFaces)
+                {
+                    requestFace = _RequestedFaces.Add(Face);
+                }
+
+                if (requestFace)
+                {
+                    //NOTE: the server has a bug where if you connect and don't pick
+                    //      a character, the next time you connect faces won't be
+                    //      sent, so we see missing knowledge and character portraits
+                    //      during testing
+                    Logger.Warning("Missing face {0}, requesting face", Face);
+                    Builder.SendProtocolAskFace(Face);
+                }
+            }
+
+            //Add action to run when face becomes available
+            if (FaceAvailable != null)
+            {
+                lock (_FaceAvailableActions)
+                {
+                    if (_FaceAvailableActions.TryGetValue(Face, out var actions))
+                    {
+                        //Add to existing actions
+                        actions.Add(FaceAvailable);
+                    }
+                    else
+                    {
+                        //Create new action list
+                        _FaceAvailableActions[Face] = new List<Action<TImage>>()
+                        {
+                            FaceAvailable
+                        };
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -144,27 +226,22 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
             if ((Face == 0) || (FaceAvailable == null))
                 return;
 
-            var T = GetFace(Face, FaceAvailable, true);
-            if (T != null)
-                FaceAvailable(T);
-        }
-
-        public void SetFace(Int32 Face, Action<TImage> FaceAvailable)
-        {
-            SetFace((UInt32)Face, FaceAvailable);
+            var img = GetFace(Face, FaceAvailable, true);
+            if (img != null)
+                FaceAvailable(img);
         }
 
         private void _Handler_Image2(object sender, MessageHandler.Image2EventArgs e)
         {
             Logger.Info("Received Face {0}:{1}", e.ImageFace, e.ImageFaceSet);
 
-            lock (_MissingLock)
+            //Remove face from requested faces
+            lock (_RequestedFaces)
             {
-                var ix = _MissingFaces.IndexOf(e.ImageFace);
-                if (ix != -1)
-                    _MissingFaces.RemoveAt(ix);
+                _RequestedFaces.Remove(e.ImageFace);
             }
 
+            //Create image from face image data
             var image = CreateImage(e.ImageData);
             if (image == null)
             {
@@ -174,29 +251,51 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
 
             lock (_FaceLock)
             {
-                if (_Faces.ContainsKey(e.ImageFace))
+                if ((e.ImageFace < _Faces.Length) && (_Faces[e.ImageFace] != null))
                 {
                     Logger.Error("Face already exists " + e.ImageFace);
                 }
 
-                _Faces[e.ImageFace] = new FaceInfo()
+                //Resize the array if needed
+                if (e.ImageFace >= _Faces.Length)
+                {
+                    var newSize = _Faces.Length;
+
+                    //Double the size until it fits
+                    while (e.ImageFace >= newSize)
+                        newSize *= 2;
+
+                    Array.Resize(ref _Faces, newSize);
+                }
+
+                //Add the face data
+                _Faces[e.ImageFace] = new FaceData()
                 {
                     Image = image,
-                    Face = e.ImageFace,
+                    ImageData = e.ImageData,
                     FaceSet = e.ImageFaceSet,
                 };
             }
 
+            //Raise the face available event
             FaceAvailable?.Invoke(this, new FaceAvailableEventArgs()
             {
                 Face = e.ImageFace
             });
 
-            lock (_ActionLock)
+
+            //Run all actions associated with this face
+            lock (_FaceAvailableActions)
             {
-                foreach (var faceAction in _FaceAvailableActions.Where(x => x.Key == e.ImageFace))
-                    faceAction.Value(image);
-                _FaceAvailableActions.RemoveAll(x => x.Key == e.ImageFace);
+                if (_FaceAvailableActions.TryGetValue(e.ImageFace, out var actions))
+                {
+                    foreach (var action in actions)
+                    {
+                        action(image);
+                    }
+
+                    _FaceAvailableActions.Remove(e.ImageFace);
+                }
             }
         }
 
@@ -204,16 +303,14 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
         {
             //TODO: Implement face cache
 
-            bool requestedFace = false;
+            bool requestFace = false;
 
-            lock (_MissingLock)
+            lock (_RequestedFaces)
             {
-                requestedFace = _MissingFaces.Contains(e.Face);
-                if (!requestedFace)
-                    _MissingFaces.Add(e.Face);
+                requestFace = _RequestedFaces.Add(e.Face);
             }
 
-            if (!requestedFace)
+            if (requestFace)
             {
                 Logger.Warning($"Face {e.Face} not in cache, requesting face");
                 Builder.SendProtocolAskFace(e.Face);
@@ -221,56 +318,60 @@ namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
         }
 
 
-        public Int32 GetSmoothFace(Int32 SmoothFace)
+        public UInt32 GetSmoothFace(UInt32 SmoothFace)
         {
             if (SmoothFace == 0)
                 return 0;
 
-            bool found;
-            SmoothInfo info;
-
-            lock (_SmoothLock)
-                found = _smoothFaces.TryGetValue(SmoothFace, out info);
-
             //TODO: Implement AskSmooth() if not found, and user wants to
             //      request missing smoothing
 
-            if (!found)
-                return 0;
+            lock (_SmoothFaces)
+            {
+                if (SmoothFace < _SmoothFaces.Length)
+                    return _SmoothFaces[SmoothFace];
+            }
 
-            return info.SmoothFace;
+            return 0;
         }
 
         private void _Handler_Smooth(object sender, MessageHandler.SmoothEventArgs e)
         {
-            lock (_SmoothLock)
+            lock (_SmoothFaces)
             {
-                _smoothFaces[e.Smooth] = new SmoothInfo()
+                //Resize the array if needed
+                if (e.Smooth >= _SmoothFaces.Length)
                 {
-                    Face = e.Smooth,
-                    SmoothFace = e.SmoothFace,
-                };
+                    var newSize = _SmoothFaces.Length;
+
+                    //Double the size until it fits
+                    while (e.Smooth >= newSize)
+                        newSize *= 2;
+
+                    Array.Resize(ref _SmoothFaces, newSize);
+                }
+
+                //Set the smooth face data
+                _SmoothFaces[e.Smooth] = e.SmoothFace;
             }
         }
 
-        private class FaceInfo
+        private class FaceData
         {
-            public TImage Image { get; set; }
-            public UInt32 Face { get; set; }
+            /// <summary>
+            /// FaceSet of Face
+            /// </summary>
             public byte FaceSet { get; set; }
-        }
-
-        private class SmoothInfo
-        {
-            /// <summary>
-            /// Face to Smooth
-            /// </summary>
-            public Int32 Face { get; set; }
 
             /// <summary>
-            /// Face to use when smoothing
+            /// Raw data of face image
             /// </summary>
-            public Int32 SmoothFace { get; set; }
+            public byte[] ImageData { get; set; }
+
+            /// <summary>
+            /// The image associated with face
+            /// </summary>
+            public TImage Image { get; set; }
         }
     }
 
