@@ -51,14 +51,14 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
         {
             public string Type { get; set; }
             public string Name { get; set; }
-            public int Face { get; set; }
+            public UInt32 Face { get; set; }
             public int CanAttempt { get; set; }
         }
 
         public class SkillInfo
         {
             public string Name { get; set; }
-            public uint Face { get; set; }
+            public UInt32 Face { get; set; }
             public string Description { get; set; } = "";
         }
 
@@ -125,7 +125,7 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
 
         public class ImageInformation
         {
-            public int LastFace { get; set; } = 0;
+            public UInt32 LastFace { get; set; } = 0;
             public int Checksum { get; set; } = 0;
             public List<ImageSet> ImageSets { get; } = new List<ImageSet>();
 
@@ -433,7 +433,7 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
 
                         var knowledge_type = knowledge_info[0];
                         var knowledge_name = knowledge_info[1];
-                        var knowledge_face = int.Parse(knowledge_info[2]);
+                        var knowledge_face = UInt32.Parse(knowledge_info[2]);
                         var knowledge_can_attempt = int.Parse(knowledge_info[3]);
 
                         KnowledgeInfos.Add(new KnowledgeInfo()
@@ -777,7 +777,7 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
                     var image_info_checksum = BufferTokenizer.GetString(e.Reply, ref offset, end, new byte[] { 0x0A });
 
                     this.ImageInfo = new ImageInformation();
-                    ImageInfo.LastFace = int.Parse(image_last_face);
+                    ImageInfo.LastFace = UInt32.Parse(image_last_face);
                     ImageInfo.Checksum = int.Parse(image_info_checksum);
 
                     while (offset < end)

@@ -16,7 +16,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         public event EventHandler<EventArgs> BeginQuests;
         public event EventHandler<EventArgs> EndQuests;
 
-        protected override void HandleAddQuest(UInt32 Code, string Title, int Face,
+        protected override void HandleAddQuest(UInt32 Code, string Title, UInt32 Face,
             byte Replay, uint Parent, byte End, string Step)
         {
             AddQuest?.Invoke(this, new AddQuestEventArgs()
@@ -55,7 +55,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         {
             public UInt32 Code { get; set; }
             public string Title { get; set; }
-            public Int32 Face { get; set; }
+            public UInt32 Face { get; set; }
             public byte Replay { get; set; }
             public UInt32 Parent { get; set; }
             public byte End { get; set; }

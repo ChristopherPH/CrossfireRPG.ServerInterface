@@ -32,12 +32,12 @@ namespace CrossfireRPG.ServerInterface.Managers.QuestManagement
         }
         string _Title;
 
-        public Int32 Face
+        public UInt32 Face
         {
             get => _Face;
             set => SetProperty(ref _Face, value);
         }
-        Int32 _Face;
+        UInt32 _Face;
 
         public byte Replay
         {
