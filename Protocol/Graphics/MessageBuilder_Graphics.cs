@@ -13,6 +13,10 @@ namespace CrossfireRPG.ServerInterface.Protocol
     {
         public bool SendProtocolAskFace(UInt32 tag)
         {
+            /* askface only works with range 1-0xFFFF */
+            if ((tag == 0) || (tag > 0xFFFF))
+                return false;
+
             using (var ba = new BufferAssembler("askface"))
             {
                 ba.AddIntAsString(tag);
