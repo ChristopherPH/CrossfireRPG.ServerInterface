@@ -302,7 +302,7 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
             Builder.SendProtocolRequestInfo(InfoTypeImageInfo);
         }
 
-        public void RequestImageSums(int start, int stop)
+        public void RequestImageSums(UInt32 start, UInt32 stop)
         {
             Builder.SendProtocolRequestInfo(string.Format("{0} {1} {2}", InfoTypeImageSums, start, stop));
         }
