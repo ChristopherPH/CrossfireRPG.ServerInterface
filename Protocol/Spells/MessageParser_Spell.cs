@@ -15,8 +15,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
         protected abstract void HandleAddSpell(UInt32 SpellTag, Int16 Level, Int16 CastingTime, Int16 Mana, Int16 Grace,
             Int16 Damage, byte Skill, UInt32 Path, UInt32 Face, string Name, string Description, byte Usage,
             string Requirements);
+        protected abstract void HandleBeginAddSpell();
+        protected abstract void HandleEndAddSpell();
 
         protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue);
+        protected abstract void HandleBeginUpdateSpell();
+        protected abstract void HandleEndUpdateSpell();
+
         protected abstract void HandleDeleteSpell(UInt32 SpellTag);
 
         //Save the spellmon value for the parser
@@ -31,6 +36,8 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
         private bool Parse_addspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
+            HandleBeginAddSpell();
+
             while (DataOffset < DataEnd)
             {
                 var spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
@@ -64,11 +71,15 @@ namespace CrossfireRPG.ServerInterface.Protocol
                     spell_path, spell_face, spell_name, spell_desc, spell_usage, spell_requirement);
             }
 
+            HandleEndAddSpell();
+
             return true;
         }
 
         private bool Parse_updspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
+            HandleBeginUpdateSpell();
+
             var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(Message, ref DataOffset);
             var update_spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
@@ -92,6 +103,8 @@ namespace CrossfireRPG.ServerInterface.Protocol
                     HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
                 }
             }
+
+            HandleEndUpdateSpell();
 
             return true;
         }
