@@ -7,6 +7,7 @@
  */
 using CrossfireRPG.ServerInterface.Definitions;
 using System;
+using System.Collections.Generic;
 
 namespace CrossfireRPG.ServerInterface.Protocol
 {
@@ -15,8 +16,13 @@ namespace CrossfireRPG.ServerInterface.Protocol
         public event EventHandler<PlayerEventArgs> Player;
         public event EventHandler<SkillEventArgs> Skills;
         public event EventHandler<StatEventArgs> Stats;
-        public event EventHandler<EventArgs> BeginStats;
-        public event EventHandler<EventArgs> EndStats;
+        public event EventHandler<BeginBatchEventArgs> BeginSkills;
+        public event EventHandler<EndBatchEventArgs> EndSkills;
+        public event EventHandler<BeginBatchEventArgs> BeginStats;
+        public event EventHandler<EndBatchEventArgs> EndStats;
+
+        private Queue<SkillEventArgs> _SkillsBatchEvents = new Queue<SkillEventArgs>();
+        private Queue<StatEventArgs> _StatsBatchEvents = new Queue<StatEventArgs>();
 
         protected override void HandlePlayer(uint tag, float weight, uint face, string Name)
         {
@@ -31,7 +37,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
         protected override void HandleSkill(int Skill, byte Level, UInt64 Value)
         {
-            Skills?.Invoke(this, new SkillEventArgs()
+            _SkillsBatchEvents.Enqueue(new SkillEventArgs()
             {
                 Skill = Skill,
                 Level = Level,
@@ -41,42 +47,77 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
         protected override void HandleStatInt16(NewClient.CharacterStats Stat, Int16 Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleStatUInt16(NewClient.CharacterStats Stat, UInt16 Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleStatUInt32(NewClient.CharacterStats Stat, UInt32 Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleStatUInt64(NewClient.CharacterStats Stat, UInt64 Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleStatString(NewClient.CharacterStats Stat, string Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleStatFloat(NewClient.CharacterStats Stat, float Value)
         {
-            Stats?.Invoke(this, new StatEventArgs(Stat, Value));
+            _StatsBatchEvents.Enqueue(new StatEventArgs(Stat, Value));
         }
 
         protected override void HandleBeginStats()
         {
-            BeginStats?.Invoke(this, EventArgs.Empty);
+            _SkillsBatchEvents.Clear();
+            _StatsBatchEvents.Clear();
         }
 
         protected override void HandleEndStats()
         {
-            EndStats?.Invoke(this, EventArgs.Empty);
+            //Skills
+            var BatchNumber = 1;
+            var BatchCount = _SkillsBatchEvents.Count;
+
+            BeginSkills?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
+
+            while (_SkillsBatchEvents.Count > 0)
+            {
+                var args = _SkillsBatchEvents.Dequeue();
+                args.BatchNumber = BatchNumber++;
+                args.BatchCount = BatchCount;
+                Skills?.Invoke(this, args);
+            }
+
+            _SkillsBatchEvents.Clear();
+
+            EndSkills?.Invoke(this, new EndBatchEventArgs() { BatchCount = BatchNumber });
+
+            //Stats
+            BatchNumber = 1;
+            BatchCount = _StatsBatchEvents.Count;
+
+            BeginStats?.Invoke(this, new BeginBatchEventArgs() { BatchCount = BatchCount });
+
+            while (_StatsBatchEvents.Count > 0)
+            {
+                var args = _StatsBatchEvents.Dequeue();
+                args.BatchNumber = BatchNumber++;
+                args.BatchCount = BatchCount;
+                Stats?.Invoke(this, args);
+            }
+
+            _StatsBatchEvents.Clear();
+
+            EndStats?.Invoke(this, new EndBatchEventArgs() { BatchCount = BatchNumber });
         }
 
         public class PlayerEventArgs : MessageHandlerEventArgs
