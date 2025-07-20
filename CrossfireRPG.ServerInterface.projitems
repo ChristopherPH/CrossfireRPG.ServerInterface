@@ -24,6 +24,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapLabel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\MapManagement\MapUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\AccountPlayerManagement\AccountPlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers\AccountPlayerManagement\AccountPlayerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\QuestManagement\Quest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SkillManagement\Skill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Managers\SpellManagement\Spell.cs" />
