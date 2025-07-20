@@ -17,12 +17,15 @@ namespace CrossfireRPG.ServerInterface.Managers.SkillManagement
             : base(Connection, Builder, Handler)
         {
             Handler.Skills += Handler_Skills;
+            Handler.BeginSkills += Handler_BeginSkills;
+            Handler.EndSkills += Handler_EndSkills;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
         public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
-            DataModificationTypes.Added | DataModificationTypes.Updated;
+            DataModificationTypes.Added | DataModificationTypes.Updated |
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         private void Handler_Skills(object sender, MessageHandler.SkillEventArgs e)
         {
@@ -47,6 +50,16 @@ namespace CrossfireRPG.ServerInterface.Managers.SkillManagement
                     skillObject.Value = e.Value;
                 });
             }
+        }
+
+        private void Handler_BeginSkills(object sender, BeginBatchEventArgs e)
+        {
+            StartMultiCommand();
+        }
+
+        private void Handler_EndSkills(object sender, EndBatchEventArgs e)
+        {
+            EndMultiCommand();
         }
     }
 }
