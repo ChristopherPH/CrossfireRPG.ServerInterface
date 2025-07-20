@@ -34,6 +34,7 @@ namespace CrossfireRPG.ServerInterface.Definitions
 
         public enum Map2Type_Label
         {
+            None = 0,
             Player = 1,
             PlayerParty = 2,
             DungeonMaster = 3,

@@ -104,7 +104,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         //Private variables for handling cell updates
         bool _workingCellUpdated;
         bool _workingCellLayerUpdated;
-        List<MapLabel> _savedCellLabels = new List<MapLabel>();
+        bool _workingCellLabelsUpdated;
 
         protected override void ClearData(bool disconnected)
         {
@@ -213,23 +213,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             //Mark cell as not yet updated
             _workingCellUpdated = false;
             _workingCellLayerUpdated = false;
-            _savedCellLabels.Clear();
-
-            lock (_mapDataLock)
-            {
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
-                {
-                    //The server does not send any commands to clear labels,
-                    //so the only place to clear the labels is when the map2
-                    //first gives cell co-ordinates (which is this event).
-                    //Save any existing cell labels, these will be compared
-                    //at the end of the map2 command (EndLocation) to
-                    //determine if the cell has changed.
-                    _savedCellLabels.AddRange(cell.Labels);
-                    cell.Labels.Clear();
-                }
-            }
+            _workingCellLabelsUpdated = false;
         }
 
         private void Handler_MapEndLocation(object sender, MessageHandler.MapLocationEventArgs e)
@@ -245,7 +229,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 if (cell != null)
                 {
                     //check for changed map labels
-                    if (!cell.Labels.SequenceEqual(_savedCellLabels))
+                    if (_workingCellLabelsUpdated)
                     {
                         OnMapCellLabelUpdated(cell);
 
@@ -582,16 +566,24 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                         MapObject.SetCell(cell);
                     }
 
-                    //Create label
-                    var mapLabel = new MapLabel()
+                    //If this is the first label update for this cell,
+                    //clear all existing labels
+                    if (_workingCellLabelsUpdated == false)
                     {
-                        LabelType = e.LabelType,
-                        Label = e.Label,
-                    };
+                        _workingCellLabelsUpdated = true;
 
-                    //Append label to cell labels if it doesn't already exist
-                    if (!cell.Labels.Contains(mapLabel))
-                        cell.Labels.Add(mapLabel);
+                        cell.Labels.Clear();
+                    }
+
+                    //Add label to cell
+                    if (e.LabelType != NewClient.Map2Type_Label.None)
+                    {
+                        cell.Labels.Add(new MapLabel()
+                        {
+                            LabelType = e.LabelType,
+                            Label = e.Label,
+                        });
+                    }
 
                     //If the face is out of the visible map area, mark it as
                     //out of bounds, and note the server doesn't send a clear
