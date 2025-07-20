@@ -21,12 +21,18 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
             Handler.AddSpell += Handler_AddSpell;
             Handler.UpdateSpell += Handler_UpdateSpell;
             Handler.DeleteSpell += Handler_DeleteSpell;
+
+            Handler.BeginAddSpell += Handler_BeginAddSpell;
+            Handler.EndAddSpell += Handler_EndAddSpell;
+            Handler.BeginUpdateSpell += Handler_BeginUpdateSpell;
+            Handler.EndUpdateSpell += Handler_EndUpdateSpell;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
         public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
-            DataModificationTypes.Added | DataModificationTypes.Updated | DataModificationTypes.Removed;
+            DataModificationTypes.Added | DataModificationTypes.Updated | DataModificationTypes.Removed |
+            DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 
         private void Handler_AddSpell(object sender, MessageHandler.AddSpellEventArgs e)
         {
@@ -72,6 +78,30 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
         private void Handler_DeleteSpell(object sender, MessageHandler.DeleteSpellEventArgs e)
         {
             RemoveDataObject(e.SpellTag);
+        }
+
+
+        private void Handler_BeginAddSpell(object sender, BeginBatchEventArgs e)
+        {
+            StartMultiCommand();
+        }
+
+
+        private void Handler_EndAddSpell(object sender, EndBatchEventArgs e)
+        {
+            EndMultiCommand();
+        }
+
+
+        private void Handler_BeginUpdateSpell(object sender, BeginBatchEventArgs e)
+        {
+            StartMultiCommand();
+        }
+
+
+        private void Handler_EndUpdateSpell(object sender, EndBatchEventArgs e)
+        {
+            EndMultiCommand();
         }
     }
 }
