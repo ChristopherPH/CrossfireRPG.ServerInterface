@@ -24,8 +24,6 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 
             Handler.BeginAddSpell += Handler_BeginAddSpell;
             Handler.EndAddSpell += Handler_EndAddSpell;
-            Handler.BeginUpdateSpell += Handler_BeginUpdateSpell;
-            Handler.EndUpdateSpell += Handler_EndUpdateSpell;
         }
 
         protected override bool ClearDataOnConnectionDisconnect => true;
@@ -58,20 +56,14 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
         {
             UpdateDataObject(e.SpellTag, (data) =>
             {
-                switch (e.UpdateType)
-                {
-                    case NewClient.UpdateSpellTypes.Mana:
-                        data.Mana = (short)e.UpdateValue;
-                        break;
+                if (e.UpdateTypes.HasFlag(NewClient.UpdateSpellTypes.Mana))
+                    data.Mana = e.Mana;
 
-                    case NewClient.UpdateSpellTypes.Grace:
-                        data.Grace = (short)e.UpdateValue;
-                        break;
+                if (e.UpdateTypes.HasFlag(NewClient.UpdateSpellTypes.Grace))
+                    data.Grace = e.Grace;
 
-                    case NewClient.UpdateSpellTypes.Damage:
-                        data.Damage = (short)e.UpdateValue;
-                        break;
-                }
+                if (e.UpdateTypes.HasFlag(NewClient.UpdateSpellTypes.Damage))
+                    data.Damage = e.Damage;
             });
         }
 
@@ -88,18 +80,6 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 
 
         private void Handler_EndAddSpell(object sender, EndBatchEventArgs e)
-        {
-            EndMultiCommand();
-        }
-
-
-        private void Handler_BeginUpdateSpell(object sender, BeginBatchEventArgs e)
-        {
-            StartMultiCommand();
-        }
-
-
-        private void Handler_EndUpdateSpell(object sender, EndBatchEventArgs e)
         {
             EndMultiCommand();
         }
