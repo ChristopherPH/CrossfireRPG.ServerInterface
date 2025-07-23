@@ -18,10 +18,8 @@ namespace CrossfireRPG.ServerInterface.Protocol
         protected abstract void HandleBeginAddSpell();
         protected abstract void HandleEndAddSpell();
 
-        protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateType, Int64 UpdateValue);
-        protected abstract void HandleBeginUpdateSpell();
-        protected abstract void HandleEndUpdateSpell();
-
+        protected abstract void HandleUpdateSpell(UInt32 SpellTag, NewClient.UpdateSpellTypes UpdateTypes,
+            Int16 Mana, Int16 Grace, Int16 Damage);
         protected abstract void HandleDeleteSpell(UInt32 SpellTag);
 
         //Save the spellmon value for the parser
@@ -78,33 +76,20 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
         private bool Parse_updspell(byte[] Message, ref int DataOffset, int DataEnd)
         {
-            HandleBeginUpdateSpell();
-
+            Int16 mana = 0, grace = 0, damage = 0;
             var update_spell_flag = (NewClient.UpdateSpellTypes)BufferTokenizer.GetByte(Message, ref DataOffset);
             var update_spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
-            while (DataOffset < DataEnd)
-            {
-                if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Mana))
-                {
-                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
-                    HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
-                }
+            if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Mana))
+                mana = BufferTokenizer.GetInt16(Message, ref DataOffset);
 
-                if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Grace))
-                {
-                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
-                    HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
-                }
+            if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Grace))
+                grace = BufferTokenizer.GetInt16(Message, ref DataOffset);
 
-                if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Damage))
-                {
-                    var update_spell_value = BufferTokenizer.GetInt16(Message, ref DataOffset);
-                    HandleUpdateSpell(update_spell_tag, update_spell_flag, update_spell_value);
-                }
-            }
+            if (update_spell_flag.HasFlag(NewClient.UpdateSpellTypes.Damage))
+                damage = BufferTokenizer.GetInt16(Message, ref DataOffset);
 
-            HandleEndUpdateSpell();
+            HandleUpdateSpell(update_spell_tag, update_spell_flag, mana, grace, damage);
 
             return true;
         }
