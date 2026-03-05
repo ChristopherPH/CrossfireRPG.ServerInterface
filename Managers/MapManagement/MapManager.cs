@@ -13,7 +13,6 @@ using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
@@ -526,74 +525,71 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
             lock (_mapDataLock)
             {
-                lock (_mapDataLock)
+                //Get pre-existing cell at x/y
+                var cell = MapObject.GetCell(worldX, worldY);
+                if (cell != null)
                 {
-                    //Get pre-existing cell at x/y
-                    var cell = MapObject.GetCell(worldX, worldY);
-                    if (cell != null)
+                    /* If the pre-existing cell was part of FOW data, it means
+                        * that it had previously gone out of view.
+                        *
+                        * If the pre-existing cell was out of bounds, it means
+                        * that the server does not know about this cell.
+                        * (The server doesn't remember when it sends OOB data so
+                        * it doesn't ever clear it.)
+                        *
+                        * Since we've now gotten information for the cell location,
+                        * we need to clear the cell data like the server expects,
+                        * so we can start the tile fresh. */
+                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                     {
-                        /* If the pre-existing cell was part of FOW data, it means
-                         * that it had previously gone out of view.
-                         *
-                         * If the pre-existing cell was out of bounds, it means
-                         * that the server does not know about this cell.
-                         * (The server doesn't remember when it sends OOB data so
-                         * it doesn't ever clear it.)
-                         *
-                         * Since we've now gotten information for the cell location,
-                         * we need to clear the cell data like the server expects,
-                         * so we can start the tile fresh. */
-                        if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                        if (!_workingCellLayerUpdated)
                         {
-                            if (!_workingCellLayerUpdated)
-                            {
-                                cell.ClearCell();
+                            cell.ClearCell();
 
-                                /* Always update on FOW change,
-                                 * TODO: Check conditions to update on OOB */
-                                _workingCellUpdated = true;
-                            }
+                            /* Always update on FOW change,
+                                * TODO: Check conditions to update on OOB */
+                            _workingCellUpdated = true;
                         }
                     }
-                    else //cell doesn't exist, create a new cell
-                    {
-                        cell = new MapCell()
-                        {
-                            WorldX = worldX,
-                            WorldY = worldY,
-                        };
-
-                        MapObject.SetCell(cell);
-                    }
-
-                    //If this is the first label update for this cell,
-                    //clear all existing labels
-                    if (_workingCellLabelsUpdated == false)
-                    {
-                        _workingCellLabelsUpdated = true;
-
-                        cell.Labels.Clear();
-                    }
-
-                    //Add label to cell
-                    if (e.LabelType != NewClient.Map2Type_Label.None)
-                    {
-                        cell.Labels.Add(new MapLabel()
-                        {
-                            LabelType = e.LabelType,
-                            Label = e.Label,
-                        });
-                    }
-
-                    //If the face is out of the visible map area, mark it as
-                    //out of bounds, and note the server doesn't send a clear
-                    //command for this data.
-                    cell.OutOfBounds = OutOfBounds;
-                    cell.FogOfWar = false;
-
-                    //Mark this cell location as updated so its not cleared again
-                    _workingCellLayerUpdated = true;
                 }
+                else //cell doesn't exist, create a new cell
+                {
+                    cell = new MapCell()
+                    {
+                        WorldX = worldX,
+                        WorldY = worldY,
+                    };
+
+                    MapObject.SetCell(cell);
+                }
+
+                //If this is the first label update for this cell,
+                //clear all existing labels
+                if (_workingCellLabelsUpdated == false)
+                {
+                    _workingCellLabelsUpdated = true;
+
+                    cell.Labels.Clear();
+                }
+
+                //Add label to cell
+                if (e.LabelType != NewClient.Map2Type_Label.None)
+                {
+                    cell.Labels.Add(new MapLabel()
+                    {
+                        LabelType = e.LabelType,
+                        Label = e.Label,
+                    });
+                }
+
+                //If the face is out of the visible map area, mark it as
+                //out of bounds, and note the server doesn't send a clear
+                //command for this data.
+                cell.OutOfBounds = OutOfBounds;
+                cell.FogOfWar = false;
+
+                //Mark this cell location as updated so its not cleared again
+                _workingCellLayerUpdated = true;
             }
         }
 
