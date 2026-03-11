@@ -763,6 +763,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 //animations that have actually changed frames
                 var updatedAnimations = new HashSet<UInt16>();
 
+                /* Update synchronized animations, save set of animations that updated */
                 var updatedSyncedAnimations = MapObject.UpdateSynchronizedAnimations();
 
                 /* On a tick, only update cells in the viewport */
@@ -776,6 +777,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
                         var cellUpdated = false;
 
+                        /* Update all layers within cell */
                         foreach (var layer in cell.Layers)
                         {
                             if (layer == null)
@@ -784,26 +786,34 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                             if (!layer.IsAnimation)
                                 continue;
 
+                            /* Update all cell layer animations */
                             if (layer.AnimationFlags.HasFlag(Map.AnimationFlags.Synchronize))
                             {
-                                //Check if this animation exists in saved
-                                //set of anumations that actually changed
-                                //frames
+                                /* Check if this animation exists in the saved set of animations
+                                 * that actually changed frames, and mark cell as updated if the
+                                 * animation changed */
                                 if (updatedSyncedAnimations.Contains(layer.Animation))
                                     cellUpdated = true;
                             }
                             else
                             {
-                                cellUpdated = layer.AnimationState.UpdateAnimation();
+                                /* Update cell animation, mark cell as updated if the animation
+                                 * changed */
+                                if (layer.AnimationState.UpdateAnimation())
+                                    cellUpdated = true;
                             }
+                        }
 
-                            if (cellUpdated)
-                            {
-                                OnMapCellUpdated(cell);
-                                args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(x, y));
-                                args.InsideViewportChanged = true;
-                                mapUpdated = true;
-                            }
+                        /* If the cell animations were updated on the tick, notify the cell was
+                         * updated, and update the map as updated */
+                        if (cellUpdated)
+                        {
+                            OnMapCellUpdated(cell);
+
+                            //Add cell to map update
+                            args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(x, y));
+                            args.InsideViewportChanged = true;
+                            mapUpdated = true;
                         }
                     }
                 }
