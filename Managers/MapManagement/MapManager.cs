@@ -12,7 +12,6 @@ using CrossfireRPG.ServerInterface.Managers.MapSizeManagement;
 using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
-using System.Collections.Generic;
 
 namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
@@ -749,19 +748,17 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         {
             lock (_mapDataLock)
             {
-                var args = new MapUpdatedEventArgs();
                 var mapUpdated = false;
 
-                //set base properties, other MapUpdatedEventArgs
-                //have been updated
-                args.Modification = DataModificationTypes.Updated;
-                args.Data = MapObject;
-                args.UpdatedProperties = null;
-                args.TickChanged = true;
-
-                //Update synchronized animations and save set of
-                //animations that have actually changed frames
-                var updatedAnimations = new HashSet<UInt16>();
+                /* Create update args with default properties, cells will be
+                 * added below if the map changes due to the tick event */
+                var args = new MapUpdatedEventArgs()
+                {
+                    Modification = DataModificationTypes.Updated,
+                    Data = MapObject,
+                    UpdatedProperties = null,
+                    TickChanged = true,
+                };
 
                 /* Update synchronized animations, save set of animations that updated */
                 var updatedSyncedAnimations = MapObject.UpdateSynchronizedAnimations();
@@ -810,7 +807,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                         {
                             OnMapCellUpdated(cell);
 
-                            //Add cell to map update
+                            /* Add cell to map update */
                             args.CellLocations.Add(new MapUpdatedEventArgs.MapCellLocation(x, y));
                             args.InsideViewportChanged = true;
                             mapUpdated = true;
@@ -818,6 +815,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                     }
                 }
 
+                /* If any cell in the map was updated, notify the map was updated */
                 if (mapUpdated)
                 {
                     OnDataChanged(args);
