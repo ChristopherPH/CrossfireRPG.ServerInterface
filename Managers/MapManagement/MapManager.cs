@@ -766,9 +766,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 var updatedSyncedAnimations = MapObject.UpdateSynchronizedAnimations();
 
                 /* On a tick, only update cells in the viewport */
-                for (int y = MapObject.ViewportY, dy = 0; dy <= MapObject.Height; y++, dy++)
+                for (int y = MapObject.ViewportY, dy = 0; dy <= MapObject.ViewportHeight; y++, dy++)
                 {
-                    for (int x = MapObject.ViewportX, dx = 0; dx <= MapObject.Width; x++, dx++)
+                    for (int x = MapObject.ViewportX, dx = 0; dx <= MapObject.ViewportWidth; x++, dx++)
                     {
                         var cell = MapObject.GetCell(x, y);
                         if (cell == null)
