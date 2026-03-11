@@ -33,6 +33,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         //      the map data is all filled in, causing the _cells to only have
         //      a height or width less than the mapsize (as its not full yet)
 
+        /// <summary>
+        /// Smallest X co-ordinate of map
+        /// </summary>
         [XmlAttribute]
 #if MAPOBJECT_SERIALIZATION
         public int MinX { get; set; }
@@ -40,6 +43,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public int MinX { get; private set; }
 #endif
 
+        /// <summary>
+        /// Smallest Y co-ordinate of map
+        /// </summary>
         [XmlAttribute]
 #if MAPOBJECT_SERIALIZATION
         public int MinY { get; set; }
@@ -47,6 +53,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public int MinY { get; private set; }
 #endif
 
+        /// <summary>
+        /// Largest X co-ordinate of map
+        /// </summary>
         [XmlAttribute]
 #if MAPOBJECT_SERIALIZATION
         public int MaxX { get; set; }
@@ -54,6 +63,9 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public int MaxX { get; private set; }
 #endif
 
+        /// <summary>
+        /// Largest Y co-ordinate of map
+        /// </summary>
         [XmlAttribute]
 #if MAPOBJECT_SERIALIZATION
         public int MaxY { get; set; }
@@ -61,31 +73,63 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public int MaxY { get; private set; }
 #endif
 
+        /// <summary>
+        /// Width of map in tiles, or 0 if empty
+        /// </summary>
         public int Width => IsEmpty ? 0 : MaxX - MinX + 1;
+
+        /// <summary>
+        /// Height of map in tiles, or 0 if empty
+        /// </summary>
         public int Height => IsEmpty ? 0 : MaxY - MinY + 1;
 
+        /// <summary>
+        /// X co-ordinate of map center
+        /// </summary>
         public int CenterX => MinX + (Width / 2);
+
+        /// <summary>
+        /// Y co-ordinate of map center
+        /// </summary>
         public int CenterY => MinY + (Height / 2);
 
+        /// <summary>
+        /// X (left) co-ordinate of viewport rectangle
+        /// </summary>
         public int ViewportX => PlayerX - (ViewportWidth / 2);
+
+        /// <summary>
+        /// Y (top) co-ordinate of viewport rectangle
+        /// </summary>
         public int ViewportY => PlayerY - (ViewportHeight / 2);
 
-
+        /// <summary>
+        /// Width of viewport in tiles
+        /// </summary>
 #if MAPOBJECT_SERIALIZATION
         [XmlAttribute]
 #endif
         public int ViewportWidth { get; set; }
 
+        /// <summary>
+        /// Height of viewport in tiles
+        /// </summary>
 #if MAPOBJECT_SERIALIZATION
         [XmlAttribute]
 #endif
         public int ViewportHeight { get; set; }
 
+        /// <summary>
+        /// X co-ordinate of player
+        /// </summary>
 #if MAPOBJECT_SERIALIZATION
         [XmlAttribute]
 #endif
         public int PlayerX { get; set; }
 
+        /// <summary>
+        /// Y co-ordinate of player
+        /// </summary>
 #if MAPOBJECT_SERIALIZATION
         [XmlAttribute]
 #endif
