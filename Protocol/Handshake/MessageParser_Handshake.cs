@@ -65,7 +65,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
                     ParserOption_SpellMon = int.Parse(setup_value);
                 }
 
-                //Save spellmon for parser protocol
+                //Save notifications for parser protocol
                 if ((setup_command == "notifications") && (setup_value != "FALSE"))
                 {
                     ParserOption_Notifications = int.Parse(setup_value);

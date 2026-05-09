@@ -251,6 +251,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
 
                 //Reset the parser options
                 ParserOption_SpellMon = 0;
+                ParserOption_Notifications = 0;
                 ServerProtocolVersion = 0;
             }
         }
