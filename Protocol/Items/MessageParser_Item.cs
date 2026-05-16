@@ -181,7 +181,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             }
 
             HandleEndDeleteItem();
-            
+
             return true;
         }
 

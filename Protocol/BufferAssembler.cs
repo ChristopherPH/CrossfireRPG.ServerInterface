@@ -139,7 +139,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
         {
             return commandBuffer.ToArray();
         }
-        
+
         /*
         public bool SendBuffer(SocketConnection connection)
         {

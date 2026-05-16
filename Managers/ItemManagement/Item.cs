@@ -21,10 +21,18 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
         /// <summary>
         /// Tag of object that owns Item, 0 if on ground
         /// </summary>
-        public UInt32 LocationTag { get => _LocationTag; set => SetProperty(ref _LocationTag, value); }
+        public UInt32 LocationTag
+        {
+            get => _LocationTag;
+            set => SetProperty(ref _LocationTag, value);
+        }
         private UInt32 _LocationTag;
 
-        public NewClient.ItemFlags Flags { get => _Flags; set => SetProperty(ref _Flags, value); }
+        public NewClient.ItemFlags Flags
+        {
+            get => _Flags;
+            set => SetProperty(ref _Flags, value);
+        }
         private NewClient.ItemFlags _Flags;
 
 
@@ -36,36 +44,61 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
         /// <summary>
         /// Item weight in kg
         /// </summary>
-        public float Weight { get => _Weight; set => SetProperty(ref _Weight, value,
-            nameof(Weight), nameof(TotalWeight), nameof(HasWeight)); }
+        public float Weight
+        {
+            get => _Weight;
+            set => SetProperty(ref _Weight, value, nameof(Weight), nameof(TotalWeight), nameof(HasWeight));
+        }
         private float _Weight;
 
-        public UInt32 Face { get => _Face; set => SetProperty(ref _Face, value); }
+        public UInt32 Face
+        {
+            get => _Face;
+            set => SetProperty(ref _Face, value);
+        }
         private UInt32 _Face;
 
-        public string Name { get => _Name; set => SetProperty(ref _Name, value,
-            nameof(Name), nameof(NameCase)); }
+        public string Name
+        {
+            get => _Name;
+            set => SetProperty(ref _Name, value, nameof(Name), nameof(NameCase));
+        }
         private string _Name;
 
         public string NameCase => Name?.ToTitleCase() ?? "";
 
-        public string NamePlural { get => _NamePlural; set => SetProperty(ref _NamePlural, value,
-            nameof(NamePlural), nameof(NamePluralCase)); }
+        public string NamePlural
+        {
+            get => _NamePlural;
+            set => SetProperty(ref _NamePlural, value, nameof(NamePlural), nameof(NamePluralCase));
+        }
         private string _NamePlural;
 
         public string NamePluralCase => NamePlural?.ToTitleCase() ?? "";
 
-        public UInt16 Animation { get => _Animation; set => SetProperty(ref _Animation, value); }
+        public UInt16 Animation
+        {
+            get => _Animation;
+            set => SetProperty(ref _Animation, value);
+        }
         private UInt16 _Animation;
 
-        public byte AnimationSpeed { get => _AnimationSpeed; set => SetProperty(ref _AnimationSpeed, value); }
+        public byte AnimationSpeed
+        {
+            get => _AnimationSpeed;
+            set => SetProperty(ref _AnimationSpeed, value);
+        }
         private byte _AnimationSpeed;
 
 
-        public UInt32 RawNumberOf { get => _RawNumberOf; set => SetProperty(ref _RawNumberOf, value,
-            nameof(RawNumberOf), nameof(NumberOf), nameof(NumberOfInWords),
-            nameof(NumberOfWithout1), nameof(NumberOfInWordsWithout1),
-            nameof(TotalWeight)); }
+        public UInt32 RawNumberOf
+        {
+            get => _RawNumberOf;
+            set => SetProperty(ref _RawNumberOf, value,
+                nameof(RawNumberOf), nameof(NumberOf), nameof(NumberOfInWords),
+                nameof(NumberOfWithout1), nameof(NumberOfInWordsWithout1),
+                nameof(TotalWeight));
+        }
         private UInt32 _RawNumberOf;
 
 
@@ -92,7 +125,11 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
         static string[] _NumberWords = new string[] { "None", "One", "Two", "Three", "Four", "Five",
             "Six", "Seven", "Eight", "Nine", "Ten" };
 
-        public UInt16 ClientType { get => _ClientType; set => SetProperty(ref _ClientType, value); }
+        public UInt16 ClientType
+        {
+            get => _ClientType;
+            set => SetProperty(ref _ClientType, value);
+        }
         private UInt16 _ClientType;
 
         /* From here, are new item properties and helper functions */
@@ -105,13 +142,21 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
         /// <summary>
         /// Location of item (this does not test if in container or not)
         /// </summary>
-        public ItemLocations Location { get => _Location; set => SetProperty(ref _Location, value); }
+        public ItemLocations Location
+        {
+            get => _Location;
+            set => SetProperty(ref _Location, value);
+        }
         private ItemLocations _Location;
 
         /// <summary>
         /// Check if item is in a container (Container may be on the player or on the ground)
         /// </summary>
-        public bool IsInContainer { get => _IsInContainer; set => SetProperty(ref _IsInContainer, value); }
+        public bool IsInContainer
+        {
+            get => _IsInContainer;
+            set => SetProperty(ref _IsInContainer, value);
+        }
         private bool _IsInContainer;
 
         /// <summary>

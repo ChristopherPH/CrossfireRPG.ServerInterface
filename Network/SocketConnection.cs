@@ -600,7 +600,7 @@ namespace CrossfireRPG.ServerInterface.Network
         public ConnectionStatuses Status { get; set; }
     }
 
-    public class ConnectionErrorEventArgs: EventArgs
+    public class ConnectionErrorEventArgs : EventArgs
     {
         public int ErrorCode { get; set; }
         public string ErrorMessage { get; set; }

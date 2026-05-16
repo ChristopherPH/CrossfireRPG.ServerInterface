@@ -162,7 +162,7 @@ namespace CrossfireRPG.ServerInterface.Managers
 
             //key doesn't exist, add key and object
             CheckGroupUpdate();
-            
+
             lock (_DataObjectLock)
             {
                 _DataObjectCache[dataKey] = DataObject;
@@ -422,7 +422,7 @@ namespace CrossfireRPG.ServerInterface.Managers
             }
         }
 
-        protected virtual void OnDataChanged(DataModificationTypes ModificationType, 
+        protected virtual void OnDataChanged(DataModificationTypes ModificationType,
             TDataObject Data, int Index, IEnumerable<string> UpdatedProperties = null)
         {
             OnDataChanged(new DataListUpdatedEventArgs<TDataObject>()

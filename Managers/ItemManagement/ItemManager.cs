@@ -258,7 +258,7 @@ namespace CrossfireRPG.ServerInterface.Managers.ItemManagement
 
         private void _Handler_UpdateItem(object sender, MessageHandler.UpdateItemEventArgs e)
         {
-           if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
+            if ((_PlayerTag > 0) && (e.ObjectTag == _PlayerTag))
                 return;
 
             if (!GetDataObject(e.ObjectTag, out var item, out var index))

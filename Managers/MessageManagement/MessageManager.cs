@@ -247,7 +247,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MessageManagement
                     return "Invalid MessageType: " + MessageType;
             }
 
-            return string.Format("Invalid SubType {0} for MessageType {1}", 
+            return string.Format("Invalid SubType {0} for MessageType {1}",
                 SubType, MessageType);
         }
     }

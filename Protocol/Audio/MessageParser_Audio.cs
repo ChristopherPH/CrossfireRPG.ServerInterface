@@ -10,7 +10,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
     public partial class MessageParser
     {
         protected abstract void HandleMusic(string Song);
-        protected abstract void HandleSound2(byte RelativeX, byte RelativeY, byte Direction, 
+        protected abstract void HandleSound2(byte RelativeX, byte RelativeY, byte Direction,
             byte Volume, byte SoundType, string SubType, string Name);
 
         private void AddAudioParsers()

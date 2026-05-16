@@ -28,7 +28,7 @@ namespace CrossfireRPG.ServerInterface.Managers.SpellManagement
 
         protected override bool ClearDataOnConnectionDisconnect => true;
         protected override bool ClearDataOnNewPlayer => true;
-        public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes | 
+        public override DataModificationTypes SupportedModificationTypes => base.SupportedModificationTypes |
             DataModificationTypes.Added | DataModificationTypes.Updated | DataModificationTypes.Removed |
             DataModificationTypes.MultiCommandStart | DataModificationTypes.MultiCommandEnd;
 

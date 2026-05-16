@@ -113,7 +113,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             {
                 workingBuffer = new byte[SavedBuffer.Length + Buffer.Length];
 
-                Array.Copy(SavedBuffer, 0, workingBuffer, 0,  SavedBuffer.Length);
+                Array.Copy(SavedBuffer, 0, workingBuffer, 0, SavedBuffer.Length);
                 Array.Copy(Buffer, 0, workingBuffer, SavedBuffer.Length, Buffer.Length);
 
                 SavedBuffer = null;

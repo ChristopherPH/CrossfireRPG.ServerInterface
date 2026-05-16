@@ -99,7 +99,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             var del_spell_tag = BufferTokenizer.GetUInt32(Message, ref DataOffset);
 
             HandleDeleteSpell(del_spell_tag);
-            
+
             return true;
         }
     }

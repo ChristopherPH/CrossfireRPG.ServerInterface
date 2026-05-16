@@ -10,8 +10,6 @@ using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace CrossfireRPG.ServerInterface.Managers.FaceManagement
 {

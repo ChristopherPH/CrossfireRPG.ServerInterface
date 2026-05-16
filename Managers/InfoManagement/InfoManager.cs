@@ -531,8 +531,8 @@ namespace CrossfireRPG.ServerInterface.Managers.InfoManagement
 
                                     this.Races[race_arch].Stats.Add(new RaceClassStat()
                                     {
-                                         Stat = (NewClient.CharacterStats)race_stats_number,
-                                         StatValue = race_stat_value,
+                                        Stat = (NewClient.CharacterStats)race_stats_number,
+                                        StatValue = race_stat_value,
                                     });
 
                                     race_stats_number = BufferTokenizer.GetByte(e.Reply, ref offset);

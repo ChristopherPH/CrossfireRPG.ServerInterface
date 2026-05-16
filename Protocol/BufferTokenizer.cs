@@ -52,7 +52,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             var start = offset;
 
             //read up to end of buffer, looking for a separator
-            for (; offset < end; offset++) 
+            for (; offset < end; offset++)
             {
                 if (separators.Contains(buffer[offset]))
                     break;

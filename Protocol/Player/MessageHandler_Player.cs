@@ -241,7 +241,7 @@ namespace CrossfireRPG.ServerInterface.Protocol
             public NewClient.CharacterStats Stat { get; }
             public sbyte ValueInt8 { get; }
             public Int16 ValueInt16 { get; }
-            public Int32 ValueInt32{ get; }
+            public Int32 ValueInt32 { get; }
             public Int64 ValueInt64 { get; }
             public byte ValueUInt8 { get; }
             public UInt16 ValueUInt16 { get; }

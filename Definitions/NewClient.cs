@@ -65,8 +65,8 @@ namespace CrossfireRPG.ServerInterface.Definitions
             AllDMs = 0x400,		//Inform all logged in DMs. Used in case of errors. Overrides NDI_ALL
             NoTranslate = 0x800,
             Delayed = 0x1000,   //If set, then message is sent only after the player's tick completes.
-                            //This allows sending eg quest information after some dialogue even
-                            //though quest is processed before.
+                                //This allows sending eg quest information after some dialogue even
+                                //though quest is processed before.
         }
 
         public const int NewDrawInfoColorMask = 0xff;
@@ -78,92 +78,92 @@ namespace CrossfireRPG.ServerInterface.Definitions
 
         public enum CharacterStats
         {
-            [Description("Health")]			Hp = 1,
-            [Description("Max Health")]		MaxHp = 2,
-            [Description("Mana")]			Sp = 3,
-            [Description("Max Mana")]		MaxSp = 4,
+            [Description("Health")] Hp = 1,
+            [Description("Max Health")] MaxHp = 2,
+            [Description("Mana")] Sp = 3,
+            [Description("Max Mana")] MaxSp = 4,
 
-            [Description("Strength")]		Str = 5,
-            [Description("Intelligence")]	Int = 6,
-            [Description("Wisdom")]			Wis = 7,
-            [Description("Dexterity")]		Dex = 8,
-            [Description("Constitution")]	Con = 9,
-            [Description("Charisma")]		Cha = 10,
+            [Description("Strength")] Str = 5,
+            [Description("Intelligence")] Int = 6,
+            [Description("Wisdom")] Wis = 7,
+            [Description("Dexterity")] Dex = 8,
+            [Description("Constitution")] Con = 9,
+            [Description("Charisma")] Cha = 10,
 
-            [Description("Experience")]		Exp = 11,  /* No Longer Used */
-            [Description("Level")]			Level = 12,
-            [Description("Weapon Class")]	Wc = 13,
-            [Description("Armour Class")]	Ac = 14,
-            [Description("Damage")]			Dam = 15,
-            [Description("Armour")]			Armour = 16,
-            [Description("Speed")]			Speed = 17,
-            [Description("Hunger")]			Food = 18,
-            [Description("Weapon Speed")]	WeapSp = 19,
-            [Description("Range")]			Range = 20,
-            [Description("Title")]			Title = 21,
-            [Description("Power")]			Pow = 22,
-            [Description("Grace")]			Grace = 23,
-            [Description("Max Grace")]		MaxGrace = 24,
-			
+            [Description("Experience")] Exp = 11,  /* No Longer Used */
+            [Description("Level")] Level = 12,
+            [Description("Weapon Class")] Wc = 13,
+            [Description("Armour Class")] Ac = 14,
+            [Description("Damage")] Dam = 15,
+            [Description("Armour")] Armour = 16,
+            [Description("Speed")] Speed = 17,
+            [Description("Hunger")] Food = 18,
+            [Description("Weapon Speed")] WeapSp = 19,
+            [Description("Range")] Range = 20,
+            [Description("Title")] Title = 21,
+            [Description("Power")] Pow = 22,
+            [Description("Grace")] Grace = 23,
+            [Description("Max Grace")] MaxGrace = 24,
+
             Flags = 25,
 
-            [Description("Weight Limit")]	WeightLim = 26,
-            [Description("Experience")]		Exp64 = 28,
+            [Description("Weight Limit")] WeightLim = 26,
+            [Description("Experience")] Exp64 = 28,
 
-            [Description("Spell Attune")]	SpellAttune = 29,
-            [Description("Spell Repel")]	SpellRepel = 30,
-            [Description("Spell Deny")]		SpellDeny = 31,
+            [Description("Spell Attune")] SpellAttune = 29,
+            [Description("Spell Repel")] SpellRepel = 30,
+            [Description("Spell Deny")] SpellDeny = 31,
 
-            [Description("Strength")]      RaceStr = 32,
-            [Description("Intelligence")]  RaceInt = 33,
-            [Description("Wisdom")]        RaceWis = 34,
-            [Description("Dexterity")]     RaceDex = 35,
-            [Description("Constitution")]  RaceCon = 36,
-            [Description("Charisma")]      RaceCha = 37,
-            [Description("Power")]         RacePow = 38,
+            [Description("Strength")] RaceStr = 32,
+            [Description("Intelligence")] RaceInt = 33,
+            [Description("Wisdom")] RaceWis = 34,
+            [Description("Dexterity")] RaceDex = 35,
+            [Description("Constitution")] RaceCon = 36,
+            [Description("Charisma")] RaceCha = 37,
+            [Description("Power")] RacePow = 38,
 
-            [Description("Strength")]      BaseStr = 39,
-            [Description("Intelligence")]  BaseInt = 40,
-            [Description("Wisdom")]        BaseWis = 41,
-            [Description("Dexterity")]     BaseDex = 42,
-            [Description("Constitution")]  BaseCon = 43,
-            [Description("Charisma")]      BaseCha = 44,
-            [Description("Power")]         BasePow = 45,
+            [Description("Strength")] BaseStr = 39,
+            [Description("Intelligence")] BaseInt = 40,
+            [Description("Wisdom")] BaseWis = 41,
+            [Description("Dexterity")] BaseDex = 42,
+            [Description("Constitution")] BaseCon = 43,
+            [Description("Charisma")] BaseCha = 44,
+            [Description("Power")] BasePow = 45,
 
-            [Description("Strength")]       AppliedStr = 46,		/* Str Changes From Gear Or Skills. */
-            [Description("Intelligence")]   AppliedInt = 47,		/* Int Changes From Gear Or Skills. */
-            [Description("Wisdom")]         AppliedWis = 48,		/* Wis Changes From Gear Or Skills. */
-            [Description("Dexterity")]      AppliedDex = 49,		/* Dex Changes From Gear Or Skills. */
-            [Description("Constitution")]   AppliedCon = 50,		/* Con Changes From Gear Or Skills. */
-            [Description("Charisma")]       AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
-            [Description("Power")]          AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
+            [Description("Strength")] AppliedStr = 46,		/* Str Changes From Gear Or Skills. */
+            [Description("Intelligence")] AppliedInt = 47,		/* Int Changes From Gear Or Skills. */
+            [Description("Wisdom")] AppliedWis = 48,		/* Wis Changes From Gear Or Skills. */
+            [Description("Dexterity")] AppliedDex = 49,		/* Dex Changes From Gear Or Skills. */
+            [Description("Constitution")] AppliedCon = 50,		/* Con Changes From Gear Or Skills. */
+            [Description("Charisma")] AppliedCha = 51,		/* Cha Changes From Gear Or Skills. */
+            [Description("Power")] AppliedPow = 52,        /* Pow Changes From Gear Or Skills. */
 
-            [Description("Golem Health")]	    GolemHp = 53,           /* Golem's Current Hp = 0, If No Golem. */
-            [Description("Golem Max HP")]	    GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
+            [Description("Golem Health")] GolemHp = 53,           /* Golem's Current Hp = 0, If No Golem. */
+            [Description("Golem Max HP")] GolemMaxHp = 54,		/* Golem's Max Hp = 0, If No Golem. */
 
-            [Description("Character Flags")]    CharacterFlags = 55,
-            [Description("God Name")]           GodName = 56,
-            [Description("Overload")]           Overload = 57,
-            [Description("Item Power")]         ItemPower = 58,
+            [Description("Character Flags")] CharacterFlags = 55,
+            [Description("God Name")] GodName = 56,
+            [Description("Overload")] Overload = 57,
+            [Description("Item Power")] ItemPower = 58,
 
-            [Description("Resist Physical")]	ResPhys = 100,
-            [Description("Resist Magic")]		ResMag = 101,
-            [Description("Resist Fire")]		ResFire = 102,
-            [Description("Resist Electricity")]	ResElec = 103,
-            [Description("Resist Cold")]		ResCold = 104,
-            [Description("Resist Confusion")]	ResConf = 105,
-            [Description("Resist Acid")]		ResAcid = 106,
-            [Description("Resist Drain")]		ResDrain = 107,
-            [Description("Resist Ghost Hit")]	ResGhosthit = 108,
-            [Description("Resist Poison")]		ResPoison = 109,
-            [Description("Resist Slow")]		ResSlow = 110,
-            [Description("Resist Paralysis")]	ResPara = 111,
-            [Description("Turn Undead")]		TurnUndead = 112,
-            [Description("Resist Fear")]		ResFear = 113,
-            [Description("Resist Deplete")]		ResDeplete = 114,
-            [Description("Resist Death")]		ResDeath = 115,
-            [Description("Resist Holy Word")]	ResHolyword = 116,
-            [Description("Resist Blindness")]	ResBlind = 117,
+            [Description("Resist Physical")] ResPhys = 100,
+            [Description("Resist Magic")] ResMag = 101,
+            [Description("Resist Fire")] ResFire = 102,
+            [Description("Resist Electricity")] ResElec = 103,
+            [Description("Resist Cold")] ResCold = 104,
+            [Description("Resist Confusion")] ResConf = 105,
+            [Description("Resist Acid")] ResAcid = 106,
+            [Description("Resist Drain")] ResDrain = 107,
+            [Description("Resist Ghost Hit")] ResGhosthit = 108,
+            [Description("Resist Poison")] ResPoison = 109,
+            [Description("Resist Slow")] ResSlow = 110,
+            [Description("Resist Paralysis")] ResPara = 111,
+            [Description("Turn Undead")] TurnUndead = 112,
+            [Description("Resist Fear")] ResFear = 113,
+            [Description("Resist Deplete")] ResDeplete = 114,
+            [Description("Resist Death")] ResDeath = 115,
+            [Description("Resist Holy Word")] ResHolyword = 116,
+            [Description("Resist Blindness")] ResBlind = 117,
         }
 
         public const int CharacterStats_ResistStart = 100;  /* Start Of Resistances (Inclusive) */
