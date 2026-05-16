@@ -12,6 +12,7 @@ using CrossfireRPG.ServerInterface.Managers.MapSizeManagement;
 using CrossfireRPG.ServerInterface.Network;
 using CrossfireRPG.ServerInterface.Protocol;
 using System;
+using System.Threading;
 
 namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 {
@@ -62,6 +63,10 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         /// <summary>
         /// Managed Map Object
         /// </summary>
+        /// <remarks>
+        /// Callers can Lock() on MapObject when drawing to inhibit map updates
+        /// while drawing
+        /// </remarks>
         public MapObject MapObject { get; } = new MapObject();
 
         /// <summary>
@@ -86,7 +91,6 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
         public event EventHandler<MapUpdatedEventArgs> MapUpdated;
 
         //Private variables
-        readonly object _mapDataLock = new object();
         bool _populatingNewMap = false;
         int _mapScrollX = 0;
         int _mapScrollY = 0;
@@ -109,10 +113,12 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             OnBeforeMapClear();
 
             //Items to clear on new player
-            lock (_mapDataLock)
+            lock (MapObject)
+            {
                 MapObject.ClearMap();
 
-            _mapScrollX = _mapScrollY = 0;
+                _mapScrollX = _mapScrollY = 0;
+            }
 
             OnDataChanged(DataModificationTypes.Cleared, MapObject);
         }
@@ -125,13 +131,13 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 OnBeforeMapClear();
 
                 //Items to clear on new player
-                lock (_mapDataLock)
+                lock (MapObject)
                 {
                     MapObject.ClearMap();
                     MapObject.SetViewportSize(MapsizeManager.CurrentMapWidth, MapsizeManager.CurrentMapHeight);
-                }
 
-                _mapScrollX = _mapScrollY = 0;
+                    _mapScrollX = _mapScrollY = 0;
+                }
 
                 OnDataChanged(DataModificationTypes.Cleared, MapObject);
             }
@@ -143,25 +149,36 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             //the newmap command before returning the setup command,
             //so we need to adjust the viewport after the map has been
             //created
-            lock (_mapDataLock)
+            lock (MapObject)
                 MapObject.SetViewportSize(e.Width, e.Height);
         }
 
         private void Handler_MapBegin(object sender, System.EventArgs e)
         {
+            //Got a map2 command
+            StartMultiCommand();
+
             workingUpdateArgs = new MapUpdatedEventArgs();
+
+            /* HACK: Lock the MapObject on MapBegin, unlock on MapEnd.
+             *       This ensures that MapObject stays locked for the entire
+             *       map update. */
+            Monitor.Enter(MapObject);
+
             workingIsEmpty = MapObject.IsEmpty;
             workingMinX = MapObject.MinX;
             workingMaxX = MapObject.MaxX;
             workingMinY = MapObject.MinY;
             workingMaxY = MapObject.MaxY;
-
-            //Got a map2 command
-            StartMultiCommand();
         }
 
         private void Handler_MapEnd(object sender, System.EventArgs e)
         {
+            /* HACK: Lock the MapObject on MapBegin, unlock on MapEnd.
+             *       This ensures that MapObject stays locked for the entire
+             *       map update. */
+            Monitor.Exit(MapObject);
+
             //Finished map2 command
             EndMultiCommand();
 
@@ -220,32 +237,29 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             var worldX = e.X + _mapScrollX;
             var worldY = e.Y + _mapScrollY;
 
-            lock (_mapDataLock)
+            //If there is an existing cell, and it was updated, notify listeners
+            var cell = MapObject.GetCell(worldX, worldY);
+            if (cell != null)
             {
-                //If there is an existing cell, and it was updated, notify listeners
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
+                //check for changed map labels
+                if (_workingCellLabelsUpdated)
                 {
-                    //check for changed map labels
-                    if (_workingCellLabelsUpdated)
-                    {
-                        OnMapCellLabelUpdated(cell);
+                    OnMapCellLabelUpdated(cell);
 
-                        workingUpdateArgs.CellLabelLocations.Add(
-                            new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
-                    }
+                    workingUpdateArgs.CellLabelLocations.Add(
+                        new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                }
 
-                    //Notify cell updated
-                    if (_workingCellUpdated)
-                    {
-                        OnMapCellUpdated(cell);
+                //Notify cell updated
+                if (_workingCellUpdated)
+                {
+                    OnMapCellUpdated(cell);
 
-                        workingUpdateArgs.CellLocations.Add(
-                            new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
-                        workingUpdateArgs.InsideViewportChanged = true;
+                    workingUpdateArgs.CellLocations.Add(
+                        new MapUpdatedEventArgs.MapCellLocation(worldX, worldY));
+                    workingUpdateArgs.InsideViewportChanged = true;
 
-                        _workingCellUpdated = false;
-                    }
+                    _workingCellUpdated = false;
                 }
             }
         }
@@ -255,13 +269,13 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             OnBeforeMapClear();
 
             //Items to clear on new map
-            lock (_mapDataLock)
+            lock (MapObject)
             {
                 MapObject.ClearMap();
                 MapObject.SetViewportSize(MapsizeManager.CurrentMapWidth, MapsizeManager.CurrentMapHeight);
-            }
 
-            _mapScrollX = _mapScrollY = 0;
+                _mapScrollX = _mapScrollY = 0;
+            }
 
             //Mark that next map population is the first display
             //of this map
@@ -279,78 +293,75 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 (e.X >= MapsizeManager.CurrentMapWidth) ||
                 (e.Y >= MapsizeManager.CurrentMapHeight);
 
-            lock (_mapDataLock)
+            //Get pre-existing cell at x/y
+            var cell = MapObject.GetCell(worldX, worldY);
+            if (cell != null)
             {
-                //Get pre-existing cell at x/y
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
+                /* If the pre-existing cell was part of FOW data, it means
+                 * that it had previously gone out of view.
+                 *
+                 * If the pre-existing cell was out of bounds, it means
+                 * that the server does not know about this cell.
+                 * (The server doesn't remember when it sends OOB data so
+                 * it doesn't ever clear it.)
+                 *
+                 * Since we've now gotten information for the cell location,
+                 * we need to clear the cell data like the server expects,
+                 * so we can start the tile fresh. */
+                if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                 {
-                    /* If the pre-existing cell was part of FOW data, it means
-                     * that it had previously gone out of view.
-                     *
-                     * If the pre-existing cell was out of bounds, it means
-                     * that the server does not know about this cell.
-                     * (The server doesn't remember when it sends OOB data so
-                     * it doesn't ever clear it.)
-                     *
-                     * Since we've now gotten information for the cell location,
-                     * we need to clear the cell data like the server expects,
-                     * so we can start the tile fresh. */
-                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    /* Only clear cell if the cell has not yet been
+                     * cleared on this map location update */
+                    if (!_workingCellLayerUpdated)
                     {
-                        /* Only clear cell if the cell has not yet been
-                         * cleared on this map location update */
-                        if (!_workingCellLayerUpdated)
-                        {
-                            cell.ClearCell();
+                        cell.ClearCell();
 
-                            /* Always update on FOW change,
-                             * TODO: Check conditions to update on OOB */
-                            _workingCellUpdated = true;
-                        }
+                        /* Always update on FOW change,
+                         * TODO: Check conditions to update on OOB */
+                        _workingCellUpdated = true;
                     }
                 }
-                else //cell doesn't exist, create a new cell
+            }
+            else //cell doesn't exist, create a new cell
+            {
+                cell = new MapCell()
                 {
-                    cell = new MapCell()
-                    {
-                        WorldX = worldX,
-                        WorldY = worldY,
-                    };
-
-                    MapObject.SetCell(cell);
-                }
-
-                //add or set face layer
-                var layer = new MapLayer()
-                {
-                    LayerIndex = e.Layer,
-                    Face = e.Face,
-                    SmoothLevel = e.Smooth,
+                    WorldX = worldX,
+                    WorldY = worldY,
                 };
 
-                if (layer.Face == 0)
-                {
-                    Logger.Warning($"Map: Cell {worldX}/{worldY} layer " +
-                        $"{e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
-                }
-
-                if (cell.Layers[e.Layer] != layer)
-                {
-                    //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
-                    cell.Layers[e.Layer] = layer;
-                    _workingCellUpdated = true;
-                }
-
-                //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear
-                //command for this data.
-                cell.OutOfBounds = OutOfBounds;
-                cell.FogOfWar = false;
-
-                //Mark this cell location as updated so its not cleared again
-                _workingCellLayerUpdated = true;
+                MapObject.SetCell(cell);
             }
+
+            //add or set face layer
+            var layer = new MapLayer()
+            {
+                LayerIndex = e.Layer,
+                Face = e.Face,
+                SmoothLevel = e.Smooth,
+            };
+
+            if (layer.Face == 0)
+            {
+                Logger.Warning($"Map: Cell {worldX}/{worldY} layer " +
+                    $"{e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
+            }
+
+            if (cell.Layers[e.Layer] != layer)
+            {
+                //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
+                cell.Layers[e.Layer] = layer;
+                _workingCellUpdated = true;
+            }
+
+            //If the face is out of the visible map area, mark it as
+            //out of bounds, and note the server doesn't send a clear
+            //command for this data.
+            cell.OutOfBounds = OutOfBounds;
+            cell.FogOfWar = false;
+
+            //Mark this cell location as updated so its not cleared again
+            _workingCellLayerUpdated = true;
         }
 
         private void Handler_MapAnimation(object sender, MessageHandler.MapAnimationEventArgs e)
@@ -362,87 +373,84 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 (e.X >= MapsizeManager.CurrentMapWidth) ||
                 (e.Y >= MapsizeManager.CurrentMapHeight);
 
-            lock (_mapDataLock)
+            //Get pre-existing cell at x/y
+            var cell = MapObject.GetCell(worldX, worldY);
+            if (cell != null)
             {
-                //Get pre-existing cell at x/y
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
+                /* If the pre-existing cell was part of FOW data, it means
+                 * that it had previously gone out of view.
+                 *
+                 * If the pre-existing cell was out of bounds, it means
+                 * that the server does not know about this cell.
+                 * (The server doesn't remember when it sends OOB data so
+                 * it doesn't ever clear it.)
+                 *
+                 * Since we've now gotten information for the cell location,
+                 * we need to clear the cell data like the server expects,
+                 * so we can start the tile fresh. */
+                if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                 {
-                    /* If the pre-existing cell was part of FOW data, it means
-                     * that it had previously gone out of view.
-                     *
-                     * If the pre-existing cell was out of bounds, it means
-                     * that the server does not know about this cell.
-                     * (The server doesn't remember when it sends OOB data so
-                     * it doesn't ever clear it.)
-                     *
-                     * Since we've now gotten information for the cell location,
-                     * we need to clear the cell data like the server expects,
-                     * so we can start the tile fresh. */
-                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    /* Only clear cell if the cell has not yet been
+                     * cleared on this map location update */
+                    if (!_workingCellLayerUpdated)
                     {
-                        /* Only clear cell if the cell has not yet been
-                         * cleared on this map location update */
-                        if (!_workingCellLayerUpdated)
-                        {
-                            cell.ClearCell();
+                        cell.ClearCell();
 
-                            /* Always update on FOW change,
-                             * TODO: Check conditions to update on OOB */
-                            _workingCellUpdated = true;
-                        }
+                        /* Always update on FOW change,
+                         * TODO: Check conditions to update on OOB */
+                        _workingCellUpdated = true;
                     }
                 }
-                else //cell doesn't exist, create a new cell
+            }
+            else //cell doesn't exist, create a new cell
+            {
+                cell = new MapCell()
                 {
-                    cell = new MapCell()
-                    {
-                        WorldX = worldX,
-                        WorldY = worldY,
-                    };
-
-                    MapObject.SetCell(cell);
-                }
-
-                //add or set animation layer
-                var layer = new MapLayer()
-                {
-                    LayerIndex = e.Layer,
-                    SmoothLevel = e.Smooth,
-                    Animation = e.Animation,
-                    AnimationFlags = e.AnimationFlags,
-                    AnimationSpeed = e.AnimationSpeed,
+                    WorldX = worldX,
+                    WorldY = worldY,
                 };
 
-                var frameCount = AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0;
-
-                if (layer.AnimationFlags.HasFlag(Map.AnimationFlags.Synchronize))
-                {
-                    MapObject.AddSynchronizedAnimation(layer.Animation, layer.AnimationFlags,
-                        layer.AnimationSpeed, frameCount);
-                }
-                else
-                {
-                    layer.AnimationState.SetAnimation(layer.AnimationFlags,
-                        layer.AnimationSpeed, frameCount);
-                }
-
-                if (cell.Layers[e.Layer] != layer)
-                {
-                    //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
-                    cell.Layers[e.Layer] = layer;
-                    _workingCellUpdated = true;
-                }
-
-                //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear
-                //command for this data.
-                cell.OutOfBounds = OutOfBounds;
-                cell.FogOfWar = false;
-
-                //Mark this cell location as updated so its not cleared again
-                _workingCellLayerUpdated = true;
+                MapObject.SetCell(cell);
             }
+
+            //add or set animation layer
+            var layer = new MapLayer()
+            {
+                LayerIndex = e.Layer,
+                SmoothLevel = e.Smooth,
+                Animation = e.Animation,
+                AnimationFlags = e.AnimationFlags,
+                AnimationSpeed = e.AnimationSpeed,
+            };
+
+            var frameCount = AnimationManager?.GetAnimationFrameCount(layer.Animation) ?? 0;
+
+            if (layer.AnimationFlags.HasFlag(Map.AnimationFlags.Synchronize))
+            {
+                MapObject.AddSynchronizedAnimation(layer.Animation, layer.AnimationFlags,
+                    layer.AnimationSpeed, frameCount);
+            }
+            else
+            {
+                layer.AnimationState.SetAnimation(layer.AnimationFlags,
+                    layer.AnimationSpeed, frameCount);
+            }
+
+            if (cell.Layers[e.Layer] != layer)
+            {
+                //_Logger.Warning($"Map: Cell {worldX}/{worldY} layer {e.Layer} updated from face {cell.Layers[e.Layer].Face} to {layer.Face}");
+                cell.Layers[e.Layer] = layer;
+                _workingCellUpdated = true;
+            }
+
+            //If the face is out of the visible map area, mark it as
+            //out of bounds, and note the server doesn't send a clear
+            //command for this data.
+            cell.OutOfBounds = OutOfBounds;
+            cell.FogOfWar = false;
+
+            //Mark this cell location as updated so its not cleared again
+            _workingCellLayerUpdated = true;
         }
 
         private void Handler_MapDarkness(object sender, MessageHandler.MapDarknessEventArgs e)
@@ -454,63 +462,60 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 (e.X >= MapsizeManager.CurrentMapWidth) ||
                 (e.Y >= MapsizeManager.CurrentMapHeight);
 
-            lock (_mapDataLock)
+            //Get pre-existing cell at x/y
+            var cell = MapObject.GetCell(worldX, worldY);
+            if (cell != null)
             {
-                //Get pre-existing cell at x/y
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
+                /* If the pre-existing cell was part of FOW data, it means
+                 * that it had previously gone out of view.
+                 *
+                 * If the pre-existing cell was out of bounds, it means
+                 * that the server does not know about this cell.
+                 * (The server doesn't remember when it sends OOB data so
+                 * it doesn't ever clear it.)
+                 *
+                 * Since we've now gotten information for the cell location,
+                 * we need to clear the cell data like the server expects,
+                 * so we can start the tile fresh. */
+                if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                 {
-                    /* If the pre-existing cell was part of FOW data, it means
-                     * that it had previously gone out of view.
-                     *
-                     * If the pre-existing cell was out of bounds, it means
-                     * that the server does not know about this cell.
-                     * (The server doesn't remember when it sends OOB data so
-                     * it doesn't ever clear it.)
-                     *
-                     * Since we've now gotten information for the cell location,
-                     * we need to clear the cell data like the server expects,
-                     * so we can start the tile fresh. */
-                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    /* Only clear cell if the cell has not yet been
+                     * cleared on this map location update */
+                    if (!_workingCellLayerUpdated)
                     {
-                        /* Only clear cell if the cell has not yet been
-                         * cleared on this map location update */
-                        if (!_workingCellLayerUpdated)
-                        {
-                            cell.ClearCell();
+                        cell.ClearCell();
 
-                            /* Always update on FOW change,
-                             * TODO: Check conditions to update on OOB */
-                            _workingCellUpdated = true;
-                        }
+                        /* Always update on FOW change,
+                         * TODO: Check conditions to update on OOB */
+                        _workingCellUpdated = true;
                     }
                 }
-                else //cell doesn't exist, create a new cell
-                {
-                    cell = new MapCell()
-                    {
-                        WorldX = worldX,
-                        WorldY = worldY,
-                    };
-
-                    MapObject.SetCell(cell);
-                }
-
-                if (cell.Darkness != e.Darkness)
-                {
-                    cell.Darkness = e.Darkness;
-                    _workingCellUpdated = true;
-                }
-
-                //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear
-                //command for this data.
-                cell.OutOfBounds = OutOfBounds;
-                cell.FogOfWar = false;
-
-                //Mark this cell location as updated so its not cleared again
-                _workingCellLayerUpdated = true;
             }
+            else //cell doesn't exist, create a new cell
+            {
+                cell = new MapCell()
+                {
+                    WorldX = worldX,
+                    WorldY = worldY,
+                };
+
+                MapObject.SetCell(cell);
+            }
+
+            if (cell.Darkness != e.Darkness)
+            {
+                cell.Darkness = e.Darkness;
+                _workingCellUpdated = true;
+            }
+
+            //If the face is out of the visible map area, mark it as
+            //out of bounds, and note the server doesn't send a clear
+            //command for this data.
+            cell.OutOfBounds = OutOfBounds;
+            cell.FogOfWar = false;
+
+            //Mark this cell location as updated so its not cleared again
+            _workingCellLayerUpdated = true;
         }
 
         private void Handler_MapLabel(object sender, MessageHandler.MapLabelEventArgs e)
@@ -522,74 +527,71 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
                 (e.X >= MapsizeManager.CurrentMapWidth) ||
                 (e.Y >= MapsizeManager.CurrentMapHeight);
 
-            lock (_mapDataLock)
+            //Get pre-existing cell at x/y
+            var cell = MapObject.GetCell(worldX, worldY);
+            if (cell != null)
             {
-                //Get pre-existing cell at x/y
-                var cell = MapObject.GetCell(worldX, worldY);
-                if (cell != null)
+                /* If the pre-existing cell was part of FOW data, it means
+                    * that it had previously gone out of view.
+                    *
+                    * If the pre-existing cell was out of bounds, it means
+                    * that the server does not know about this cell.
+                    * (The server doesn't remember when it sends OOB data so
+                    * it doesn't ever clear it.)
+                    *
+                    * Since we've now gotten information for the cell location,
+                    * we need to clear the cell data like the server expects,
+                    * so we can start the tile fresh. */
+                if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                 {
-                    /* If the pre-existing cell was part of FOW data, it means
-                        * that it had previously gone out of view.
-                        *
-                        * If the pre-existing cell was out of bounds, it means
-                        * that the server does not know about this cell.
-                        * (The server doesn't remember when it sends OOB data so
-                        * it doesn't ever clear it.)
-                        *
-                        * Since we've now gotten information for the cell location,
-                        * we need to clear the cell data like the server expects,
-                        * so we can start the tile fresh. */
-                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    if (!_workingCellLayerUpdated)
                     {
-                        if (!_workingCellLayerUpdated)
-                        {
-                            cell.ClearCell();
+                        cell.ClearCell();
 
-                            /* Always update on FOW change,
-                                * TODO: Check conditions to update on OOB */
-                            _workingCellUpdated = true;
-                        }
+                        /* Always update on FOW change,
+                            * TODO: Check conditions to update on OOB */
+                        _workingCellUpdated = true;
                     }
                 }
-                else //cell doesn't exist, create a new cell
-                {
-                    cell = new MapCell()
-                    {
-                        WorldX = worldX,
-                        WorldY = worldY,
-                    };
-
-                    MapObject.SetCell(cell);
-                }
-
-                //If this is the first label update for this cell,
-                //clear all existing labels
-                if (_workingCellLabelsUpdated == false)
-                {
-                    _workingCellLabelsUpdated = true;
-
-                    cell.Labels.Clear();
-                }
-
-                //Add label to cell
-                if (e.LabelType != NewClient.Map2Type_Label.None)
-                {
-                    cell.Labels.Add(new MapLabel()
-                    {
-                        LabelType = e.LabelType,
-                        Label = e.Label,
-                    });
-                }
-
-                //If the face is out of the visible map area, mark it as
-                //out of bounds, and note the server doesn't send a clear
-                //command for this data.
-                cell.OutOfBounds = OutOfBounds;
-                cell.FogOfWar = false;
-
-                //Mark this cell location as updated so its not cleared again
-                _workingCellLayerUpdated = true;
             }
+            else //cell doesn't exist, create a new cell
+            {
+                cell = new MapCell()
+                {
+                    WorldX = worldX,
+                    WorldY = worldY,
+                };
+
+                MapObject.SetCell(cell);
+            }
+
+            //If this is the first label update for this cell,
+            //clear all existing labels
+            if (_workingCellLabelsUpdated == false)
+            {
+                _workingCellLabelsUpdated = true;
+
+                cell.Labels.Clear();
+            }
+
+            //Add label to cell
+            if (e.LabelType != NewClient.Map2Type_Label.None)
+            {
+                cell.Labels.Add(new MapLabel()
+                {
+                    LabelType = e.LabelType,
+                    Label = e.Label,
+                });
+            }
+
+            //If the face is out of the visible map area, mark it as
+            //out of bounds, and note the server doesn't send a clear
+            //command for this data.
+            cell.OutOfBounds = OutOfBounds;
+            cell.FogOfWar = false;
+
+            //Mark this cell location as updated so its not cleared again
+            _workingCellLayerUpdated = true;
         }
 
         private void Handler_MapClear(object sender, MessageHandler.MapLocationEventArgs e)
@@ -599,22 +601,19 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
             //_Logger.Warning($"Map: Cell {worldX}/{worldY} clear");
 
-            lock (_mapDataLock)
-            {
-                var cell = MapObject.GetCell(worldX, worldY);
+            var cell = MapObject.GetCell(worldX, worldY);
 
-                if (cell != null)
+            if (cell != null)
+            {
+                //instead of removing the cell, set the Fog of War
+                //flag indicating it is out of the viewport and
+                //part of fog of war. When we recieve a new face or
+                //animation for this cell the visibility will be set
+                //to true as it will be back in the viewport.
+                if (!cell.FogOfWar)
                 {
-                    //instead of removing the cell, set the Fog of War
-                    //flag indicating it is out of the viewport and
-                    //part of fog of war. When we recieve a new face or
-                    //animation for this cell the visibility will be set
-                    //to true as it will be back in the viewport.
-                    if (!cell.FogOfWar)
-                    {
-                        cell.FogOfWar = true;
-                        _workingCellUpdated = true;
-                    }
+                    cell.FogOfWar = true;
+                    _workingCellUpdated = true;
                 }
             }
         }
@@ -630,59 +629,56 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
             //_Logger.Warning($"Map: Cell {worldX}/{worldY} clear layer {e.Layer}");
 
-            lock (_mapDataLock)
+            var cell = MapObject.GetCell(worldX, worldY);
+
+            if (cell != null)
             {
-                var cell = MapObject.GetCell(worldX, worldY);
-
-                if (cell != null)
+                /* If the pre-existing cell was part of FOW data, it means
+                 * that it had previously gone out of view.
+                 *
+                 * If the pre-existing cell was out of bounds, it means
+                 * that the server does not know about this cell.
+                 * (The server doesn't remember when it sends OOB data so
+                 * it doesn't ever clear it.)
+                 *
+                 * Since we've now gotten information for the cell location,
+                 * we need to clear the cell data like the server expects,
+                 * so we can start the tile fresh. */
+                if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
                 {
-                    /* If the pre-existing cell was part of FOW data, it means
-                     * that it had previously gone out of view.
-                     *
-                     * If the pre-existing cell was out of bounds, it means
-                     * that the server does not know about this cell.
-                     * (The server doesn't remember when it sends OOB data so
-                     * it doesn't ever clear it.)
-                     *
-                     * Since we've now gotten information for the cell location,
-                     * we need to clear the cell data like the server expects,
-                     * so we can start the tile fresh. */
-                    if (cell.FogOfWar || cell.OutOfBounds || OutOfBounds)
+                    /* Only clear cell if the cell has not yet been
+                     * cleared on this map location update */
+                    if (!_workingCellLayerUpdated)
                     {
-                        /* Only clear cell if the cell has not yet been
-                         * cleared on this map location update */
-                        if (!_workingCellLayerUpdated)
-                        {
-                            cell.ClearCell();
+                        cell.ClearCell();
 
-                            /* Always update on FOW change,
-                             * TODO: Check conditions to update on OOB */
-                            _workingCellUpdated = true;
-                        }
-                    }
-
-                    //Create a new, empty, cleared layer
-                    var layer = new MapLayer()
-                    {
-                        LayerIndex = e.Layer,
-                    };
-
-                    //Check for layer changes
-                    if (cell.Layers[e.Layer] != layer)
-                    {
-                        cell.Layers[e.Layer] = layer;
+                        /* Always update on FOW change,
+                         * TODO: Check conditions to update on OOB */
                         _workingCellUpdated = true;
                     }
-
-                    //If the face is out of the visible map area, mark it as
-                    //out of bounds, and note the server doesn't send a clear
-                    //command for this data.
-                    cell.OutOfBounds = OutOfBounds;
-                    cell.FogOfWar = false;
-
-                    //Mark this cell location as updated so its not cleared again
-                    _workingCellLayerUpdated = true;
                 }
+
+                //Create a new, empty, cleared layer
+                var layer = new MapLayer()
+                {
+                    LayerIndex = e.Layer,
+                };
+
+                //Check for layer changes
+                if (cell.Layers[e.Layer] != layer)
+                {
+                    cell.Layers[e.Layer] = layer;
+                    _workingCellUpdated = true;
+                }
+
+                //If the face is out of the visible map area, mark it as
+                //out of bounds, and note the server doesn't send a clear
+                //command for this data.
+                cell.OutOfBounds = OutOfBounds;
+                cell.FogOfWar = false;
+
+                //Mark this cell location as updated so its not cleared again
+                _workingCellLayerUpdated = true;
             }
         }
 
@@ -705,40 +701,37 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
             //Instead of claring these cells, mark them as Fog of War data.
             //Basically the server doesn't expect these cells to exist
             //so we need to clear them
-            lock (_mapDataLock)
+            int srcX = oldViewportX;
+
+            for (int x = 0; x < MapObject.ViewportWidth + NewServer.MaxHeadOffset; x++, srcX++)
             {
-                int srcX = oldViewportX;
+                int srcY = oldViewportY;
 
-                for (int x = 0; x < MapObject.ViewportWidth + NewServer.MaxHeadOffset; x++, srcX++)
+                for (int y = 0; y < MapObject.ViewportHeight + NewServer.MaxHeadOffset; y++, srcY++)
                 {
-                    int srcY = oldViewportY;
+                    var cell = MapObject.GetCell(srcX, srcY);
+                    if (cell == null)
+                        continue;
 
-                    for (int y = 0; y < MapObject.ViewportHeight + NewServer.MaxHeadOffset; y++, srcY++)
+                    //Check if visible cell has gone out of viewport.
+                    //Check if OOB cell has been scrolled
+                    //Note this doesn't catch cells that were already
+                    //not visible (F.O.W) then moved out of the viewport.
+                    if (!cell.FogOfWar && !IsMapCellInViewport(cell))
                     {
-                        var cell = MapObject.GetCell(srcX, srcY);
-                        if (cell == null)
-                            continue;
+                        //mark cell as part of fog of war and notify any listeners.
+                        //Note that the mapscroll is sent before any cells are
+                        //added/cleared/updated, so we have to manually trigger
+                        //cell updated here (as these cells are now out of the
+                        //viewport and will never be updated)
+                        cell.FogOfWar = true;
+                        OnMapCellUpdated(cell);
+                        workingUpdateArgs.CellLocations.Add(
+                            new MapUpdatedEventArgs.MapCellLocation(cell.WorldX, cell.WorldY));
 
-                        //Check if visible cell has gone out of viewport.
-                        //Check if OOB cell has been scrolled
-                        //Note this doesn't catch cells that were already
-                        //not visible (F.O.W) then moved out of the viewport.
-                        if (!cell.FogOfWar && !IsMapCellInViewport(cell))
-                        {
-                            //mark cell as part of fog of war and notify any listeners.
-                            //Note that the mapscroll is sent before any cells are
-                            //added/cleared/updated, so we have to manually trigger
-                            //cell updated here (as these cells are now out of the
-                            //viewport and will never be updated)
-                            cell.FogOfWar = true;
-                            OnMapCellUpdated(cell);
-                            workingUpdateArgs.CellLocations.Add(
-                                new MapUpdatedEventArgs.MapCellLocation(cell.WorldX, cell.WorldY));
-
-                            //Indicate that the mapscroll has caused cells
-                            //to change
-                            workingUpdateArgs.OutsideViewportChanged = true;
-                        }
+                        //Indicate that the mapscroll has caused cells
+                        //to change
+                        workingUpdateArgs.OutsideViewportChanged = true;
                     }
                 }
             }
@@ -746,7 +739,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
         private void Handler_Tick(object sender, MessageHandler.TickEventArgs e)
         {
-            lock (_mapDataLock)
+            lock (MapObject)
             {
                 var mapUpdated = false;
 
@@ -826,7 +819,7 @@ namespace CrossfireRPG.ServerInterface.Managers.MapManagement
 
         private void Handler_MagicMap(object sender, MessageHandler.MagicMapEventArgs e)
         {
-            lock (_mapDataLock)
+            lock (MapObject)
             {
                 var args = new MapUpdatedEventArgs()
                 {
