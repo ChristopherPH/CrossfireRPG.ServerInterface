@@ -20,12 +20,13 @@ namespace CrossfireRPG.ServerInterface.Managers
         /// </summary>
         public ICollection<string> UpdatedProperties { private get; set; } = null;
 
-        public bool AllUpdated => UpdatedProperties == null;
+        public bool AllUpdated =>
+            (Modification == DataModificationTypes.Updated) &&
+            (UpdatedProperties == null);
 
-        public bool WasUpdated(string Property)
-        {
-            return (UpdatedProperties == null) || UpdatedProperties.Contains(Property);
-        }
+        public bool WasUpdated(string Property) =>
+            (Modification == DataModificationTypes.Updated) &&
+            ((UpdatedProperties == null) || UpdatedProperties.Contains(Property));
 
         public override string ToString()
         {
